@@ -1,0 +1,101 @@
+<!DOCTYPE html>
+<html lang="he">
+<head>
+    <meta charset="UTF-8">
+    <title>הגרלת ארוחת צהריים</title>
+    <script src="https://cdn.jsdelivr.net/npm/canvas-confetti@1.0.1"></script>
+    <style>
+        body {
+            font-family: Arial, sans-serif;
+            text-align: center;
+            margin-top: 50px;
+        }
+        button {
+            font-size: 20px;
+            padding: 15px 30px;
+            background-color: blue;
+            color: white;
+            border: none;
+            border-radius: 10px;
+            cursor: pointer;
+            margin: 10px;
+        }
+        button:hover {
+            background-color: darkblue;
+        }
+        #result, #dish-result {
+            margin-top: 20px;
+            font-size: 1.5em;
+            font-weight: bold;
+        }
+        #dishButton {
+            display: none; /* הכפתור מוסתר בהתחלה */
+        }
+    </style>
+</head>
+<body>
+    <h1>הגרלת ארוחת צהריים</h1>
+    <button onclick="chooseRestaurant()">הגרל מסעדה</button>
+    <div id="result"></div>
+    <button id="dishButton" onclick="chooseDish()">מנה</button>
+    <div id="dish-result"></div>
+
+    <script>
+        const restaurants = {
+            'קפה ליון': ['שקשוקה', 'קרואסון חמאה', 'קפה הפוך'],
+            'פורטבלו': ['פיצה מרגריטה', 'ניוקי ערמונים', 'רביולי בטטה'],
+            'חומוס עמי': ['חומוס גרגרים', 'מסבחה', 'פלאפל'],
+            'B בורגר': ['המבורגר קלאסי', 'צ’יזבורגר', 'שניצלונים'],
+            'ג\'פניקה יבנה': ['סושי סלמון', 'מוקפץ עם ירקות', 'אורז מטוגן'],
+            'קפה לנדוור': ['ארוחת בוקר ישראלית', 'פסטה ברוטב רוזה', 'סלט טונה'],
+            'דומינו\'ס פיצה': ['פיצה פפרוני', 'פיצה טבעונית', 'פיצה ביאנקה'],
+            'בורגר קאבנה': ['המבורגר כפול', 'צ’יקן בורגר', 'צ’יפס גבינות'],
+            'המשתלה בר קפה': ['כריך סלמון', 'שקשוקה חריפה', 'מאפה קינמון'],
+            'מקדונלד\'ס': ['ביג מק', 'צ’יקן נאגטס', 'צ’יפס גדול']
+        };
+
+        let selectedRestaurant = '';
+
+        function chooseRestaurant() {
+            const keys = Object.keys(restaurants);
+            const randomIndex = Math.floor(Math.random() * keys.length);
+            selectedRestaurant = keys[randomIndex];
+            document.getElementById('result').innerText = 'המסעדה שנבחרה: ' + selectedRestaurant;
+            
+            // הצגת כפתור "מנה"
+            document.getElementById('dishButton').style.display = 'inline-block';
+
+            // איפוס תוצאה קודמת של מנה
+            document.getElementById('dish-result').innerText = '';
+
+            launchConfetti();
+        }
+
+        function chooseDish() {
+            if (selectedRestaurant) {
+                const dishes = restaurants[selectedRestaurant];
+                const randomIndex = Math.floor(Math.random() * dishes.length);
+                const selectedDish = dishes[randomIndex];
+                document.getElementById('dish-result').innerText = 'המנה שנבחרה: ' + selectedDish;
+            }
+        }
+
+        function launchConfetti() {
+            const duration = 2 * 1000;
+            const end = Date.now() + duration;
+            
+            (function frame() {
+                confetti({
+                    particleCount: 5,
+                    spread: 160,
+                    origin: { x: Math.random(), y: Math.random() }
+                });
+
+                if (Date.now() < end) {
+                    requestAnimationFrame(frame);
+                }
+            })();
+        }
+    </script>
+</body>
+</html>
