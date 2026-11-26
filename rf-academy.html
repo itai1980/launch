@@ -120,6 +120,13 @@ main{padding-block:28px 72px}
 .pill.bad{background:var(--bad-soft);color:var(--bad)}.pill.warn{background:var(--warn-soft);color:var(--warn)}.pill.good{background:var(--good-soft);color:var(--good)}
 .empty{color:var(--muted);font-size:.9rem;margin:0}
 
+.chgrid{display:grid;grid-template-columns:repeat(auto-fill,minmax(250px,1fr));gap:8px}
+.chc{display:flex;gap:10px;align-items:center;text-align:right;background:var(--surface-2);border:1px solid var(--line);border-radius:9px;padding:9px 12px;cursor:pointer;transition:border-color .15s}
+.chc:hover{border-color:var(--accent)}
+.chc .n{font-family:var(--f-mono);font-size:.74rem;width:26px;height:26px;border-radius:7px;display:grid;place-items:center;background:var(--accent-soft);color:var(--accent);flex:none}
+.chc.dn .n{background:var(--good-soft);color:var(--good)}
+.chc b{display:block;font-weight:600;font-size:.9rem;line-height:1.35}
+.chc small{color:var(--muted);font-size:.75rem}
 /* learn */
 .learn{display:grid;grid-template-columns:280px minmax(0,1fr);gap:24px;align-items:start}
 .rail{position:sticky;top:calc(env(safe-area-inset-top,0px) + 80px);max-height:calc(100vh - 100px);overflow:auto;background:var(--surface);border:1px solid var(--line);border-radius:var(--r);box-shadow:var(--shadow);padding:14px 10px 10px;scrollbar-width:thin}
@@ -2224,6 +2231,7 @@ function renderHome(){
      '<div class="stat"><span class="sic">'+I('chat')+'</span><div><span>חומר תרגול</span><b>'+(IV.length+EX.length)+'</b><em>שאלות ראיון ומבחן</em></div></div></div>'+
    '<div class="home2"><div class="panel"><h3>'+I('trend')+'מסלול הלימוד</h3><div class="path">'+groups.map(g=>{const d=g.cs.filter(c=>done.has(c.id)).length,nx=g.cs.find(c=>!done.has(c.id))||g.cs[0];return '<div class="prow"><button class="btn ghost sm" style="justify-content:flex-start" data-go="'+nx.id+'">'+g.n+'</button><div class="pb"><i style="width:'+(100*d/g.cs.length)+'%"></i></div><em>'+d+'/'+g.cs.length+'</em></div>'}).join('')+'</div></div>'+
    '<div class="panel"><h3>'+I('target')+'נושאים לחיזוק</h3>'+(wk.length?'<div class="wk">'+wk.map(([t,r])=>'<button data-go="'+t+'"><span>'+chTitle(t)+'</span><span class="pill '+(r<0.5?'bad':'warn')+'">'+Math.round(r*100)+'%</span></button>').join('')+'</div>':'<p class="empty">עוד אין נתונים. אחרי המבחן הראשון יופיעו כאן הנושאים שכדאי לחזק, עם קישור לפרק.</p><div style="margin-top:12px"><button class="btn sm" data-ex="1">'+I('play','sm')+'התחל מבחן</button></div>')+'</div></div>'+
+   '<div class="panel" style="margin-top:16px"><h3>'+I('book')+'כל הפרקים ('+tot+')</h3><div class="chgrid">'+CH.map(c=>'<button class="chc'+(done.has(c.id)?' dn':'')+'" data-go="'+c.id+'"><span class="n">'+(done.has(c.id)?I('check','sm'):c.n)+'</span><span><b>'+c.title+'</b><small>'+c.lvl+'</small></span></button>').join('')+'</div></div>'+
    '<div class="panel" style="margin-top:16px"><h3>'+I('bolt')+'כלי תרגול</h3><div class="tools">'+TOOLS.map(([v,ic,t,d])=>'<button class="tool" data-v="'+v+'"><span class="tic">'+I(ic)+'</span><span><b>'+t+'</b><small>'+d+'</small></span></button>').join('')+'</div></div>';
 }
 document.getElementById('v-home').addEventListener('click',e=>{const b=e.target.closest('button');if(!b)return;
