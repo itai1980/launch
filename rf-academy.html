@@ -1,0 +1,1294 @@
+<title>אקדמיית RF</title>
+<meta name="claude:viewport-fit-sides" content="cover">
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Heebo:wght@400;500;700&family=Rubik:wght@500;700&family=JetBrains+Mono:wght@400;600&display=swap">
+<style>
+/* Layout: sticky instrument-style header with mode tabs; learning view = chapter rail + reading column; tools = card grid. */
+:root{
+  --bg:#eef2f5; --surface:#ffffff; --surface-2:#f6f8fa; --ink:#122130; --muted:#55687a; --line:#d3dbe3;
+  --accent:#0a6680; --accent-soft:#dcedf2; --trace:#b86a00; --trace-soft:#fbeedb;
+  --good:#1d7a3a; --bad:#b3261e;
+  --s1:#257de0; --s2:#f47230; --s3:#00b894; --s4:#f2a600; --s5:#ee7fac;
+  --f-display:"Rubik","Heebo",system-ui,sans-serif;
+  --f-body:"Heebo",system-ui,"Segoe UI",Arial,sans-serif;
+  --f-mono:"JetBrains Mono",ui-monospace,Consolas,monospace;
+  --r:8px;
+}
+@media (prefers-color-scheme: dark){:root:not([data-theme="light"]){
+  --bg:#0b131b; --surface:#111c27; --surface-2:#0e1822; --ink:#e2eaf1; --muted:#8fa2b4; --line:#223242;
+  --accent:#4fc2de; --accent-soft:#12303b; --trace:#f0a22a; --trace-soft:#33260f;
+  --good:#4cc472; --bad:#f07a72;
+  --s1:#338ced; --s2:#e76624; --s3:#00a888; --s4:#d28e05; --s5:#e24d8b; color-scheme:dark}}
+:root[data-theme="dark"]{
+  --bg:#0b131b; --surface:#111c27; --surface-2:#0e1822; --ink:#e2eaf1; --muted:#8fa2b4; --line:#223242;
+  --accent:#4fc2de; --accent-soft:#12303b; --trace:#f0a22a; --trace-soft:#33260f;
+  --good:#4cc472; --bad:#f07a72;
+  --s1:#338ced; --s2:#e76624; --s3:#00a888; --s4:#d28e05; --s5:#e24d8b; color-scheme:dark}
+*{box-sizing:border-box}
+body{background:var(--bg);color:var(--ink);font-family:var(--f-body);font-size:16px;line-height:1.7;direction:rtl}
+body::before{content:"";position:fixed;inset:0 0 auto;height:env(safe-area-inset-top,0px);z-index:10;background:var(--surface)}
+h1,h2,h3,h4{font-family:var(--f-display);line-height:1.3;text-wrap:balance;margin:0}
+a{color:var(--accent)}
+button,input,select{font:inherit;color:inherit}
+:focus-visible{outline:2px solid var(--trace);outline-offset:2px}
+.wrap{padding-left:max(16px,env(safe-area-inset-left,0px));padding-right:max(16px,env(safe-area-inset-right,0px));max-width:1240px;margin:0 auto}
+
+header.top{position:sticky;top:env(safe-area-inset-top,0px);z-index:9;background:var(--surface);border-bottom:1px solid var(--line)}
+.top .wrap{display:flex;align-items:center;gap:20px;padding-block:10px;flex-wrap:wrap}
+.brand{display:flex;align-items:center;gap:10px}
+.brand svg{flex:none}
+.brand b{font-family:var(--f-display);font-size:1.2rem}
+.brand small{display:block;color:var(--muted);font-size:.78rem;line-height:1.2;font-family:var(--f-mono);direction:ltr;text-align:right}
+nav.tabs{display:flex;gap:4px;overflow-x:auto;margin-inline-start:auto;scrollbar-width:none}
+nav.tabs button{background:none;border:1px solid transparent;border-radius:6px;padding:6px 14px;cursor:pointer;white-space:nowrap;color:var(--muted);font-weight:500}
+nav.tabs button[aria-selected="true"]{color:var(--ink);border-color:var(--line);background:var(--surface-2);box-shadow:inset 0 -2px 0 var(--trace)}
+
+main{padding-block:24px 64px}
+.view{display:none}.view.on{display:block}
+
+/* learn */
+.learn{display:grid;grid-template-columns:260px minmax(0,1fr);gap:28px;align-items:start}
+.rail{position:sticky;top:calc(env(safe-area-inset-top,0px) + 76px);max-height:calc(100vh - 100px);overflow:auto;padding-inline-end:4px}
+.rail .prog{font-size:.82rem;color:var(--muted);margin-bottom:8px;display:flex;justify-content:space-between}
+.bar{height:4px;background:var(--line);border-radius:2px;margin-bottom:14px;overflow:hidden}
+.bar i{display:block;height:100%;background:var(--trace);width:0;transition:width .3s}
+.rail ol{list-style:none;margin:0;padding:0;display:flex;flex-direction:column;gap:2px}
+.rail button{width:100%;text-align:right;background:none;border:0;border-radius:6px;padding:7px 10px;cursor:pointer;display:flex;gap:10px;align-items:baseline;color:var(--ink)}
+.rail button:hover{background:var(--surface)}
+.rail button[aria-current="true"]{background:var(--surface);box-shadow:inset -3px 0 0 var(--accent)}
+.rail .n{font-family:var(--f-mono);font-size:.75rem;color:var(--muted);min-width:1.6em}
+.rail .done .n{color:var(--good)}
+.rail .lvl{margin-inline-start:auto;font-size:.68rem;color:var(--muted);letter-spacing:.04em}
+
+article.ch{background:var(--surface);border:1px solid var(--line);border-radius:var(--r);padding:28px clamp(18px,4vw,44px) 36px;min-width:0}
+.ch .eyebrow{font-family:var(--f-mono);font-size:.78rem;color:var(--trace);letter-spacing:.06em;direction:ltr;text-align:right}
+.ch h2{font-size:1.9rem;margin:4px 0 6px}
+.ch .lead{color:var(--muted);font-size:1.05rem;max-width:68ch;margin:0 0 18px}
+.ch section{border-top:1px solid var(--line);padding-top:18px;margin-top:22px}
+.ch h3{font-size:1.25rem;margin-bottom:8px}
+.ch h4{font-size:1.02rem;margin:14px 0 4px}
+.ch p,.ch li{max-width:72ch}
+.ch ul,.ch ol{padding-inline-start:1.3em}
+.f,.fm{font-family:var(--f-mono);direction:ltr;unicode-bidi:isolate}
+.f{font-size:.92em;background:var(--surface-2);padding:1px 5px;border-radius:4px;white-space:nowrap}
+.fm{display:block;text-align:left;background:var(--surface-2);border:1px solid var(--line);border-inline-start:3px solid var(--accent);border-radius:6px;padding:10px 14px;margin:10px 0;font-size:.95rem;overflow-x:auto;white-space:pre;line-height:1.6}
+.note,.iv,.trap,.lab{border-radius:6px;padding:12px 16px;margin:14px 0;font-size:.95rem}
+.note{background:var(--accent-soft)}
+.iv{background:var(--trace-soft)}
+.trap{background:var(--surface-2);border:1px dashed var(--bad)}
+.lab{background:var(--surface-2);border:1px solid var(--line)}
+.note b:first-child,.iv b:first-child,.trap b:first-child,.lab b:first-child{display:block;font-family:var(--f-display);font-size:.85rem;letter-spacing:.04em;margin-bottom:2px}
+.iv b:first-child{color:var(--trace)}
+.trap b:first-child{color:var(--bad)}
+.tbl{overflow-x:auto;margin:12px 0}
+table{border-collapse:collapse;font-size:.9rem;min-width:100%}
+th,td{border-bottom:1px solid var(--line);padding:6px 10px;text-align:right;vertical-align:top}
+th{font-family:var(--f-display);font-weight:500;color:var(--muted);font-size:.82rem;background:var(--surface-2)}
+td.num,th.num{font-family:var(--f-mono);direction:ltr;text-align:left;font-variant-numeric:tabular-nums;white-space:nowrap}
+.chfoot{display:flex;gap:10px;justify-content:space-between;flex-wrap:wrap;margin-top:30px;padding-top:18px;border-top:1px solid var(--line)}
+.btn{background:var(--surface-2);border:1px solid var(--line);border-radius:6px;padding:8px 16px;cursor:pointer;font-weight:500}
+.btn:hover{border-color:var(--accent)}
+.btn.pri{background:var(--accent);border-color:var(--accent);color:var(--surface)}
+.btn.sm{padding:4px 10px;font-size:.85rem}
+
+/* tools */
+.sechead{display:flex;flex-wrap:wrap;align-items:end;gap:10px 24px;margin-bottom:18px}
+.sechead h2{font-size:1.6rem}
+.sechead p{margin:0;color:var(--muted);max-width:70ch}
+.grid{display:grid;grid-template-columns:repeat(auto-fill,minmax(340px,1fr));gap:16px}
+.card{background:var(--surface);border:1px solid var(--line);border-radius:var(--r);padding:18px;min-width:0;display:flex;flex-direction:column;gap:10px}
+.card h3{font-size:1.08rem}
+.card .why{font-size:.85rem;color:var(--muted);margin:0}
+.fields{display:grid;grid-template-columns:repeat(auto-fill,minmax(130px,1fr));gap:8px 10px}
+label.fl{display:flex;flex-direction:column;font-size:.78rem;color:var(--muted);gap:2px}
+input[type=number],input[type=text],select{background:var(--surface-2);border:1px solid var(--line);border-radius:5px;padding:5px 8px;width:100%;font-family:var(--f-mono);font-size:.9rem;direction:ltr;text-align:left}
+select{font-family:var(--f-body);direction:rtl;text-align:right}
+.out{background:var(--surface-2);border-radius:6px;padding:10px 12px;font-size:.9rem;display:grid;gap:3px}
+.out div{display:flex;justify-content:space-between;gap:10px;align-items:baseline}
+.out span{color:var(--muted)}
+.out b{font-family:var(--f-mono);direction:ltr;font-variant-numeric:tabular-nums;font-weight:600}
+.out .big b{color:var(--trace);font-size:1.15rem}
+.card.wide{grid-column:1/-1}
+.stages{overflow-x:auto}
+.stages table input{min-width:70px}
+.stages td{padding:4px 5px}
+
+/* sim */
+.sim{display:grid;grid-template-columns:minmax(0,420px) minmax(0,1fr);gap:20px;align-items:start}
+.canvasbox{background:var(--surface);border:1px solid var(--line);border-radius:var(--r);padding:12px}
+canvas#cst{width:100%;aspect-ratio:1;display:block;max-width:100%}
+.ctrl{display:grid;gap:12px}
+.range label{display:flex;justify-content:space-between;font-size:.88rem}
+.range label b{font-family:var(--f-mono);direction:ltr}
+input[type=range]{width:100%;accent-color:var(--accent)}
+.berbox{background:var(--surface);border:1px solid var(--line);border-radius:var(--r);padding:14px;margin-top:20px;position:relative}
+.berbox svg{width:100%;height:auto;display:block;direction:ltr}
+.legend{display:flex;flex-wrap:wrap;gap:6px 16px;font-size:.85rem;margin:6px 0 0}
+.legend span{display:inline-flex;align-items:center;gap:6px}
+.legend i{width:14px;height:3px;border-radius:2px;display:inline-block}
+.tip{position:absolute;pointer-events:none;background:var(--surface);border:1px solid var(--line);border-radius:6px;padding:6px 10px;font-size:.8rem;font-family:var(--f-mono);direction:ltr;box-shadow:0 4px 14px rgba(0,0,0,.12);white-space:nowrap}
+
+/* interview */
+.filters{display:flex;flex-wrap:wrap;gap:6px;margin-bottom:16px}
+.chip{border:1px solid var(--line);background:var(--surface);border-radius:999px;padding:3px 12px;cursor:pointer;font-size:.85rem}
+.chip[aria-pressed="true"]{background:var(--accent);color:var(--surface);border-color:var(--accent)}
+.qa{display:grid;gap:10px}
+details.q{background:var(--surface);border:1px solid var(--line);border-radius:var(--r);padding:0}
+details.q summary{cursor:pointer;padding:12px 16px;display:flex;gap:12px;align-items:baseline;list-style:none}
+details.q summary::-webkit-details-marker{display:none}
+details.q summary .tag{font-size:.7rem;color:var(--muted);border:1px solid var(--line);border-radius:4px;padding:0 6px;white-space:nowrap;margin-inline-start:auto}
+details.q summary .lv{font-family:var(--f-mono);font-size:.72rem;color:var(--trace);white-space:nowrap}
+details.q[open] summary{border-bottom:1px solid var(--line)}
+details.q .a{padding:12px 18px 16px;font-size:.95rem}
+details.q .a p{margin:.4em 0;max-width:75ch}
+
+/* flash */
+.flash{max-width:720px;margin:0 auto}
+.fcard{background:var(--surface);border:1px solid var(--line);border-radius:12px;min-height:260px;padding:28px;display:flex;flex-direction:column;justify-content:center;gap:12px;cursor:pointer}
+.fcard .side{font-family:var(--f-mono);font-size:.75rem;color:var(--trace);direction:ltr;text-align:right}
+.fcard .term{font-family:var(--f-display);font-size:1.6rem}
+.fcard .def{font-size:1rem}
+.frow{display:flex;gap:10px;justify-content:center;margin-top:14px;flex-wrap:wrap}
+.fstats{display:flex;gap:18px;justify-content:center;color:var(--muted);font-size:.85rem;margin-top:12px;font-variant-numeric:tabular-nums}
+
+/* problems */
+.prob{background:var(--surface);border:1px solid var(--line);border-radius:var(--r);padding:18px 20px;margin-bottom:14px}
+.prob h3{font-size:1.05rem;margin-bottom:6px}
+.prob .sol{display:none;border-top:1px dashed var(--line);margin-top:10px;padding-top:10px}
+.prob.open .sol{display:block}
+
+@media (max-width:860px){
+  .learn{grid-template-columns:1fr}
+  .rail{position:static;max-height:none}
+  .rail ol{flex-direction:row;overflow-x:auto;gap:4px;padding-bottom:6px}
+  .rail button{white-space:nowrap;border:1px solid var(--line);background:var(--surface)}
+  .rail .lvl{display:none}
+  .sim{grid-template-columns:1fr}
+  .grid{grid-template-columns:1fr}
+  .top .wrap{gap:8px}
+  nav.tabs{margin-inline-start:0;width:100%}
+}
+@media (prefers-reduced-motion:reduce){*{transition:none!important}}
+</style>
+
+<header class="top">
+  <div class="wrap">
+    <div class="brand">
+      <svg width="34" height="34" viewBox="0 0 34 34" aria-hidden="true"><rect x="1" y="1" width="32" height="32" rx="6" fill="none" stroke="var(--line)"/><path d="M4 24 L9 23 L12 22 L14 12 L15 6 L16 5 L17 6 L18 12 L20 22 L23 23 L30 24" fill="none" stroke="var(--trace)" stroke-width="2" stroke-linejoin="round"/><path d="M4 28h26" stroke="var(--muted)" stroke-width="1"/></svg>
+      <div><b>אקדמיית RF</b><small>RF · COMMS · INTERVIEW PREP</small></div>
+    </div>
+    <nav class="tabs" role="tablist" aria-label="מצבים">
+      <button role="tab" data-v="learn" aria-selected="true">לימוד</button>
+      <button role="tab" data-v="calc" aria-selected="false">מחשבונים</button>
+      <button role="tab" data-v="sim" aria-selected="false">סימולטור קונסטלציה</button>
+      <button role="tab" data-v="prob" aria-selected="false">תרגילים</button>
+      <button role="tab" data-v="iv" aria-selected="false">שאלות ראיון</button>
+      <button role="tab" data-v="flash" aria-selected="false">כרטיסיות</button>
+    </nav>
+  </div>
+</header>
+
+<main class="wrap">
+  <section class="view on" id="v-learn">
+    <div class="learn">
+      <aside class="rail">
+        <div class="prog"><span>התקדמות</span><span id="progTxt" class="f">0/0</span></div>
+        <div class="bar"><i id="progBar"></i></div>
+        <ol id="chList"></ol>
+      </aside>
+      <article class="ch" id="chBody"></article>
+    </div>
+  </section>
+
+  <section class="view" id="v-calc">
+    <div class="sechead"><h2>מחשבוני מהנדס RF</h2><p>כל המחשבונים מחשבים בזמן אמת. ערכי ברירת המחדל הם דוגמה ריאלית למקלט/לינק, לא נתונים שלך. החלף בנתונים מהמערכת שאתה בודק.</p></div>
+    <div class="grid" id="calcGrid"></div>
+  </section>
+
+  <section class="view" id="v-sim">
+    <div class="sechead"><h2>סימולטור קונסטלציה ו־EVM</h2><p>2,000 סימבולים אקראיים עוברים בערוץ עם רעש AWGN, רעש פאזה, חוסר איזון IQ ודליפת LO. התבונן איך כל ליקוי מעוות את הקונסטלציה בצורה אחרת. זה בדיוק מה שאתה רואה במסך ה־VSA במעבדה.</p></div>
+    <div class="sim">
+      <div class="canvasbox"><canvas id="cst" width="840" height="840" aria-label="קונסטלציה"></canvas></div>
+      <div class="ctrl">
+        <label class="fl">אפנון<select id="sMod"><option value="bpsk">BPSK</option><option value="qpsk">QPSK</option><option value="8psk">8PSK</option><option value="16qam" selected>16QAM</option><option value="64qam">64QAM</option><option value="256qam">256QAM</option></select></label>
+        <div class="range"><label for="sSnr">SNR (Es/N0)<b id="sSnrV"></b></label><input type="range" id="sSnr" min="0" max="40" step="0.5" value="20"></div>
+        <div class="range"><label for="sPn">רעש פאזה (RMS)<b id="sPnV"></b></label><input type="range" id="sPn" min="0" max="10" step="0.25" value="0"></div>
+        <div class="range"><label for="sIqg">חוסר איזון הגבר IQ<b id="sIqgV"></b></label><input type="range" id="sIqg" min="0" max="3" step="0.1" value="0"></div>
+        <div class="range"><label for="sIqp">שגיאת ניצבות (Quadrature skew)<b id="sIqpV"></b></label><input type="range" id="sIqp" min="0" max="15" step="0.5" value="0"></div>
+        <div class="range"><label for="sDc">דליפת LO / DC offset<b id="sDcV"></b></label><input type="range" id="sDc" min="0" max="0.3" step="0.01" value="0"></div>
+        <div class="range"><label for="sComp">דחיסת מגבר (AM/AM)<b id="sCompV"></b></label><input type="range" id="sComp" min="0" max="1" step="0.05" value="0"></div>
+        <div class="out" id="simOut"></div>
+        <div class="note"><b>איך לקרוא</b>רעש לבן מנפח כל נקודה לענן עגול. רעש פאזה מורח את הנקודות בקשת, והטבעות החיצוניות נפגעות יותר. חוסר איזון IQ הופך את הריבוע למעוין או מלבן. דליפת LO מזיזה את כל הקונסטלציה מהמרכז. דחיסה מושכת את הנקודות החיצוניות פנימה.</div>
+        <button class="btn" id="sRegen">צור סימבולים חדשים</button>
+      </div>
+    </div>
+    <div class="berbox" id="berBox">
+      <h3 style="font-size:1.05rem">BER מול Eb/N0 (AWGN, ללא קידוד)</h3>
+      <p style="margin:2px 0 8px;color:var(--muted);font-size:.88rem">הנקודה מסמנת את נקודת העבודה של הסימולטור. רחף על הגרף כדי לקרוא BER לכל אפנון.</p>
+      <svg id="berSvg" viewBox="0 0 760 360" role="img" aria-label="עקומות BER"></svg>
+      <div class="legend" id="berLeg"></div>
+      <div class="tip" id="berTip" hidden></div>
+    </div>
+  </section>
+
+  <section class="view" id="v-prob">
+    <div class="sechead"><h2>תרגילים פתורים</h2><p>שאלות חישוב מהסוג שנותנים בראיון על לוח. נסה לפתור לבד על דף, ורק אז פתח את הפתרון.</p></div>
+    <div id="probList"></div>
+  </section>
+
+  <section class="view" id="v-iv">
+    <div class="sechead"><h2>שאלות ראיון</h2><p>שאלות אמיתיות מראיונות למהנדסי RF, מערכות ואינטגרציה. ענה בקול לפני שאתה פותח. מראיין מחפש הבנה פיזיקלית, סדרי גודל ומספרים שאתה זוכר בעל פה.</p></div>
+    <div class="filters" id="ivFilters"></div>
+    <div class="qa" id="ivList"></div>
+  </section>
+
+  <section class="view" id="v-flash">
+    <div class="sechead"><h2>כרטיסיות שינון</h2><p>מושגים, מספרי מפתח וכללי אצבע. לחץ על הכרטיס כדי להפוך. סמן אם ידעת, והכרטיסים שלא ידעת יחזרו יותר.</p></div>
+    <div class="flash">
+      <div class="fcard" id="fc" tabindex="0" role="button" aria-label="הפוך כרטיס"></div>
+      <div class="frow">
+        <button class="btn" id="fNo">לא ידעתי</button>
+        <button class="btn pri" id="fYes">ידעתי</button>
+        <button class="btn" id="fSkip">דלג</button>
+      </div>
+      <div class="fstats" id="fStats"></div>
+    </div>
+  </section>
+</main>
+
+<script>
+/* ================= CONTENT ================= */
+const F = s => '<span class="f">'+s+'</span>';
+const CH = [
+{id:'db',n:'01',lvl:'יסודות',title:'דציבלים, הספק ויחידות',tag:'dB · dBm · dBW · dBc · dBi',
+lead:'השפה של RF. כל חישוב לינק, שרשרת או מדידה נעשה בדציבלים, כי כפל הופך לחיבור והתחום הדינמי (מ־1W עד 1fW) נכנס לטווח מספרים נוח.',
+body:`
+<section><h3>ההגדרות</h3>
+<p>dB הוא <b>יחס</b> בלבד, בלי יחידות. dBm הוא הספק <b>מוחלט</b> ביחס ל־1mW.</p>
+<span class="fm">dB  = 10·log10(P2/P1)          (יחס הספקים)
+dB  = 20·log10(V2/V1)          (יחס מתחים, באותה עכבה)
+dBm = 10·log10(P / 1mW)
+dBW = dBm − 30
+P[mW] = 10^(dBm/10)</span>
+<p>למה 20 על מתח? כי <span class="f">P = V²/R</span>, והריבוע יוצא מהלוגריתם כמקדם 2.</p>
+</section>
+<section><h3>טבלה שחייבים לדעת בעל פה</h3>
+<div class="tbl"><table><tr><th>dB</th><th>יחס הספק</th><th>dBm</th><th>הספק</th></tr>
+<tr><td class="num">+3</td><td class="num">×2</td><td class="num">+30</td><td class="num">1 W</td></tr>
+<tr><td class="num">+6</td><td class="num">×4 (מתח ×2)</td><td class="num">+20</td><td class="num">100 mW</td></tr>
+<tr><td class="num">+10</td><td class="num">×10</td><td class="num">0</td><td class="num">1 mW</td></tr>
+<tr><td class="num">+20</td><td class="num">×100</td><td class="num">−30</td><td class="num">1 µW</td></tr>
+<tr><td class="num">−3</td><td class="num">×0.5</td><td class="num">−60</td><td class="num">1 nW</td></tr>
+<tr><td class="num">−10</td><td class="num">×0.1</td><td class="num">−90</td><td class="num">1 pW</td></tr>
+<tr><td class="num">1</td><td class="num">×1.26</td><td class="num">+43</td><td class="num">20 W</td></tr>
+<tr><td class="num">0.5</td><td class="num">×1.12</td><td class="num">−174</td><td class="num">kT ב־1Hz</td></tr></table></div>
+<p>טריק מנטלי: כל מספר dB אפשר לפרק לעשרות ושלושות. 17dB = 10+10−3 → ×50. ‏−7dB = −10+3 → ×0.2.</p>
+</section>
+<section><h3>משפחת ה־dB</h3>
+<ul>
+<li>${F('dBc')}: יחס לנושא (carrier). הרמוניה ב־−40dBc נמוכה ב־40dB מהנושא. משמש לספוריות, הרמוניות, רעש פאזה (dBc/Hz).</li>
+<li>${F('dBi')} / ${F('dBd')}: הגבר אנטנה ביחס לאנטנה איזוטרופית / דיפול חצי גל. ${F('dBi = dBd + 2.15')}.</li>
+<li>${F('dBµV')}: מתח ביחס ל־1µV. במערכת 50Ω: ${F('dBµV = dBm + 107')}.</li>
+<li>${F('dBFS')}: ביחס לסקאלה המלאה של ADC/DAC. נפוץ בדיגיטל ובמקמשים.</li>
+<li>${F('dBm/Hz')}: צפיפות הספק ספקטרלית. רצפת רעש תרמית היא −174dBm/Hz.</li>
+</ul>
+<div class="trap"><b>מלכודת</b>אסור לחבר dBm + dBm. שני אותות של 0dBm יחד הם 3dBm (אם לא קוהרנטיים), לא 0+0. מחברים dBm עם dB (הגבר/הפסד) בלבד. כדי לסכם הספקים: המר ל־mW, חבר, והמר חזרה.</div>
+</section>
+<section><h3>מתח והספק ב־50Ω</h3>
+<span class="fm">0 dBm  → 0.224 Vrms → 0.632 Vpp   (ב־50Ω)
++10dBm → 0.707 Vrms → 2 Vpp
+Vrms = sqrt(P·50)</span>
+<p>למה 50Ω? פשרה היסטורית בכבל קואקסיאלי עם דיאלקטרי אוויר: הפסד מינימלי מתקבל ב־~77Ω, הספק מקסימלי ב־~30Ω. 50 באמצע. וידאו וטלוויזיה משתמשים ב־75Ω כי שם ההפסד חשוב יותר.</p>
+<div class="iv"><b>בראיון</b>"הגבר של 23dB, כמה זה לינארית?" ← 20+3 = ×100×2 = ×200. תענה מהר ובביטחון, זה מבחן שטף.</div>
+</section>`},
+
+{id:'line',n:'02',lvl:'יסודות',title:'קווי תמסורת, התאמה ו־S־פרמטרים',tag:'Z0 · Γ · VSWR · RL · S11 · S21',
+lead:'כשאורך המוליך מתקרב לאורך הגל, החוט כבר לא חוט. גל נע קדימה, וכל אי־התאמה שולחת חלק ממנו אחורה. זה הבסיס להבנת כבלים, מחברים, פילטרים ומדידות VNA.',
+body:`
+<section><h3>אורך גל</h3>
+<span class="fm">λ = c / f        λ[m] = 300 / f[MHz]
+בכבל:  λ_cable = λ0 · VF      (VF ≈ 0.66 לפוליאתילן, ~0.85 לקצף)</span>
+<p>ב־2.4GHz: λ≈12.5cm. כלל אצבע: מעל λ/10 צריך לחשוב על המוליך כקו תמסורת.</p>
+</section>
+<section><h3>מקדם החזרה, VSWR ו־Return Loss</h3>
+<span class="fm">Γ = (ZL − Z0) / (ZL + Z0)
+VSWR = (1 + |Γ|) / (1 − |Γ|)
+RL [dB] = −20·log10|Γ|         (S11 = −RL)
+Mismatch Loss [dB] = −10·log10(1 − |Γ|²)</span>
+<div class="tbl"><table><tr><th>VSWR</th><th class="num">|Γ|</th><th class="num">RL</th><th class="num">הספק מוחזר</th><th class="num">Mismatch loss</th></tr>
+<tr><td class="num">1.1</td><td class="num">0.048</td><td class="num">26.4 dB</td><td class="num">0.2%</td><td class="num">0.01 dB</td></tr>
+<tr><td class="num">1.5</td><td class="num">0.2</td><td class="num">14 dB</td><td class="num">4%</td><td class="num">0.18 dB</td></tr>
+<tr><td class="num">2.0</td><td class="num">0.333</td><td class="num">9.5 dB</td><td class="num">11%</td><td class="num">0.51 dB</td></tr>
+<tr><td class="num">3.0</td><td class="num">0.5</td><td class="num">6 dB</td><td class="num">25%</td><td class="num">1.25 dB</td></tr></table></div>
+<p>שים לב: VSWR של 2:1 נשמע גרוע, אבל מאבד רק חצי dB. הבעיה האמיתית היא לרוב לא ההספק שאבד, אלא <b>ריפל</b> בתגובת התדר, השפעה על יציבות מגברים, והחזרות שפוגעות ב־PA.</p>
+</section>
+<section><h3>S־פרמטרים</h3>
+<p>מתארים רשת לפי גלים נכנסים ויוצאים, במקום מתחים וזרמים, כי אותם קל למדוד ב־RF עם עומסים מותאמים.</p>
+<ul>
+<li>${F('S11')}: החזרה בכניסה (input match). ‏−10dB נחשב סביר, ‏−15dB טוב.</li>
+<li>${F('S21')}: תמסורת קדימה, כלומר הגבר או הפסד הכנסה (Insertion Loss).</li>
+<li>${F('S12')}: תמסורת אחורה (בידוד, Reverse isolation). חשוב במגבר: כמה LO דולף חזרה לאנטנה.</li>
+<li>${F('S22')}: החזרה ביציאה.</li>
+</ul>
+<p>רשת פסיבית והפיכה: ${F('S21 = S12')}. רשת חסרת הפסדים: ${F('|S11|² + |S21|² = 1')}.</p>
+<p><b>Group delay</b> = ${F('−dφ/dω')} של S21. בפילטרים חדים הוא קופץ בקצוות הפס, וגורם לעיוות באותות רחבי סרט ופוגע ב־EVM.</p>
+</section>
+<section><h3>טרנספורמציית עכבה ודיאגרמת סמית'</h3>
+<p>קו באורך ${F('λ/4')} הופך עכבה: ${F('Zin = Z0² / ZL')}. קצר הופך לנתק ולהפך. קו ${F('λ/2')} חוזר על העכבה.</p>
+<p>דיאגרמת סמית' היא מפה של Γ במישור המרוכב. המרכז הוא התאמה מושלמת (Γ=0). המעגל החיצוני הוא |Γ|=1 (קצר, נתק, ריאקטיבי טהור). תנועה לאורך קו תמסורת = סיבוב סביב המרכז. התאמה ב־L־network היא שני צעדים: סליל או קבל בטור (תנועה על מעגל התנגדות קבועה), ואחר כך במקביל (תנועה על מעגל מוליכות קבועה).</p>
+<div class="lab"><b>במעבדה</b>לפני מדידה ב־VNA מבצעים כיול SOLT (Short-Open-Load-Thru) בקצה הכבלים, כדי שמישור הייחוס יהיה במחבר של ה־DUT. בלי כיול מודדים את הכבלים, לא את הרכיב. בספקטרום/מחולל, מודדים הפסדי כבלים ומזינים כ־offset.</div>
+<div class="iv"><b>בראיון</b>"מה ההבדל בין VSWR ל־Return Loss?" ← אותו מידע בשני ייצוגים. RL=14dB ⇔ VSWR=1.5. "למה מגבר הספק שונא VSWR גבוה?" ← הגל המוחזר מוסיף מתח/זרם על הטרנזיסטור, מחמם, מעוות, ויכול לשרוף. לכן שמים isolator/circulator או VSWR protection.</div>
+</section>`},
+
+{id:'noise',n:'03',lvl:'ליבה',title:'רעש תרמי, Noise Figure ונוסחת פריז',tag:'kTB · NF · Te · Friis cascade',
+lead:'הרעש קובע את הרגישות. כל מהנדס RF צריך לדעת לחשב רצפת רעש בראש ולהבין למה ה־LNA הראשון קובע כמעט הכל.',
+body:`
+<section><h3>רעש תרמי</h3>
+<p>אלקטרונים במוליך בטמפרטורה T זזים באקראי ויוצרים רעש לבן (שטוח בתדר) עם צפיפות הספק ${F('kT')}.</p>
+<span class="fm">N = k·T·B
+k = 1.38×10⁻²³ J/K,  T0 = 290K
+kT0 = 4×10⁻²¹ W/Hz = −174 dBm/Hz
+
+N[dBm] = −174 + 10·log10(B[Hz])</span>
+<div class="tbl"><table><tr><th>רוחב סרט</th><th class="num">רצפת רעש</th></tr>
+<tr><td>1 Hz</td><td class="num">−174 dBm</td></tr><tr><td>1 kHz</td><td class="num">−144 dBm</td></tr>
+<tr><td>200 kHz (GSM)</td><td class="num">−121 dBm</td></tr><tr><td>1 MHz</td><td class="num">−114 dBm</td></tr>
+<tr><td>20 MHz (WiFi/LTE)</td><td class="num">−101 dBm</td></tr><tr><td>100 MHz</td><td class="num">−94 dBm</td></tr></table></div>
+<p>זכור: <b>1MHz = ‏−114dBm</b>. משם כל עשור מוסיף 10dB.</p>
+</section>
+<section><h3>Noise Factor ו־Noise Figure</h3>
+<p>Noise Factor הוא כמה הרכיב מדרדר את ה־SNR:</p>
+<span class="fm">F = SNR_in / SNR_out        (לינארי, ≥1)
+NF = 10·log10(F)            (dB)
+SNR_out[dB] = SNR_in[dB] − NF</span>
+<p>ההגדרה נכונה רק כשרעש הכניסה הוא תרמי ב־290K. ל־NF אין משמעות למקור "חם" יותר כמו אנטנה שמסתכלת על השמש.</p>
+<h4>טמפרטורת רעש שקולה</h4>
+<span class="fm">Te = T0·(F − 1)       F = 1 + Te/T0
+NF=0.5dB → Te≈35K    NF=1dB → 75K    NF=3dB → 290K</span>
+<p>בלווין ותקשורת חלל משתמשים ב־Te כי ההבדלים קטנים ו־dB פחות נוח. מערכת: ${F('Tsys = Tant + Te')}, ומכאן ${F('G/T')} של תחנה.</p>
+<div class="note"><b>כלל חשוב</b>לרכיב פסיבי (כבל, פילטר, מנחת) בטמפרטורת החדר: <b>NF = ההפסד</b>. כבל של 2dB לפני ה־LNA מוסיף 2dB ל־NF של כל המערכת. לכן LNA יושב הכי קרוב לאנטנה (mast-head amplifier).</div>
+</section>
+<section><h3>נוסחת פריז לשרשרת (Friis noise)</h3>
+<span class="fm">F_total = F1 + (F2 − 1)/G1 + (F3 − 1)/(G1·G2) + ...
+(הכל לינארי! G ו־F כיחסים, לא dB)</span>
+<p>המשמעות: הרעש של כל שלב מחולק בהגבר של כל מה שלפניו. אם לשלב הראשון יש הגבר גבוה, הוא "מסתיר" את הרעש של השלבים הבאים.</p>
+<h4>דוגמה</h4>
+<p>LNA: G=20dB (100), NF=1dB (1.26). מיקסר: G=−8dB, NF=10dB (10).</p>
+<span class="fm">F = 1.26 + (10 − 1)/100 = 1.26 + 0.09 = 1.35  →  NF = 1.30 dB</span>
+<p>עכשיו הפוך את הסדר (מיקסר קודם): ${F('F = 10 + (1.26−1)/0.158 = 11.6 → 10.7dB')}. הבדל של 9dB ברגישות!</p>
+<div class="trap"><b>מלכודת</b>הגבר גבוה מדי ב־LNA אמנם משפר NF, אבל פוגע ב־IIP3 של השרשרת (השלבים הבאים נדחסים). תכנון מקלט הוא איזון בין NF ללינאריות. זה ה־trade-off הכי נשאל.</div>
+<p>השתמש במחשבון השרשרת בלשונית "מחשבונים" כדי לשחק עם זה.</p>
+</section>
+<section><h3>מדידת NF: שיטת Y־factor</h3>
+<p>מחברים מקור רעש מכויל (noise source) עם ENR ידוע. מודדים הספק רעש ביציאה כשהמקור כבוי (Tc≈290K) ודולק (Th).</p>
+<span class="fm">Y = N_on / N_off   (לינארי)
+F = ENR_lin / (Y − 1)
+NF = ENR[dB] − 10·log10(Y − 1)</span>
+<p>שיטה חלופית: <b>Gain method</b>. מודדים רצפת רעש ביציאה עם 50Ω בכניסה: ${F('NF = Pout_noise − (−174) − 10logB − G')}. דורש שרצפת הספקטרום נמוכה בהרבה מרעש ה־DUT, אז מתאים ל־DUT עם הגבר גבוה.</p>
+<div class="iv"><b>בראיון</b>"למה NF של מנחת 10dB הוא 10dB?" ← הוא מנחית את האות ב־10dB, אבל הרעש ביציאה נשאר kTB (הוא בטמפרטורת החדר), אז ה־SNR ירד ב־10dB. "איפה תשים פילטר, לפני או אחרי ה־LNA?" ← לפני: מגן מחסימה ולינאריות אבל מוסיף את ההפסד שלו ישירות ל־NF. אחרי: NF טוב יותר אבל ה־LNA חשוף לאותות חזקים. בפועל: פילטר רחב עם הפסד נמוך לפני, חד אחרי.</div>
+</section>`},
+
+{id:'sens',n:'04',lvl:'ליבה',title:'רגישות מקלט, RSSI ותחום דינמי',tag:'Sensitivity · MDS · RSSI · AGC · Blocking',
+lead:'רגישות היא מספר אחד שמסכם את כל המקלט: מה האות החלש ביותר שעוד מתקבל עם איכות נדרשת. אתה כנראה מודד אותה כל שבוע, הנה כל מה שמסתתר מאחוריה.',
+body:`
+<section><h3>נוסחת הרגישות</h3>
+<span class="fm">Sensitivity [dBm] = −174 + 10·log10(B) + NF + SNR_min
+                     └─ kTB ──────────┘   └ מקלט ┘  └ מודם ┘</span>
+<ul>
+<li><b>B</b>: רוחב הסרט האפקטיבי של הרעש (Noise bandwidth), בקירוב רוחב הערוץ או קצב הסימבולים.</li>
+<li><b>NF</b>: של כל שרשרת הקליטה, כולל הפסדי כבל ומתג לפני ה־LNA.</li>
+<li><b>SNR_min</b>: מה שהמודם צריך כדי להגיע ל־BER/PER היעד. תלוי באפנון, בקוד FEC ובמימוש. כאן נכנס "implementation loss".</li>
+</ul>
+<h4>דוגמה</h4>
+<p>מקמש QPSK, ‏Rs=1Msps, ‏NF=5dB, ‏FEC ‏1/2 דורש Eb/N0=4.5dB.</p>
+<span class="fm">Es/N0 = Eb/N0 + 10log(2·0.5) = 4.5 dB       (2 ביט/סימבול × קוד 1/2 = 1 ביט מידע)
+Sens = −174 + 60 + 5 + 4.5 = −104.5 dBm</span>
+<p><b>MDS</b> (Minimum Detectable Signal) הוא המקרה של SNR_min=0dB, כלומר האות שווה לרצפת הרעש. זה מדד של המקלט בלבד, בלי המודם.</p>
+<div class="lab"><b>מדידת רגישות במעבדה</b><ol><li>מחולל (או מקמש שני) ← מנחת משתנה ← DUT, בחיבור מוליך (conducted). מגן RF/קופסת Faraday כדי שהאות לא יעקוף את המנחת דרך האוויר.</li><li>מכיילים את הפסד הכבלים והמנחתים עם מד הספק.</li><li>משדרים PRBS (בדרך כלל PRBS-9/15/23) או חבילות, ומורידים הספק עד שה־BER/PER מגיע ליעד (למשל 10⁻⁶ או PER 10%).</li><li>רשמו את ההספק בכניסת ה־DUT. חזרו לכל קצב/אפנון ובכמה תדרים (רגישות משתנה בגלל ספוריות פנימיות, "desense").</li></ol></div>
+<div class="trap"><b>Desense</b>אם הרגישות גרועה בערוץ מסוים בלבד, חשוד בספוריות של שעון פנימי, DC-DC, הרמוניה של מעבד או של ה־LO שנופלת בערוץ. מודדים עם האנטנה מחוברת למכשיר מול מכשיר כבוי בחלקים.</div>
+</section>
+<section><h3>RSSI</h3>
+<p>Received Signal Strength Indicator: הערכת ההספק <b>הכולל</b> בתוך רוחב הסרט של המקלט, בדרך כלל מחושב מה־AGC ומרמת ה־ADC. כולל אות + רעש + הפרעות.</p>
+<ul>
+<li>RSSI <b>אינו</b> SNR. ב־RSSI ‏−60dBm אפשר לקבל אפס תעבורה אם יש הפרעה חזקה באותו ערוץ.</li>
+<li>ליד הרגישות, RSSI "נתקע" על רצפת הרעש (kTB+NF), כי זה מה שהוא מודד כשאין אות.</li>
+<li>דיוק טיפוסי: ±2 עד ±6dB. צריך כיול לאורך תדר וטמפרטורה (טבלת קיזוז).</li>
+<li>ב־LTE/5G מפרידים: <b>RSRP</b> = הספק ממוצע לאלמנט משאב של אות ייחוס (רק האות שלך), <b>RSSI</b> = הכל, <b>RSRQ</b> = ‏N·RSRP/RSSI, ו־<b>SINR</b>.</li>
+</ul>
+<div class="lab"><b>בדיקת RSSI</b>מזריקים הספק ידוע בכמה רמות, משווים RSSI מדווח לנמדד ובונים עקומת לינאריות. חפשו: שיפוע 1dB/dB, ריוויה למעלה (ADC), רצפה למטה, קפיצות במעברי AGC.</div>
+</section>
+<section><h3>תחום דינמי, AGC וחסימה</h3>
+<p><b>Dynamic Range</b>: מהרגישות ועד האות החזק ביותר שעדיין מתקבל ללא שגיאות (Max input level). מקמש טיפוסי: −100 עד −20dBm = 80dB. ה־ADC לבדו לא מכסה את זה, ולכן יש <b>AGC</b> שמשנה הגבר ב־LNA/IF כדי לשמור על רמה קבועה ב־ADC.</p>
+<p><b>SFDR</b> (Spurious-Free Dynamic Range): מרצפת הרעש עד הרמה שבה מוצרי IM3 יוצאים מעל הרעש.</p>
+<span class="fm">SFDR = (2/3)·(IIP3 − N_floor)          N_floor = −174 + 10logB + NF</span>
+<h4>מבחני סלקטיביות</h4>
+<ul>
+<li><b>ACS</b> (Adjacent Channel Selectivity): אות רצוי 3dB מעל הרגישות, ומפריע בערוץ הסמוך. כמה חזק המפריע יכול להיות.</li>
+<li><b>Blocking</b>: מפריע רחוק (MHz). בודק דחיסה של ה־LNA ו־reciprocal mixing של רעש הפאזה.</li>
+<li><b>Intermodulation rejection</b>: שני מפריעים ב־f1, f2 כך ש־2f1−f2 נופל בערוץ.</li>
+<li><b>Co-channel rejection</b>: מפריע באותו ערוץ, בודק את ה־C/I המינימלי.</li>
+<li><b>Image rejection</b>: במקלט סופרהטרודין, אות בתדר הדמות.</li>
+</ul>
+<div class="iv"><b>בראיון</b>"שיפרו את NF ב־3dB. מה קרה לטווח?" ← +3dB ב־link budget. בחלל פתוח (מקדם 20logd) זה פי 1.41 בטווח. בעיר (n≈3.5) רק פי 1.22.</div>
+</section>`},
+
+{id:'mod',n:'05',lvl:'ליבה',title:'אפנונים',tag:'AM/FM · ASK · FSK · PSK · QAM · APSK · GMSK',
+lead:'אפנון הוא איך מעמיסים ביטים על גל נושא. כל אפנון הוא בחירה בין יעילות ספקטרלית, חסינות לרעש, ודרישות לינאריות מהמשדר.',
+body:`
+<section><h3>הייצוג המרוכב: I ו־Q</h3>
+<span class="fm">s(t) = I(t)·cos(2πfct) − Q(t)·sin(2πfct) = Re{ (I + jQ)·e^(j2πfct) }
+A = sqrt(I² + Q²)     φ = atan2(Q, I)</span>
+<p>כל אפנון דיגיטלי הוא בחירת נקודות במישור I/Q (קונסטלציה). מודולטור IQ מכפיל את I ב־cos ואת Q ב־sin של אותו LO (מוזז 90°) ומחבר. זה למה חוסר איזון IQ ושגיאת 90° הם ליקויים קלאסיים.</p>
+</section>
+<section><h3>אנלוגיים, בקצרה</h3>
+<ul>
+<li><b>AM</b>: משנים אמפליטודה. רוחב סרט = 2×רוחב האות. פשוט, רגיש לרעש.</li>
+<li><b>FM</b>: משנים תדר. כלל קרסון: ${F('B ≈ 2(Δf + fm)')}. יש "capture effect" ו־threshold: מעל SNR מסוים, האיכות משתפרת הרבה יותר מאשר ב־AM.</li>
+<li><b>PM</b>: משנים פאזה. קשור ל־FM (FM = PM של אינטגרל האות).</li>
+</ul>
+</section>
+<section><h3>אפנונים דיגיטליים</h3>
+<div class="tbl"><table><tr><th>אפנון</th><th class="num">ביט/סימבול</th><th class="num">Eb/N0 ל־BER 10⁻⁶</th><th>מעטפת</th><th>שימוש טיפוסי</th></tr>
+<tr><td>BPSK</td><td class="num">1</td><td class="num">10.5 dB</td><td>משתנה (אחרי סינון)</td><td>לינקים חלשים, GPS, כותרות</td></tr>
+<tr><td>QPSK</td><td class="num">2</td><td class="num">10.5 dB</td><td>משתנה</td><td>לוויין DVB-S, LTE בקצה תא</td></tr>
+<tr><td>8PSK</td><td class="num">3</td><td class="num">~14 dB</td><td>משתנה</td><td>DVB-S2, EDGE</td></tr>
+<tr><td>16QAM</td><td class="num">4</td><td class="num">~14.5 dB</td><td>משתנה</td><td>WiFi, LTE, מיקרוגל</td></tr>
+<tr><td>64QAM</td><td class="num">6</td><td class="num">~18.8 dB</td><td>משתנה מאוד</td><td>WiFi, LTE, כבלים</td></tr>
+<tr><td>256QAM</td><td class="num">8</td><td class="num">~23.4 dB</td><td>משתנה מאוד</td><td>WiFi 5/6, 5G, Backhaul</td></tr>
+<tr><td>2-FSK / GFSK</td><td class="num">1</td><td class="num">~13.5 dB (לא קוהרנטי)</td><td>קבועה</td><td>Bluetooth, IoT, טלמטריה</td></tr>
+<tr><td>GMSK</td><td class="num">1</td><td class="num">~11 dB</td><td>קבועה</td><td>GSM, AIS</td></tr></table></div>
+<h4>PSK</h4><p>מידע בפאזה בלבד. BPSK ו־QPSK זהים ב־BER מול Eb/N0, כי QPSK הוא שני BPSK ניצבים. QPSK מכפיל קצב באותו רוחב סרט "בחינם". מעבר ל־8PSK הנקודות מתקרבות על המעגל ונדרש יותר SNR.</p>
+<p><b>OQPSK / π/4-QPSK</b>: מונעים מעבר דרך האפס בקונסטלציה, ולכן PAPR נמוך יותר. מתאים ל־PA לא לינארי.</p>
+<h4>QAM</h4><p>גם אמפליטודה וגם פאזה, רשת ריבועית. כל הכפלה של M (ביט נוסף) דורשת בערך 3dB נוספים ב־SNR (בפועל ~6dB לכל 2 ביט). מסדר גבוה צריך: EVM נמוך, רעש פאזה נמוך, PA לינארי עם backoff.</p>
+<h4>APSK</h4><p>טבעות קונצנטריות (16APSK = 4+12). פחות רמות אמפליטודה מ־QAM, ולכן עמיד יותר לאי־לינאריות של TWTA בלוויין. DVB-S2.</p>
+<h4>FSK / MSK / GMSK</h4><p>מעטפת קבועה, כך שאפשר לדחוף PA בריוויה (יעילות גבוהה). MSK הוא FSK עם מדד אפנון h=0.5 (הפרדת תדרים מינימלית לאורתוגונליות). GMSK מוסיף פילטר גאוסי (BT=0.3 ב־GSM) לצמצום ספקטרום.</p>
+</section>
+<section><h3>Gray coding</h3>
+<p>מסדרים את הביטים כך שסימבולים שכנים נבדלים בביט אחד בלבד. שגיאת סימבול לשכן (הנפוצה ביותר) = שגיאת ביט אחת. לכן ${F('BER ≈ SER / log2(M)')}.</p>
+</section>
+<section><h3>קוהרנטי מול לא קוהרנטי, ודיפרנציאלי</h3>
+<p>גילוי קוהרנטי דורש שחזור פאזת הנושא (PLL, Costas loop). DPSK מקודד את המידע בהפרש הפאזה בין סימבולים, ולכן לא צריך שחזור פאזה מוחלט, במחיר של כ־1 עד 3dB.</p>
+<div class="iv"><b>בראיון</b>"למה לא תמיד משתמשים ב־256QAM?" ← דורש ~23dB SNR, PA לינארי (backoff גדול, יעילות נמוכה), רעש פאזה נמוך ושעון מדויק. לכן משתמשים ב־<b>ACM/AMC</b>: אפנון וקוד אדפטיביים לפי איכות הערוץ.</div>
+</section>`},
+
+{id:'bw',n:'06',lvl:'ליבה',title:'Bitrate, רוחב סרט ונייקוויסט',tag:'Rb · Rs · Baud · RRC · α · Shannon',
+lead:'שלושה מספרים שמתבלבלים בהם הכי הרבה: קצב ביטים, קצב סימבולים ורוחב סרט. הנה הקשר המדויק ביניהם.',
+body:`
+<section><h3>הקשרים</h3>
+<span class="fm">Rs [sym/s, Baud] = Rb / (log2(M) · r)       r = code rate
+Rb_info = Rs · log2(M) · r
+B_occupied ≈ Rs · (1 + α)                   α = roll-off של פילטר RRC</span>
+<p>דוגמה: 10Msps ב־16QAM עם קוד 3/4: ${F('Rb = 10M × 4 × 0.75 = 30 Mbps')}. עם α=0.25 תופס 12.5MHz.</p>
+</section>
+<section><h3>נייקוויסט ופילטר Raised Cosine</h3>
+<p>נייקוויסט: בערוץ בפס בסיס ברוחב B אפשר להעביר לכל היותר ${F('2B')} סימבולים בשנייה ללא ISI. ב־RF (פס מעבר) רוחב B תומך ב־B סימבולים לשנייה (עם α=0).</p>
+<p>פילטר מלבני בתדר אינו מעשי (sinc אינסופי בזמן). לכן משתמשים ב־<b>Raised Cosine</b> עם roll-off α: מתפשט ל־${F('Rs(1+α)/2')} בבסיס. חוצים אותו לשניים: <b>Root Raised Cosine</b> במשדר ו־RRC במקלט. המכפלה היא RC, וכך מקבלים גם אפס ISI וגם matched filter (SNR מקסימלי).</p>
+<p>α טיפוסי: 0.35 (DVB-S), 0.22 (UMTS), 0.05–0.2 (DVB-S2/S2X). α קטן = יעיל ספקטרלית, אבל PAPR גבוה יותר ורגישות גבוהה יותר לשגיאות תזמון.</p>
+</section>
+<section><h3>רוחב סרט: איזה מהם?</h3>
+<ul>
+<li><b>Occupied bandwidth (OBW)</b>: הרוחב שמכיל 99% מההספק. זה מה שהרגולציה בודקת.</li>
+<li><b>−3dB / −26dB bandwidth</b>: הגדרות FCC/ETSI שונות.</li>
+<li><b>Noise bandwidth</b>: רוחב של פילטר מלבני אידאלי שמעביר אותו הספק רעש. ל־RRC הוא בדיוק Rs, לכן בחישוב רגישות משתמשים ב־Rs.</li>
+<li><b>Channel spacing</b>: המרווח בין ערוצים, גדול מה־OBW ומשאיר guard band.</li>
+</ul>
+</section>
+<section><h3>גבול שאנון</h3>
+<span class="fm">C = B · log2(1 + SNR)          [bit/s]
+Eb/N0_min = ln(2) = −1.59 dB    (כאשר B→∞)</span>
+<p>שאנון אומר מה <b>אפשרי</b>, לא איך. קודים מודרניים (LDPC, Turbo, Polar) מגיעים לפחות מ־1dB מהגבול. יעילות ספקטרלית ${F('η = Rb/B')} [bit/s/Hz]: QPSK 1/2 ≈ 0.8, ‏256QAM 5/6 ≈ 5.3.</p>
+<p>שתי הקצוות: <b>מוגבל רוחב סרט</b> (סלולר, מיקרוגל, ערוץ צר יקר) ← מעלים סדר אפנון. <b>מוגבל הספק</b> (חלל עמוק, IoT) ← אפנון פשוט, קוד חזק, Eb/N0 נמוך.</p>
+<div class="iv"><b>בראיון</b>"מה ההבדל בין Baud ל־bps?" ← Baud = סימבולים/שנייה. ב־BPSK שווים. ב־64QAM, ‏1 Baud = 6 ביט (לפני FEC). "יש 20MHz ו־SNR=20dB. מה הקיבולת?" ← ${F('20M × log2(101) ≈ 133 Mbps')}.</div>
+</section>`},
+
+{id:'quality',n:'07',lvl:'ליבה',title:'SNR, Eb/N0, EVM ו־MER',tag:'SNR · CNR · Es/N0 · Eb/N0 · EVM · MER',
+lead:'כולם מודדים "איכות", אבל כל אחד במקום אחר בשרשרת ובהגדרה אחרת. מראיינים אוהבים לשאול איך ממירים ביניהם.',
+body:`
+<section><h3>ההגדרות</h3>
+<ul>
+<li><b>SNR / CNR</b>: הספק אות להספק רעש בתוך רוחב סרט מסוים. CNR הוא לפני גילוי (ב־RF), SNR לעיתים אחרי.</li>
+<li><b>SINR</b>: כולל הפרעות במכנה. זה מה שקובע ביצועים במערכות סלולריות.</li>
+<li><b>Es/N0</b>: אנרגיה לסימבול ביחס לצפיפות רעש. בלתי תלוי ברוחב סרט.</li>
+<li><b>Eb/N0</b>: אנרגיה לביט מידע. "SNR מנורמל לביט", מאפשר להשוות אפנונים וקודים בהוגנות.</li>
+</ul>
+<span class="fm">Es/N0 = Eb/N0 + 10·log10(k · r)            k = log2(M), r = code rate
+SNR   = Es/N0 − 10·log10(B_noise / Rs)     (עם RRC: B_noise = Rs → SNR = Es/N0)
+SNR   = Eb/N0 + 10·log10(Rb / B)</span>
+</section>
+<section><h3>EVM: Error Vector Magnitude</h3>
+<p>לכל סימבול שהתקבל מחשבים את וקטור השגיאה מהנקודה האידאלית. EVM הוא ה־RMS שלהם ביחס להספק הממוצע (או השיא) של הקונסטלציה.</p>
+<span class="fm">EVM_rms = sqrt( mean|r_k − s_k|² / mean|s_k|² )
+EVM[%]  = 100 · EVM_rms
+EVM[dB] = 20·log10(EVM_rms)
+
+כאשר הרעש הוא המקור היחיד:   SNR ≈ 1/EVM²   →   EVM[dB] ≈ −SNR[dB]
+EVM 10% = −20dB ≈ SNR 20dB      EVM 3% ≈ 30dB      EVM 1% = 40dB</span>
+<p>EVM תופס את <b>כל</b> הליקויים: רעש, רעש פאזה, IQ imbalance, דחיסה של PA, ISI מפילטרים, שגיאת תדר שיורית. לכן זה המדד הראשי למשדר.</p>
+<div class="tbl"><table><tr><th>תקן</th><th>אפנון</th><th class="num">EVM מקסימלי</th></tr>
+<tr><td>LTE</td><td>QPSK / 16QAM / 64QAM / 256QAM</td><td class="num">17.5% / 12.5% / 8% / 3.5%</td></tr>
+<tr><td>WiFi 802.11ac</td><td>256QAM 5/6</td><td class="num">−32 dB (2.5%)</td></tr>
+<tr><td>WiFi 6 / 6E</td><td>1024QAM</td><td class="num">−35 dB (1.8%)</td></tr>
+<tr><td>WiFi 7</td><td>4096QAM</td><td class="num">−38 dB (1.3%)</td></tr></table></div>
+<p><b>תקציב EVM</b>: ליקויים בלתי תלויים מתחברים בריבוע: ${F('EVM_tot = sqrt(EVM1² + EVM2² + ...)')}. אם ה־PA תורם 2% ורעש הפאזה 1.5%, הסה"כ הוא 2.5%.</p>
+<h4>MER</h4><p>Modulation Error Ratio: אותו רעיון בדציבלים, נהוג בשידור (DVB). ${F('MER = 10log(ΣP_ideal / ΣP_error)')}. בערך MER ≈ −EVM[dB].</p>
+<div class="lab"><b>מדידת EVM</b>VSA/ספקטרום עם אופציית דמודולציה. הגדר נכון: סוג אפנון, קצב סימבולים, פילטר (RRC ו־α), תדר מרכזי. רמת כניסה: לא קרוב לרצפת הרעש של המכשיר ולא בדחיסה של ה־mixer שלו (בדוק שהמכשיר עצמו לא מגביל: מדוד EVM של מחולל ישירות). EVM מול הספק נותן "bathtub": רע ברמה נמוכה (רעש) ורע ברמה גבוהה (דחיסה).</div>
+<div class="iv"><b>בראיון</b>"EVM טוב אבל BER גרוע, מה יכול להיות?" ← מדידת EVM עם equalizer שמסתיר בעיה, ספוריות לסירוגין, סנכרון/שעון, בעיית FEC/תוכנה, או שה־EVM נמדד בהספק אחר. "EVM גרוע רק בנקודות החיצוניות?" ← דחיסה של PA. "גרוע יותר בקצוות הערוץ ב־OFDM?" ← group delay / ripple של פילטר, או רעש פאזה.</div>
+</section>`},
+
+{id:'ber',n:'08',lvl:'ליבה',title:'BER, PER וקידוד לתיקון שגיאות (FEC)',tag:'BER · PER · Hamming · Viterbi · RS · LDPC · Turbo · Polar',
+lead:'FEC הוא הסיבה שמערכות מודרניות עובדות קרוב לגבול שאנון. מוסיפים ביטי יתירות במשדר כדי שהמקלט יתקן שגיאות בלי שידור חוזר.',
+body:`
+<section><h3>BER ו־PER</h3>
+<span class="fm">BER = שגיאות ביט / סך ביטים
+BPSK/QPSK (AWGN):  BER = Q( sqrt(2·Eb/N0) ) = ½·erfc( sqrt(Eb/N0) )
+M-QAM (קירוב):    BER ≈ (4/k)(1 − 1/√M) · Q( sqrt(3k/(M−1) · Eb/N0) )
+PER = 1 − (1 − BER)^N    ≈ N·BER  (כש־BER קטן)         N = ביטים בחבילה</span>
+<p>מספרים לזכור: BPSK ‏BER=10⁻³ ב־6.8dB, ‏10⁻⁵ ב־9.6dB, ‏10⁻⁶ ב־10.5dB. ליד 10⁻⁶ כל 1dB נוסף מוריד BER בסדר גודל.</p>
+<p><b>כמה ביטים צריך למדוד?</b> לביטחון 95% שה־BER נמוך מ־X, צריך כ־${F('3/X')} ביטים ללא שגיאות. ל־10⁻⁹ ב־1Mbps: 3×10⁹ ביט = 50 דקות. לכן מודדים בהספק גבוה יותר ועושים אקסטרפולציה, או מודדים PER.</p>
+</section>
+<section><h3>מושגי יסוד ב־FEC</h3>
+<ul>
+<li><b>Code rate</b> ${F('r = k/n')}: k ביטי מידע מתוך n ביטים משודרים. r=1/2 מכפיל את קצב הסימבולים (או את רוחב הסרט).</li>
+<li><b>Coding gain</b>: כמה dB של Eb/N0 חוסכים עבור BER מסוים לעומת ללא קוד. קונבולוציוני K=7 ‏r=1/2: ~5dB ב־10⁻⁵. LDPC: 7–9dB.</li>
+<li><b>Hamming distance (dmin)</b>: מתקן עד ${F('t = ⌊(dmin−1)/2⌋')} שגיאות.</li>
+<li><b>Hard vs Soft decision</b>: המפענח מקבל ביט (0/1) או ערך רך (LLR, "כמה בטוח"). Soft נותן ~2dB נוספים.</li>
+<li><b>Interleaving</b>: מפזר ביטים כך ששגיאות בפרץ (fading, הפרעה קצרה) יהפכו לשגיאות בודדות שהקוד מתקן.</li>
+<li><b>CRC</b>: <u>גילוי</u> בלבד, לא תיקון. בשימוש עם ARQ/HARQ.</li>
+</ul>
+</section>
+<section><h3>משפחות קודים</h3>
+<div class="tbl"><table><tr><th>קוד</th><th>עיקרון</th><th>מפענח</th><th>איפה</th></tr>
+<tr><td>Hamming (7,4)</td><td>בלוק, dmin=3, מתקן 1</td><td>syndrome</td><td>זיכרונות ECC</td></tr>
+<tr><td>Reed-Solomon (255,223)</td><td>בלוק על סימבולים (בייטים), מתקן 16 בייטים</td><td>Berlekamp-Massey</td><td>CD, DVB-S, QR, חלל. מצוין לפרצים</td></tr>
+<tr><td>Convolutional K=7 r=1/2</td><td>זיכרון של 6 ביטים, פולינומים 171/133</td><td>Viterbi (ML)</td><td>GSM, WiFi ישן, לוויין</td></tr>
+<tr><td>Concatenated RS + Conv</td><td>פנימי מתקן רעש, חיצוני מנקה פרצים שיורים מ־Viterbi</td><td>שני שלבים</td><td>DVB-S, Voyager</td></tr>
+<tr><td>Turbo</td><td>שני קונבולוציוניים מקביליים + interleaver</td><td>איטרטיבי (BCJR)</td><td>3G, LTE data</td></tr>
+<tr><td>LDPC</td><td>מטריצת בדיקה דלילה</td><td>Belief propagation איטרטיבי</td><td>DVB-S2, WiFi 6, 5G data, 10GbE</td></tr>
+<tr><td>Polar</td><td>channel polarization, מוכח שמשיג קיבולת</td><td>SC-List</td><td>5G control</td></tr></table></div>
+<p><b>Error floor</b>: בקודים איטרטיביים העקומה יכולה להשתטח ב־BER נמוך. לכן DVB-S2 שם BCH חיצוני מעל LDPC.</p>
+<p><b>Puncturing</b>: מוחקים חלק מביטי היתירות לפי תבנית כדי לקבל קצבים 2/3, 3/4, 5/6 מאותו קוד 1/2.</p>
+<p><b>HARQ</b>: שילוב של FEC ושידור חוזר. Chase combining משלב שידורים חוזרים זהים, Incremental redundancy שולח ביטי יתירות חדשים.</p>
+<div class="iv"><b>בראיון</b>"קוד 1/2 מכפיל רוחב סרט. איך זה משתלם?" ← Eb/N0 נדרש יורד ב־~5–8dB. גם אחרי ש־Es/N0 יורד ב־3dB (כי יש פי 2 סימבולים לביט מידע), נשאר רווח נטו גדול. "מה ההבדל בין BER לפני ואחרי FEC?" ← pre-FEC (raw) BER של 10⁻³ יכול להפוך ל־10⁻¹² אחרי LDPC. במדידות מקמש תמיד ציין איזה מהם.</div>
+</section>`},
+
+{id:'prop',n:'09',lvl:'מערכות',title:'התפשטות, נוסחת פריז ומרחק שידור',tag:'FSPL · Friis · Fresnel · Horizon · Two-ray · Log-distance',
+lead:'כמה רחוק אפשר לשדר? זו השאלה הכי נפוצה בראיון מערכות. התשובה היא link budget, וכאן כל המרכיבים שלו.',
+body:`
+<section><h3>נוסחת פריז להעברה</h3>
+<span class="fm">Pr = Pt · Gt · Gr · (λ / 4πd)²            (לינארי)
+
+Pr[dBm] = Pt[dBm] + Gt[dBi] + Gr[dBi] − FSPL[dB] − L_misc
+
+FSPL[dB] = 20log10(4πd/λ)
+         = 20log10(d_km) + 20log10(f_MHz) + 32.44
+         = 20log10(d_m)  + 20log10(f_MHz) − 27.55</span>
+<p>FSPL אינו "הנחתה" של האוויר. האנרגיה פשוט מתפזרת על ספירה (${F('1/d²')}). התלות בתדר באה מכך שהשטח האפקטיבי של אנטנת הקליטה (באותו הגבר) קטן כמו ${F('λ²')}.</p>
+<p>כללי אצבע: <b>כפול מרחק = +6dB הפסד</b>. כפול תדר = +6dB (באותו הגבר אנטנות). 2.4GHz ב־1km: ‏100dB. ב־100m: ‏80dB.</p>
+</section>
+<section><h3>Link budget ומרחק מקסימלי</h3>
+<span class="fm">Margin = Pt + Gt + Gr − Lcables − FSPL(d) − Sensitivity
+
+d_max[km] = 10 ^ ( (Pt + Gt + Gr − L − Sens − FM − 32.44 − 20log10(f_MHz)) / 20 )</span>
+<h4>דוגמה</h4>
+<p>Pt=30dBm, אנטנות 6dBi כל צד, כבלים 2dB לכל צד, רגישות ‏−100dBm, ‏f=900MHz, מרווח דעיכה 15dB.</p>
+<span class="fm">MAPL = 30 + 6 + 6 − 4 − (−100) − 15 = 123 dB
+d = 10^((123 − 32.44 − 59.08)/20) = 10^(1.574) ≈ 37.5 km   (בחלל פתוח, בקו ראייה)</span>
+<p><b>EIRP</b> = ${F('Pt − Lcable + Gt')}. הרגולציה מגבילה EIRP, לא Pt. לכן אנטנה עם הגבר גבוה לא תמיד מותרת בצד המשדר, אבל תמיד עוזרת בצד המקלט.</p>
+</section>
+<section><h3>אזור פרנל</h3>
+<p>גם בקו ראייה אופטי, מכשול שחודר לאליפסואיד פרנל הראשון גורם להפסד עקיפה. כלל: לשמור לפחות <b>60%</b> מרדיוס האזור הראשון פנוי.</p>
+<span class="fm">r1[m] = 17.32 · sqrt( d1·d2 / (f_GHz · D) )      d1, d2, D בק"מ
+באמצע הלינק:  r1 = 8.66 · sqrt( D_km / f_GHz )</span>
+<p>לינק של 10km ב־5GHz: ‏r1=12.2m באמצע. צריך ~7.3m מרווח מעל עצים/גגות.</p>
+</section>
+<section><h3>אופק רדיו</h3>
+<span class="fm">d[km] ≈ 4.12 · ( sqrt(h1[m]) + sqrt(h2[m]) )      (k = 4/3, שבירה אטמוספרית תקנית)
+אופטי: 3.57·(√h1 + √h2)</span>
+<p>אנטנה ב־30m וב־2m: ‏4.12×(5.48+1.41) ≈ 28km. בדרך כלל זה הגבול האמיתי של לינקים קרקעיים ב־VHF/UHF, לא ההספק.</p>
+</section>
+<section><h3>מעבר לחלל פתוח</h3>
+<h4>מודל שתי קרניים (Two-ray)</h4><p>קרן ישירה + החזרה מהקרקע. מעבר למרחק השבירה ${F('d_b = 4·ht·hr/λ')} ההפסד גדל ב־40dB לעשור (${F('1/d⁴')}) ולא תלוי בתדר:</p>
+<span class="fm">PL = 40·log10(d) − 20·log10(ht) − 20·log10(hr)</span>
+<h4>Log-distance</h4>
+<span class="fm">PL(d) = PL(d0) + 10·n·log10(d/d0) + Xσ</span>
+<div class="tbl"><table><tr><th>סביבה</th><th class="num">n</th></tr><tr><td>חלל פתוח</td><td class="num">2</td></tr><tr><td>עירוני</td><td class="num">2.7–3.5</td></tr><tr><td>עירוני עם הצללה</td><td class="num">3–5</td></tr><tr><td>בתוך בניין, קו ראייה</td><td class="num">1.6–1.8</td></tr><tr><td>בתוך בניין, חסום</td><td class="num">4–6</td></tr></table></div>
+<p>Xσ הוא <b>shadowing</b> לוג־נורמלי (σ≈6–10dB). מודלים אמפיריים: Okumura-Hata, COST-231, ITU-R P.1411, 3GPP 38.901.</p>
+<h4>הנחתות נוספות</h4>
+<ul><li>גשם: משמעותי מעל ~10GHz (ITU-R P.838). ב־Ka/E-band יכול להיות 10–30dB.</li><li>חמצן ב־60GHz: ~15dB/km. אדי מים ב־22GHz.</li><li>חדירה לבניינים: 10–20dB, תלוי זכוכית/בטון.</li><li>צמחייה: dB למטר, עולה עם התדר.</li></ul>
+<div class="iv"><b>בראיון</b>"למה התדרים הנמוכים מגיעים רחוק יותר?" ← עם אנטנות בעלות הגבר קבוע (למשל דיפול), השטח האפקטיבי גדול יותר בתדר נמוך. וגם: חדירה ועקיפה טובות יותר והנחתות נמוכות יותר. עם אנטנות בגודל פיזי קבוע (צלחת) המצב מתהפך: הגבר עולה כמו f², ולינק צלחת־לצלחת <i>משתפר</i> עם התדר.</div>
+</section>`},
+
+{id:'fading',n:'10',lvl:'מערכות',title:'מולטיפאס, דעיכה ודופלר',tag:'Rayleigh · Rician · Delay spread · Coherence · Doppler · Diversity',
+lead:'בעולם האמיתי האות מגיע בכמה מסלולים שמתחברים בפאזות שונות. זה יוצר דעיכות עמוקות שנעות בזמן ובתדר, והן הסיבה ל־OFDM, ל־MIMO ולמרווחי דעיכה.',
+body:`
+<section><h3>שני סוגי דעיכה</h3>
+<ul><li><b>Large-scale</b>: path loss + shadowing. משתנה לאורך עשרות מטרים.</li><li><b>Small-scale</b>: התאבכות של מסלולים. דעיכות של 20–30dB במרחק של חצי אורך גל.</li></ul>
+<h4>התפלגויות</h4>
+<p><b>Rayleigh</b>: אין קו ראייה, הרבה מסלולים. המעטפת מתפלגת Rayleigh. ההסתברות לדעיכה של X dB מתחת לממוצע בערך ${F('10^(−X/10)')}: ‏10dB ב־10% מהזמן, ‏20dB ב־1%, ‏30dB ב־0.1%.</p>
+<p><b>Rician</b>: יש רכיב ישיר דומיננטי עם מקדם K (יחס ישיר לפזור). K→∞ = AWGN, K=0 = Rayleigh.</p>
+<p>ב־Rayleigh, BPSK צריך ~44dB Eb/N0 ל־BER=10⁻⁶ (במקום 10.5 ב־AWGN)! ה־BER יורד רק ${F('1/SNR')} ולא אקספוננציאלית. לכן בלי diversity ו־FEC עם interleaving אין תקשורת ניידת.</p>
+</section>
+<section><h3>פיזור בזמן (Delay spread) ו־Coherence bandwidth</h3>
+<span class="fm">Bc ≈ 1 / (5·στ)      (קורלציה 0.5)
+στ: בתוך בניין 10–100ns, עירוני 1–3µs, הררי עד 10µs+</span>
+<p>אם רוחב האות <b>גדול</b> מ־Bc: דעיכה תלוית תדר (frequency selective) ← ISI ← צריך equalizer או OFDM. אם קטן: flat fading.</p>
+</section>
+<section><h3>דופלר ו־Coherence time</h3>
+<span class="fm">fd = v·f/c · cos(θ)          fd_max = v/λ
+Tc ≈ 0.423 / fd</span>
+<p>מכונית ב־100 קמ"ש ב־2GHz: ‏fd=185Hz, ‏Tc≈2.3ms. אם הסימבול/המסגרת ארוכים מ־Tc, הערוץ משתנה באמצע ← צריך פיילוטים תכופים. בלוויין LEO הדופלר יכול להגיע ל־±40kHz ב־S-band ודורש פיצוי בתדר.</p>
+</section>
+<section><h3>Diversity</h3>
+<p>הרעיון: שני ענפים בלתי תלויים לא ידעכו באותו רגע.</p>
+<ul><li><b>מרחבי</b>: אנטנות מרוחקות לפחות ~λ/2 (במקלט נייד) או 10λ+ (בתחנת בסיס).</li><li><b>קיטוב</b>: ±45°.</li><li><b>תדר</b>: frequency hopping, OFDM עם קידוד על פני תת־נושאים.</li><li><b>זמן</b>: interleaving + FEC.</li></ul>
+<p>שילוב: Selection, Equal-gain, <b>MRC</b> (Maximal Ratio Combining, אופטימלי: מגביר כל ענף לפי ה־SNR שלו). ל־2 ענפים MRC נותן ~3dB בממוצע ו־10dB+ ב־diversity gain בנקודת 1%.</p>
+<div class="iv"><b>בראיון</b>"מה מרווח דעיכה תבחר?" ← תלוי בזמינות הנדרשת והסביבה. לינק LOS יציב: 10dB. Rayleigh ל־99%: ~20dB, ל־99.9%: ~30dB. עם diversity אפשר להוריד משמעותית.</div>
+</section>`},
+
+{id:'ofdm',n:'11',lvl:'מערכות',title:'OFDM, גישה מרובה ו־MIMO',tag:'OFDM · CP · PAPR · TDD/FDD · CDMA · OFDMA · MIMO',
+lead:'כמעט כל מערכת רחבת סרט מודרנית (WiFi, LTE, 5G, DVB-T) היא OFDM. הבנה עמוקה שלו היא חובה.',
+body:`
+<section><h3>OFDM</h3>
+<p>מחלקים ערוץ רחב ל־N תת־נושאים צרים, כל אחד מאופנן לאט. כל תת־נושא חווה flat fading, וה־equalizer הוא כפל אחד בתדר.</p>
+<span class="fm">Δf = 1 / Tu            (מרווח תת־נושאים = הופכי של משך הסימבול השימושי)
+T_symbol = Tu + T_CP
+Rb ≈ N_data · log2(M) · r / T_symbol</span>
+<ul>
+<li><b>אורתוגונליות</b>: במרווח 1/Tu, השיא של כל תת־נושא נופל באפסים של השכנים. מימוש: IFFT במשדר, FFT במקלט.</li>
+<li><b>Cyclic Prefix</b>: מעתיקים את סוף הסימבול להתחלה. אם ${F('T_CP > delay spread')}, ההד נבלע ב־CP ואין ISI. מחיר: יעילות (LTE: CP ‏4.7µs מתוך 71.4µs ≈ 7%).</li>
+<li><b>פיילוטים</b>: תת־נושאים ידועים לשערוך ערוץ ומעקב פאזה.</li>
+</ul>
+<h4>מספרים ל־LTE ו־WiFi</h4>
+<div class="tbl"><table><tr><th></th><th class="num">Δf</th><th class="num">Tu</th><th class="num">FFT (20MHz)</th></tr>
+<tr><td>LTE</td><td class="num">15 kHz</td><td class="num">66.7 µs</td><td class="num">2048 (1200 בשימוש)</td></tr>
+<tr><td>WiFi a/g/n/ac</td><td class="num">312.5 kHz</td><td class="num">3.2 µs</td><td class="num">64</td></tr>
+<tr><td>WiFi 6 (ax)</td><td class="num">78.125 kHz</td><td class="num">12.8 µs</td><td class="num">256</td></tr>
+<tr><td>5G NR</td><td class="num">15·2^µ kHz</td><td class="num">משתנה</td><td class="num">עד 4096</td></tr></table></div>
+<h4>החולשות של OFDM</h4>
+<ul>
+<li><b>PAPR גבוה</b>: סכום של הרבה סינוסים ← שיאים של 10–12dB מעל הממוצע. ה־PA חייב backoff גדול ← יעילות נמוכה. פתרונות: CFR (clipping), DPD, וב־LTE uplink: ‏SC-FDMA (DFT-spread) עם PAPR נמוך יותר.</li>
+<li><b>רגישות לשגיאת תדר</b>: היסט של שבריר מ־Δf הורס אורתוגונליות (ICI). ב־WiFi 6 עם Δf קטן יותר זה קריטי יותר.</li>
+<li><b>רעש פאזה</b>: גורם ל־Common Phase Error (מתוקן בפיילוטים) ול־ICI (לא מתוקן).</li>
+</ul>
+</section>
+<section><h3>דופלקס וגישה מרובה</h3>
+<ul>
+<li><b>FDD</b>: תדרים נפרדים ל־UL ו־DL, שידור וקליטה בו־זמנית. צריך <b>דופלקסר</b> עם בידוד גבוה (50–60dB) ו־duplex gap.</li>
+<li><b>TDD</b>: אותו תדר, חלוקה בזמן. גמיש באסימטריה, ערוץ הדדי (reciprocity) מאפשר beamforming, דורש סנכרון וזמני מעבר TX/RX (guard).</li>
+<li><b>FDMA / TDMA / CDMA / OFDMA</b>: חלוקה בתדר, בזמן, בקוד, או במשבצות זמן־תדר.</li>
+<li><b>CDMA / DSSS</b>: כל ביט מוכפל ברצף chips מהיר. <b>Processing gain</b> ${F('= 10log(Rc/Rb)')}. GPS: ‏1.023Mcps / 50bps ⇒ 43dB. זה למה GPS נקלט מתחת לרצפת הרעש (‏−130dBm).</li>
+<li><b>FHSS</b>: קפיצות תדר. Bluetooth: ‏1600 קפיצות/שנייה על 79 ערוצים. עמיד להפרעה צרת סרט ולהאזנה.</li>
+</ul>
+</section>
+<section><h3>MIMO</h3>
+<ul>
+<li><b>Spatial multiplexing</b>: זרמים בלתי תלויים במקביל באותו תדר. קיבולת ≈ ${F('min(Nt, Nr) · B·log2(1+SNR)')} בערוץ עשיר בפיזור.</li>
+<li><b>Transmit diversity</b> (Alamouti STBC): אותו מידע מקודד על פני אנטנות, משיג diversity בלי לדעת את הערוץ במשדר.</li>
+<li><b>Beamforming</b>: פאזה והגבר לכל אנטנה ממקדים אנרגיה. מערך של N אלמנטים: הגבר עד ${F('10logN')} בשידור, ו־${F('20logN')} ב־EIRP (גם הספק מכל PA וגם הגבר).</li>
+<li><b>Rank / Condition number</b>: כמה זרמים הערוץ באמת תומך. בקו ראייה טהור Rank≈1 (אלא אם משתמשים בקיטובים).</li>
+</ul>
+<div class="iv"><b>בראיון</b>"למה CP צריך להיות ארוך מה־delay spread?" ← כדי שההד של סימבול קודם ייגמר בתוך ה־CP. אז FFT רואה קונבולוציה מעגלית עם הערוץ, שהופכת לכפל פשוט בתדר. "למה LTE uplink לא OFDMA?" ← PAPR. הטלפון צריך PA יעיל לסוללה.</div>
+</section>`},
+
+{id:'ant',n:'12',lvl:'מערכות',title:'אנטנות',tag:'Gain · Directivity · Beamwidth · Polarization · Aperture · Near/Far field',
+lead:'האנטנה היא הרכיב הכי "זול" בהגבר: 3dB באנטנה שקולים להכפלת הספק המשדר, ופועלים גם בשידור וגם בקליטה.',
+body:`
+<section><h3>הגבר, כיווניות ויעילות</h3>
+<span class="fm">G = η · D                  η = יעילות קרינה (0.5–0.95)
+G = 4π·Ae / λ²             Ae = שטח אפקטיבי
+צלחת:  G ≈ η·(π·D/λ)²       (η ≈ 0.55–0.65)
+G[dBi] ≈ 41253·η / (θ_E° · θ_H°)     (קירוב מרוחב אלומה)</span>
+<p>צלחת 60cm ב־12GHz (λ=2.5cm): ${F('0.6×(π×24)² = 3410 ≈ 35dBi')}. רוחב אלומה ${F('≈ 70·λ/D = 2.9°')}.</p>
+<div class="tbl"><table><tr><th>אנטנה</th><th class="num">הגבר טיפוסי</th></tr><tr><td>איזוטרופית (תיאורטית)</td><td class="num">0 dBi</td></tr><tr><td>דיפול λ/2</td><td class="num">2.15 dBi</td></tr><tr><td>מונופול λ/4 על משטח הארקה</td><td class="num">~5 dBi</td></tr><tr><td>Patch</td><td class="num">6–9 dBi</td></tr><tr><td>Yagi</td><td class="num">8–17 dBi</td></tr><tr><td>Horn</td><td class="num">10–25 dBi</td></tr><tr><td>צלחת</td><td class="num">25–50+ dBi</td></tr></table></div>
+<p>אין "הגבר חינם": אנטנה עם הגבר גבוה פשוט מרכזת את הקרינה לאלומה צרה יותר. Omni עם 9dBi היא "פנקייק", שטוחה מאוד באנכי.</p>
+</section>
+<section><h3>שדה קרוב ורחוק</h3>
+<span class="fm">Far field (Fraunhofer):  R > 2·D² / λ      (וגם R ≫ λ, R ≫ D)</span>
+<p>נוסחת פריז תקפה רק בשדה הרחוק. מדידת אנטנה (OTA) חייבת להיות במרחק הזה, או בתא שדה קרוב / Compact range.</p>
+</section>
+<section><h3>קיטוב</h3>
+<ul><li>ליניארי אנכי/אופקי, ליניארי ±45° (סלולר), מעגלי RHCP/LHCP (לוויין, GPS).</li><li>אי־התאמה: ${F('PLF = cos²(Δθ)')}. ‏45° = ‏3dB. ‏90° = תיאורטית ∞, מעשית 20–30dB (Cross-pol discrimination, XPD).</li><li>ליניארי לעומת מעגלי: ‏3dB תמיד, בכל זווית.</li><li>RHCP מתהפך ל־LHCP בהחזרה, ולכן מעגלי דוחה מולטיפאס של החזרה בודדת. גם ההחזרה מהיונוספירה (Faraday rotation) לא פוגעת בו.</li></ul>
+</section>
+<section><h3>פרמטרים נוספים</h3>
+<ul><li><b>Front-to-back ratio</b>: יחס בין קרינה קדימה לאחורה.</li><li><b>Side lobes</b>: אונות צד. חשוב להפרעות ורגולציה (ETSI masks).</li><li><b>Bandwidth</b>: לרוב מוגדר לפי VSWR<2 או RL>10dB.</li><li><b>Isolation</b> בין אנטנות על אותו מכשיר: קריטי בשילוב רדיו (WiFi+LTE+GPS). מודדים S21 בין הפורטים.</li><li><b>TRP / TIS</b>: הספק נקרן כולל ורגישות איזוטרופית כוללת. המדדים של הסלולר ל־OTA, כוללים את השפעת המארז והגוף.</li></ul>
+<div class="iv"><b>בראיון</b>"יש לך מקום ל־3dB נוספים. אנטנה או PA?" ← אנטנה במקלט עוזרת בשני הכיוונים ולא צורכת הספק. אבל הגבר גבוה = אלומה צרה, דורש כיוון ועלול להפר EIRP. PA צורך חשמל, מחמם ומוסיף אי־לינאריות.</div>
+</section>`},
+
+{id:'lin',n:'13',lvl:'מתקדם',title:'לינאריות: P1dB, IP3 ואינטרמודולציה',tag:'P1dB · IIP3 · OIP3 · IMD · ACLR · Spectral regrowth',
+lead:'שום רכיב אקטיבי אינו לינארי באמת. כשאות חזק עובר דרכו נוצרים תדרים חדשים. אלה נופלים בערוצים של אחרים (משדר) או בערוץ שלך (מקלט).',
+body:`
+<section><h3>טור הספקים</h3>
+<span class="fm">y = a1·x + a2·x² + a3·x³ + ...</span>
+<p>עם שני טונים ${F('f1, f2')} האיבר הריבועי נותן ${F('2f1, f1±f2')}, והאיבר הקובי נותן ${F('3f1, 2f1±f2, 2f2±f1')}. המוצרים <b>${F('2f1−f2')} ו־${F('2f2−f1')}</b> (IM3) הם הבעיה: הם נופלים ממש ליד האותות, ואי אפשר לסנן אותם.</p>
+</section>
+<section><h3>P1dB</h3><p>הספק הכניסה (IP1dB) או היציאה (OP1dB) שבו ההגבר נמוך ב־1dB מהלינארי. מעבר אליו המגבר בדחיסה. ${F('OP1dB = IP1dB + G − 1')}.</p></section>
+<section><h3>Third-order intercept (IP3)</h3>
+<p>נקודה תיאורטית (מאקסטרפולציה) שבה הקו של IM3 (שיפוע 3:1) פוגש את הקו של היסוד (שיפוע 1:1). כל 1dB בכניסה מוסיף 3dB ל־IM3, כלומר IM3 עולה ב־2dB ביחס ליסוד.</p>
+<span class="fm">OIP3 = Pout_tone + ΔIM/2        ΔIM = Pout_tone − P_IM3   [dBc]
+IIP3 = OIP3 − G
+כלל אצבע:  IIP3 ≈ IP1dB + 10dB    (9.6dB תיאורטית לאיבר קובי בלבד)</span>
+<p>דוגמה: שני טונים של ‏−10dBm ביציאה, IM3 ב־‏−60dBm ⇒ ΔIM=50dB ⇒ OIP3 = ‏−10+25 = ‏+15dBm.</p>
+<h4>IIP3 של שרשרת</h4>
+<span class="fm">1/IIP3_tot = 1/IIP3_1 + G1/IIP3_2 + G1·G2/IIP3_3 + ...      (לינארי, mW)</span>
+<p>שים לב להיפוך מול פריז: ב־NF השלב <b>הראשון</b> שולט, בלינאריות השלב <b>האחרון</b> שולט (כי הוא רואה את האות אחרי כל ההגבר). זה ה־trade-off המרכזי בתכנון שרשרת.</p>
+<div class="trap"><b>מלכודת מדידה</b>במדידת IP3 עם שני מחוללים, חבר אותם דרך combiner עם בידוד טוב (ומנחתים) כדי שלא יבצעו אינטרמודולציה זה בזה. וודא שהמיקסר של הספקטרום לא יוצר IM3 משלו: הוסף 10dB הנחתה בכניסת המכשיר. אם רמת ה־IM3 משתנה (לא ב־10dB) ⇒ הוא נוצר במכשיר.</div>
+</section>
+<section><h3>במשדר: ACLR ו־Spectral regrowth</h3>
+<p>אות מאופנן רחב עובר ב־PA לא לינארי ← מוצרי IM של כל רכיבי הספקטרום מתפשטים לערוצים הסמוכים ("כתפיים").</p>
+<ul><li><b>ACLR / ACPR</b>: הספק בערוץ סמוך ביחס להספק בערוץ. LTE: ‏≥45dBc. עולה בערך 2dB לכל 1dB הספק נוסף.</li><li><b>Spectral mask</b>: מסכה רגולטורית שהספקטרום חייב להיות מתחתיה.</li><li><b>AM/AM ו־AM/PM</b>: דחיסת הגבר ושינוי פאזה כתלות באמפליטודה. שניהם פוגעים ב־EVM.</li></ul>
+<p>פתרונות: <b>Backoff</b> (עבודה רחוק מ־P1dB בכמות ≈ PAPR), <b>DPD</b> (Digital Pre-Distortion: עיוות הפוך בדיגיטל, משפר ACLR ב־15–20dB), <b>CFR</b>, ‏<b>Doherty</b> (יעילות טובה ב־backoff).</p>
+<div class="iv"><b>בראיון</b>"מה שיפוע IM3 ולמה?" ← 3:1 כי הוא נובע מ־x³. "מה ההבדל בין IIP3 ל־P1dB?" ← P1dB הוא נקודה פיזית שמודדים. IIP3 הוא אקסטרפולציה, תמיד מעל, וטוב לחיזוי IM של אותות חלשים. "IIP2?" ← חשוב במקלט Zero-IF: מוצר ריבועי של מפריע חזק נופל ב־DC (AM detection).</div>
+</section>`},
+
+{id:'arch',n:'14',lvl:'מתקדם',title:'ארכיטקטורות מקלט ומשדר',tag:'Superhet · Zero-IF · Low-IF · Image · Mixer · LO · PLL',
+lead:'מבנה המקלט קובע אילו ליקויים יופיעו. כשאתה רואה ספוריות או בעיה במקמש, הבנת הארכיטקטורה היא מה שמוביל אותך לשורש.',
+body:`
+<section><h3>מיקסר</h3>
+<p>מכפיל: ${F('cos(a)·cos(b) = ½[cos(a−b) + cos(a+b)]')}. מזיז אות מ־RF ל־IF: ${F('fIF = |fRF − fLO|')}.</p>
+<ul><li><b>Conversion loss/gain</b>: פסיבי ~6–8dB הפסד, NF≈ההפסד.</li><li><b>LO drive</b>: מיקסר פסיבי צריך +7 עד +17dBm LO.</li><li><b>Isolation</b>: LO-RF, LO-IF, RF-IF. דליפת LO לאנטנה היא קרינה לא רצויה.</li><li><b>מוצרים ספורים</b>: ${F('m·fRF ± n·fLO')}. טבלת spur chart לבחירת IF.</li></ul>
+</section>
+<section><h3>סופרהטרודין</h3>
+<p>RF ← LNA ← פילטר ← מיקסר ← IF קבוע ← פילטר ערוץ חד (SAW/קריסטל) ← הגבר ← גילוי/ADC.</p>
+<p><b>תדר דמות</b>: ${F('f_image = fRF ± 2·fIF')} (בצד השני של ה־LO). מתורגם לאותו IF! חייבים לסנן לפני המיקסר. IF גבוה = דמות רחוקה וקלה לסינון, אבל פילטר ערוץ קשה יותר. לכן <b>המרה כפולה</b>: IF ראשון גבוה (דחיית דמות) ו־IF שני נמוך (סלקטיביות).</p>
+<p>יתרונות: ביצועים מצוינים, סלקטיביות. חסרונות: פילטרים חיצוניים, יקר, גדול.</p>
+</section>
+<section><h3>Zero-IF (המרה ישירה)</h3>
+<p>LO בדיוק בתדר הנושא ← I/Q בפס בסיס. אין דמות (ליתר דיוק: הדמות היא האות עצמו בתדרים שליליים), אין פילטר IF, מתאים לשילוב בשבב. רוב ה־RFIC והמקמשים המודרניים.</p>
+<p>הבעיות: <b>DC offset</b> (דליפת LO שמתערבבת עם עצמה, self-mixing), <b>IQ imbalance</b> (דמות שיורית, ‏image rejection רק 25–40dB), <b>רעש 1/f</b> בפס הבסיס, <b>IIP2</b>. ב־spectrum של אות Zero-IF תראה "spike" במרכז ו־"מראה" של האות.</p>
+<span class="fm">Image Rejection Ratio ≈ 10·log10( 4 / (ε² + θ²) )       ε = שגיאת הגבר (לינארית), θ = שגיאת פאזה (רדיאנים)
+1% + 1° → ~41 dB</span>
+</section>
+<section><h3>Low-IF</h3><p>פשרה: IF של כמה מאות kHz. נמנע מ־DC ו־1/f, הדמות קרובה ודורשת דחיית דמות ב־IQ (פילטר polyphase או דיגיטלי). נפוץ ב־Bluetooth/GSM.</p></section>
+<section><h3>LO, סינתסייזר ו־PLL</h3>
+<p>PLL: ‏VCO ← מחלק N ← גלאי פאזה מול ייחוס (TCXO/OCXO) ← loop filter ← VCO. ${F('fout = N · fref')} (Integer-N) או N שברי (Fractional-N, רזולוציה עדינה, ספוריות שבריות).</p>
+<ul><li><b>Loop bandwidth</b>: בתוך הלולאה, רעש הפאזה עוקב אחרי הייחוס ⋅ ${F('20logN')}. מחוץ לה, עוקב אחרי ה־VCO.</li><li><b>Lock time</b>: תלוי ברוחב הלולאה. חשוב ב־frequency hopping ומעברי TDD.</li><li><b>Reference spurs</b>: ב־±fref מהנושא.</li></ul>
+<p>דיוק תדר: TCXO ‏±0.5–2ppm, OCXO ‏±0.01ppm, GPSDO ‏~0.001ppm. ב־2.4GHz, ‏20ppm = ‏48kHz היסט. בין שני מקמשים ההיסט כפול!</p>
+<span class="fm">Δf = f_carrier · ppm · 10⁻⁶</span>
+</section>
+<section><h3>שרשרת משדר</h3>
+<p>DAC ← פילטר ← מודולטור IQ (או DAC ישיר ב־RF) ← מגבר מנהל (driver) ← PA ← פילטר הרמוניות ← מתג/דופלקסר ← אנטנה. לולאת בקרת הספק (detector) ו־DPD.</p>
+<p><b>יעילות PA</b>: ${F('PAE = (Pout − Pin) / Pdc')}. Class A: עד 50% (לינארי), AB: ‏50–70%, C/D/E/F: ‏80%+ (לא לינארי, מעטפת קבועה בלבד). Doherty + DPD: ‏40–50% ב־backoff עם OFDM.</p>
+<div class="iv"><b>בראיון</b>"RF=2400MHz, ‏IF=70MHz, LO מתחת. מה תדר הדמות?" ← ‏LO=2330, דמות = 2330−70 = ‏2260MHz. "למה אין דמות ב־Zero-IF?" ← יש: הצד השלילי של הספקטרום. IQ מאוזן מבדיל ביניהם; חוסר איזון יוצר דמות של האות על עצמו.</div>
+</section>`},
+
+{id:'pn',n:'15',lvl:'מתקדם',title:'רעש פאזה, ג\'יטר וספוריות',tag:'L(f) dBc/Hz · Jitter · Reciprocal mixing · Spurs',
+lead:'ה־LO אינו קו בודד בספקטרום. יש לו "חצאית" של רעש פאזה, והיא פוגעת גם ב־EVM של אות שלך וגם בחסימה מאות חזק בערוץ שכן.',
+body:`
+<section><h3>הגדרה</h3>
+<span class="fm">L(Δf) [dBc/Hz] = הספק בפס 1Hz בהיסט Δf מהנושא / הספק הנושא</span>
+<p>טיפוסי: ‏−100dBc/Hz ב־10kHz, ‏−130dBc/Hz ב־1MHz ל־LO של 2GHz. רעש הפאזה גדל ${F('20·log10(N)')} בהכפלת תדר. הכפלה ×2 = ‏+6dB. לכן LO ב־28GHz גרוע בהרבה מ־2GHz.</p>
+</section>
+<section><h3>רעש פאזה משולב וג'יטר</h3>
+<span class="fm">φ_rms [rad] = sqrt( 2 · ∫ 10^(L(f)/10) df )
+jitter_rms [s] = φ_rms / (2π·fc)
+EVM_pn ≈ φ_rms        (בקירוב, ברדיאנים → אחוזים)</span>
+<p>φ_rms=1° = ‏0.0175rad ⇒ ‏EVM≈1.75%. ל־256QAM צריך פחות מ־~0.5–1°.</p>
+<h4>ג'יטר ב־ADC</h4>
+<span class="fm">SNR_jitter = −20·log10( 2π · f_in · t_jitter )</span>
+<p>דגימת 1GHz עם ג'יטר של 100fs ⇒ ‏SNR מקסימלי 64dB. לכן שעון ADC חייב להיות נקי.</p>
+</section>
+<section><h3>Reciprocal mixing</h3>
+<p>מפריע חזק בהיסט Δf "מתערבב" עם רעש הפאזה של ה־LO באותו היסט, ותוצר הרעש נופל בדיוק בערוץ שלך. הרעש שנוסף:</p>
+<span class="fm">N_rm [dBm] = P_blocker + L(Δf) + 10·log10(B)</span>
+<p>מפריע ‏−30dBm ב־1MHz, ‏L=‏−130dBc/Hz, ‏B=200kHz ⇒ ‏−30−130+53 = ‏−107dBm. אם הרגישות ‏−110 ⇒ desense של כמה dB. זה מה שבודקים ב־blocking test.</p>
+</section>
+<section><h3>ספוריות</h3>
+<ul><li>הרמוניות: ${F('n·f0')}. נמדדות ב־dBc, רגולציה: ‏−30dBm עד ‏−60dBm טיפוסי.</li><li>Reference spurs של PLL, spurs שבריים.</li><li>DC-DC: ספוריות ב־±f_sw מהנושא. פתרון: LDO, סינון, סנכרון תדר מיתוג.</li><li>Clock harmonics של מעבד/זיכרון ב־RX (desense).</li><li>תוצרי מיקסר ${F('m·fRF ± n·fLO')}.</li></ul>
+<div class="lab"><b>איתור ספור</b>שנה את תדר הנושא ב־1MHz. אם הספור זז 1MHz ⇒ קשור לנושא. אם זז ב־n·MHz ⇒ הרמוניה/מוצר מיקסר. אם לא זז ⇒ מקור חיצוני (שעון, ספק). כבה תת־מערכות אחת אחת. השתמש ב־RBW צר כדי להפריד ספור מרעש.</div>
+</section>`},
+
+{id:'adc',n:'16',lvl:'מתקדם',title:'דגימה, ADC ו־DSP לרדיו',tag:'Nyquist · ENOB · Processing gain · Aliasing · Undersampling · SDR',
+lead:'במקמש מודרני ה־ADC יושב קרוב מאוד לאנטנה. מה שהוא מאפשר ומה שהוא מגביל קובע את התחום הדינמי.',
+body:`
+<section><h3>SNR של ADC אידאלי</h3>
+<span class="fm">SNR = 6.02·N + 1.76 dB                 (סינוס בסקאלה מלאה, רעש קוונטיזציה בפס fs/2)
+ENOB = (SINAD − 1.76) / 6.02
+Processing gain = 10·log10( fs / (2·B) )</span>
+<p>ADC של 12 ביט: 74dB. עם fs=100MHz ואות ברוחב 1MHz: ‏+17dB של processing gain אחרי decimation. ENOB אמיתי תמיד נמוך ב־1–2 ביט מהנומינלי.</p>
+<p>התחום הדינמי של המקלט = תחום ה־ADC + טווח ה־AGC. צריך להשאיר headroom ל־PAPR (OFDM: ‏10–12dB מתחת ל־full scale).</p>
+</section>
+<section><h3>Aliasing ו־Undersampling</h3>
+<p>כל תדר מעל ${F('fs/2')} "מתקפל" חזרה. לכן <b>anti-aliasing filter</b> לפני ה־ADC. דגימת פס מעבר (bandpass sampling): אות צר במרכז תדר גבוה נדגם בכוונה בקצב נמוך, וה־alias שלו יורד לאזור Nyquist הראשון. הדרישה: ${F('fs > 2B')} והאות שלם בתוך אזור Nyquist אחד.</p>
+</section>
+<section><h3>DSP במקלט דיגיטלי</h3>
+<ul><li><b>DDC</b>: NCO + מכפיל ← decimation ← פילטר ערוץ.</li><li><b>סנכרון</b>: גילוי מסגרת (preamble, correlation), תיקון תדר (CFO), שחזור שעון סימבולים (Gardner, Mueller-Muller), שחזור פאזה (Costas, decision-directed).</li><li><b>Equalizer</b>: LMS/RLS ב־single carrier, ZF/MMSE לכל תת־נושא ב־OFDM.</li><li><b>Matched filter</b> (RRC) ← דגימה בנקודה האופטימלית ← החלטה רכה ← מפענח.</li></ul>
+<div class="iv"><b>בראיון</b>"כמה ביטים צריך ב־ADC?" ← חשב: רגישות → רמת אות בכניסת ה־ADC אחרי הגבר; הוסף SNR נדרש, PAPR, מרווח לאותות חוסמים שעוד לא סוננו, ו־headroom ל־AGC. חלק ב־6dB לביט.</div>
+</section>`},
+
+{id:'test',n:'17',lvl:'מעבדה',title:'בדיקות ומדידות של מקמשים',tag:'Spectrum analyzer · VNA · Power meter · VSA · BERT · Channel emulator',
+lead:'הפרק הכי קרוב לעבודה היומיומית שלך: איך לקבל מספרים נכונים ואמינים, ואיך לזהות כשהמכשיר משקר.',
+body:`
+<section><h3>נתח ספקטרום</h3>
+<ul>
+<li><b>RBW</b> (Resolution bandwidth): רוחב הפילטר. מפריד בין אותות קרובים. רצפת הרעש המוצגת עולה ${F('10·log(RBW2/RBW1)')}: מ־1kHz ל־100kHz ⇒ ‏+20dB.</li>
+<li><b>VBW</b>: מחליק את התצוגה, לא משנה את הרצפה הממוצעת. VBW≤RBW/10 לרעש.</li>
+<li><b>DANL</b>: רצפת רעש מוצגת, בדרך כלל מנורמלת ל־1Hz (למשל ‏−155dBm/Hz). הפעלת preamp מורידה אותה.</li>
+<li><b>Sweep time</b> ∝ ${F('Span / RBW²')}. RBW צר מאוד = איטי מאוד.</li>
+<li><b>Detector</b>: Peak לאותות CW וספוריות, <b>RMS</b> (Average power) לאותות מאופננים ורעש. Sample. Peak על רעש מגזים בכ־10dB.</li>
+<li><b>Reference level / Attenuator</b>: אות חזק בכניסה ⇒ המיקסר הפנימי נדחס או יוצר IM והרמוניות. הגדל הנחתה ובדוק אם התמונה משתנה.</li>
+<li><b>Channel power / ACLR / OBW</b>: מדידות משולבות. השתמש ב־RMS detector ובמספיק נקודות.</li>
+</ul>
+<div class="trap"><b>מלכודת</b>מדידת אות מאופנן עם marker בודד ב־Peak detector נותנת מספר חסר משמעות. מדוד Channel Power ברוחב הערוץ, או השתמש במד הספק.</div>
+</section>
+<section><h3>מד הספק</h3>
+<p>הכי מדויק להספק מוחלט (±0.1–0.2dB). חיישן thermal (true RMS, איטי) או diode (מהיר, peak/average, לינארי רק באזור square-law). לאותות burst/TDD: מד הספק peak עם gating.</p>
+</section>
+<section><h3>VNA</h3>
+<p>מודד S־פרמטרים בגודל ופאזה. כיול SOLT/TRL. IF bandwidth צר = רעש נמוך יותר, איטי יותר. Time domain (gating) מאפשר לראות איפה לאורך הכבל יש אי־התאמה (מחבר רופף!).</p>
+</section>
+<section><h3>בדיקות משדר (רשימה טיפוסית)</h3>
+<div class="tbl"><table><tr><th>בדיקה</th><th>מה בודקים</th><th>ציוד</th></tr>
+<tr><td>הספק יציאה ודיוקו</td><td>כל ערוצים, טמפרטורות, מתחים</td><td>מד הספק</td></tr>
+<tr><td>שגיאת תדר</td><td>ppm מול ייחוס</td><td>מונה / VSA</td></tr>
+<tr><td>EVM / MER</td><td>איכות אפנון מול הספק</td><td>VSA</td></tr>
+<tr><td>ACLR / Spectral mask</td><td>דליפה לערוצים סמוכים</td><td>SA</td></tr>
+<tr><td>OBW</td><td>99% הספק</td><td>SA</td></tr>
+<tr><td>Spurious / הרמוניות</td><td>עד 5×–10× התדר</td><td>SA + notch filter</td></tr>
+<tr><td>Power vs time</td><td>ramp, burst mask ב־TDD</td><td>SA zero span / VSA</td></tr>
+<tr><td>Carrier leakage, IQ image</td><td>ב־Zero-IF</td><td>VSA</td></tr></table></div>
+</section>
+<section><h3>בדיקות מקלט</h3>
+<div class="tbl"><table><tr><th>בדיקה</th><th>הגדרה טיפוסית</th></tr>
+<tr><td>Sensitivity</td><td>BER/PER יעד, כל קצב, כמה ערוצים</td></tr>
+<tr><td>Max input level</td><td>הספק מקסימלי ללא שגיאות (‏−20 עד 0dBm)</td></tr>
+<tr><td>BER/PER מול Eb/N0</td><td>מחולל רעש AWGN + אות, השוואה לתיאוריה ⇒ implementation loss</td></tr>
+<tr><td>ACS / Blocking / IM rejection</td><td>אות רצוי 3dB מעל רגישות + מפריע</td></tr>
+<tr><td>Frequency offset tolerance</td><td>היסט תדר ±X ppm ללא אובדן</td></tr>
+<tr><td>Doppler / Fading</td><td>Channel emulator (Rayleigh, EPA/EVA/ETU)</td></tr>
+<tr><td>RSSI accuracy</td><td>לינאריות ודיוק לאורך תדר וטמפרטורה</td></tr>
+<tr><td>Spurious emissions ב־RX</td><td>דליפת LO מהאנטנה</td></tr></table></div>
+</section>
+<section><h3>אינטגרציה: מתודולוגיה</h3>
+<ol>
+<li><b>תכנן את מבנה הבדיקה</b>: ציור בלוקים עם רמות הספק בכל נקודה. ודא שאף מכשיר לא בדחיסה ושאין בעיית בטיחות (‏+40dBm לתוך ספקטרום = נזק).</li>
+<li><b>כייל</b>: הפסדי כבלים, מנחתים, splitters בכל תדר. שמור טבלה.</li>
+<li><b>Loopback</b>: התחל ב־RF loopback דרך מנחת לבדיקת שלמות השרשרת.</li>
+<li><b>Baseline</b>: מדוד מערכת "זהב" (golden unit) והשווה.</li>
+<li><b>חלוקה לשניים</b>: כשמשהו לא עובד, חצה את השרשרת (מוליך מול קרינה, TX מול RX, דיגיטלי מול RF) עד שמבודדים.</li>
+<li><b>תיעוד</b>: מצב, גרסת FW, טמפרטורה, הגדרות מכשיר, צילום מסך.</li>
+<li><b>אוטומציה</b>: SCPI דרך Python (pyvisa) לסריקות תדר/הספק/טמפרטורה.</li>
+</ol>
+<div class="iv"><b>בראיון</b>"מקמש עובד במעבדה ולא בשטח, איך תתחיל?" ← link budget מול נמדד (RSSI בשטח), הפרעות (סריקת ספקטרום באתר), מולטיפאס/דופלר, טמפרטורה, אנטנה וכבל (VSWR בשטח עם cable & antenna analyzer), התקנה (קיטוב, כיוון), ספקי כוח. "למה BER בבדיקת Eb/N0 גרוע מהתיאוריה?" ← implementation loss: רעש פאזה, ADC, שגיאות סנכרון, quantization במפענח. 1–2dB נורמלי.</div>
+</section>`},
+
+{id:'sys',n:'18',lvl:'מערכות',title:'מערכות ותקנים: התמונה הגדולה',tag:'Bands · WiFi · LTE/5G · Satcom · Regulation · EMC',
+lead:'מהנדס RF מקצוען יודע לשים כל רכיב בהקשר של מערכת ותקן. הנה המספרים שכדאי להכיר.',
+body:`
+<section><h3>פסי תדר</h3>
+<div class="tbl"><table><tr><th>פס</th><th class="num">תחום</th><th>שימושים</th></tr>
+<tr><td>HF</td><td class="num">3–30 MHz</td><td>לינקים ארוכי טווח ביונוספירה</td></tr>
+<tr><td>VHF</td><td class="num">30–300 MHz</td><td>FM, אוויר, ימי, צבאי</td></tr>
+<tr><td>UHF</td><td class="num">300 MHz–3 GHz</td><td>סלולר, WiFi 2.4, GPS (1575.42MHz), ISM 433/868/915</td></tr>
+<tr><td>L / S</td><td class="num">1–2 / 2–4 GHz</td><td>GNSS, טלמטריה, מכ"ם, לוויין נייד</td></tr>
+<tr><td>C</td><td class="num">4–8 GHz</td><td>WiFi 5/6E, לוויין, 5G n77/n78</td></tr>
+<tr><td>X</td><td class="num">8–12 GHz</td><td>מכ"ם, לוויין צבאי</td></tr>
+<tr><td>Ku / K / Ka</td><td class="num">12–18 / 18–27 / 27–40 GHz</td><td>לוויין שידור ונתונים, 5G mmWave</td></tr>
+<tr><td>V / E</td><td class="num">40–75 / 60–90 GHz</td><td>60GHz WiGig, E-band backhaul</td></tr></table></div>
+</section>
+<section><h3>מספרי מפתח של תקנים</h3>
+<ul>
+<li><b>WiFi</b>: ערוצים 20/40/80/160/320MHz, OFDM, עד 4096QAM ב־WiFi 7. TX ‏~20dBm. רגישות MCS0 ב־20MHz: ~‏−92dBm.</li>
+<li><b>LTE</b>: ‏1.4–20MHz, RB=12×15kHz=180kHz. UE ‏23dBm. רגישות REFSENS ~‏−97dBm ל־10MHz.</li>
+<li><b>5G NR</b>: FR1 עד 7.125GHz, FR2 ‏24–71GHz. ‏numerology µ, ‏Δf עד 120/240kHz.</li>
+<li><b>Bluetooth LE</b>: ‏2.4GHz, ‏40 ערוצים × 2MHz, ‏GFSK, ‏1/2Mbps, Coded PHY ל־טווח (FEC ‏S=8).</li>
+<li><b>LoRa</b>: CSS (Chirp Spread Spectrum), SF7–SF12, רגישות עד ‏−137dBm (SNR שלילי עד ‏−20dB!).</li>
+<li><b>GNSS</b>: ‏−130dBm בפני כדור הארץ, מתחת לרעש; processing gain של קוד ה־PRN.</li>
+<li><b>DVB-S2</b>: QPSK–32APSK, LDPC+BCH, ACM, roll-off 0.35/0.25/0.2.</li>
+</ul>
+</section>
+<section><h3>לוויין: link budget קצר</h3>
+<span class="fm">C/N0 [dBHz] = EIRP − FSPL − L_atm + G/T − k        k = −228.6 dBW/K/Hz
+Eb/N0 = C/N0 − 10·log10(Rb)</span>
+<p>GEO ב־12GHz: מרחק ~38,000km ⇒ FSPL ≈ ‏205.6dB.</p>
+</section>
+<section><h3>רגולציה ו־EMC</h3>
+<ul><li><b>ETSI</b> (EN 300 328 ל־2.4GHz, EN 301 893 ל־5GHz), <b>FCC</b> (Part 15, 90, 96), בישראל: משרד התקשורת (רישוי וייבוא).</li><li><b>EMC</b>: Emission (הקרנה והולכה) ו־Immunity (ESD, surge, RF immunity).</li><li><b>SAR</b> לחשיפת גוף, <b>MPE</b> לסביבה.</li><li><b>DFS / LBT</b>: דרישות ייחודיות לפסים משותפים.</li></ul>
+</section>
+<section><h3>מפת לימוד להמשך</h3>
+<ul>
+<li>ספרים: Pozar, <i>Microwave Engineering</i>. ‏Razavi, <i>RF Microelectronics</i>. ‏Sklar, <i>Digital Communications</i>. ‏Rappaport, <i>Wireless Communications</i>. ‏Gu, <i>RF System Design of Transceivers</i>.</li>
+<li>Application notes: Keysight "Spectrum Analysis Basics" (AN 150), "Noise Figure Measurement" (AN 57-1/57-2). Analog Devices MT-001, MT-003 על ADC.</li>
+<li>תרגול: ‏GNU Radio עם SDR זול (RTL-SDR, HackRF, PlutoSDR). לראות קונסטלציות אמיתיות זה ההבדל בין לדעת להבין.</li>
+<li>במעבדה: כל בדיקה שאתה מבצע, חשב קודם מה התוצאה הצפויה. הפער בין חישוב למדידה הוא המקום שבו לומדים.</li>
+</ul>
+</section>`}
+];
+
+/* ================= INTERVIEW ================= */
+const IV = [
+['db','בסיס','מהו 0dBm? כמה זה +30dBm? כמה ‏−174dBm/Hz?','<p>0dBm = 1mW. ‏+30dBm = 1W. ‏−174dBm/Hz היא kT בטמפרטורה 290K: הספק הרעש התרמי לכל הרץ.</p>'],
+['db','בסיס','שני אותות לא קוהרנטיים של ‏−10dBm נכנסים ל־combiner אידאלי. מה ההספק הכולל? ואם הם קוהרנטיים באותה פאזה?','<p>לא קוהרנטי: ההספקים מתחברים, 0.1+0.1=0.2mW = ‏−7dBm. קוהרנטי באותה פאזה: המתחים מתחברים, פי 2 במתח = פי 4 בהספק = ‏−4dBm (בתיאוריה; ב־combiner פסיבי אמיתי יש הפסד 3dB משלו, ולכן בפועל מקבלים ‏−7dBm ו־‏−10dBm בהתאמה).</p>'],
+['db','בסיס','מה ההבדל בין dBi ל־dBd?','<p>dBi ביחס לאנטנה איזוטרופית, dBd ביחס לדיפול חצי גל. דיפול = 2.15dBi, ולכן dBi = dBd + 2.15. יצרנים מעדיפים dBi כי המספר גבוה יותר.</p>'],
+['line','בסיס','VSWR של 1.5 שווה לאיזה Return Loss? כמה הספק מוחזר?','<p>|Γ| = (1.5−1)/(1.5+1) = 0.2. RL = ‏−20log(0.2) = 14dB. הספק מוחזר |Γ|² = 4%. ‏Mismatch loss ‏0.18dB.</p>'],
+['line','בינוני','מה זה S21 ו־S12 של מגבר? למה S12 חשוב?','<p>S21 = ההגבר קדימה. S12 = הבידוד האחורי. S12 גבוה מדי פוגע ביציבות (משוב מהיציאה לכניסה, עלול לגרום לתנודה), ומאפשר לדליפת LO מהמיקסר לצאת לאנטנה.</p>'],
+['line','בינוני','מה עושה קו תמסורת של λ/4 עם קצר בקצה?','<p>הופך אותו לנתק (עכבה אינסופית) בכניסה, בתדר הזה. משמש כ־stub ב־bias tee, ופילטרים. Zin = Z0²/ZL.</p>'],
+['noise','בסיס','מה רצפת הרעש של מקלט עם רוחב סרט 10MHz ו־NF של 6dB?','<p>‏−174 + 70 + 6 = ‏−98dBm.</p>'],
+['noise','בינוני','למה ה־LNA חייב להיות השלב הראשון? מה נוסחת פריז אומרת?','<p>F = F1 + (F2−1)/G1 + ... הרעש של כל שלב מחולק בהגבר של כל השלבים שלפניו. LNA עם NF נמוך והגבר גבוה ראשון ⇒ ה־NF של המערכת ≈ NF של ה־LNA. כל הפסד לפניו (כבל, מתג, פילטר) מתווסף ישירות.</p>'],
+['noise','בינוני','מה NF של כבל בהפסד 3dB? ומה אם הכבל בטמפרטורה של 77K?','<p>בטמפרטורת 290K: NF=3dB, F=L. באופן כללי Te = (L−1)·T_phys. ב־77K: ‏Te = (2−1)·77 = 77K ⇒ F = 1+77/290 = 1.27 ⇒ NF≈1dB. לכן מקררים קדם מגברים ברדיו־אסטרונומיה.</p>'],
+['noise','מתקדם','איך מודדים NF? מה זה Y-factor?','<p>מקור רעש עם ENR ידוע. מודדים הספק רעש ביציאה כשהמקור דולק ו־כבוי: Y = N_on/N_off. ‏F = ENR/(Y−1). בדרך מנתח NF מחשב גם את ההגבר. יש לתקן לתרומת רעש של המכשיר עצמו (second stage correction) ולמנוע הפרעות חיצוניות (חדר מסוכך). חלופה: gain method, עם DUT בהגבר גבוה.</p>'],
+['sens','בסיס','מה הנוסחה לרגישות? פרק כל איבר.','<p>Sens = ‏−174 + 10logB + NF + SNR_min. ‏‏−174 = kT. ‏10logB = רוחב הסרט (רעש). NF = תרומת המקלט. SNR_min = דרישת המודם לאפנון/קוד/BER, כולל implementation loss.</p>'],
+['sens','בינוני','מה ההבדל בין RSSI ל־SNR? מתי RSSI גבוה ו־SNR נמוך?','<p>RSSI הוא הספק כולל בפס (אות+רעש+הפרעה). SNR הוא היחס. RSSI גבוה עם SNR נמוך: הפרעה חזקה באותו ערוץ, מולטיפאס עם ISI חמור, או אות עם EVM גרוע. ליד הרגישות, RSSI נתקע ברצפת הרעש של המקלט.</p>'],
+['sens','בינוני','הרגישות גרועה ב־5dB בערוץ אחד בלבד. מה תבדוק?','<p>Desense מספור פנימי: הרמוניות של שעון מעבד/זיכרון, DC-DC, ספורים של PLL, תוצרי מיקסר. בדיקה: סריקת ספקטרום בכניסת המקלט עם אנטנה/פרוב, כיבוי תת־מערכות, שינוי תדר שעון. גם: ripple של פילטר בקצה הפס, או בעיית כיול בערוץ.</p>'],
+['sens','מתקדם','מה זה Blocking ומה שני המנגנונים שגורמים לו?','<p>מפריע חזק מחוץ לערוץ שמדרדר את הרגישות. (1) דחיסה של ה־LNA/מיקסר, שמורידה את הגבר האות הרצוי. (2) Reciprocal mixing: רעש הפאזה של ה־LO בהיסט של המפריע מתערבב איתו ונופל בערוץ. N = P_block + L(Δf) + 10logB.</p>'],
+['mod','בסיס','מה ההבדל בין BPSK ל־QPSK בביצועים?','<p>באותו Eb/N0 ה־BER זהה, כי QPSK הוא שני BPSK ניצבים (I ו־Q). QPSK מעביר פי 2 ביטים באותו רוחב סרט. דורש 3dB יותר SNR (Es/N0) כדי לשמור על אותו Eb/N0.</p>'],
+['mod','בינוני','למה GSM ו־Bluetooth משתמשים במעטפת קבועה?','<p>מעטפת קבועה (GMSK/GFSK) מאפשרת להפעיל את ה־PA בריוויה (Class C/E) ביעילות גבוהה, בלי עיוות ובלי ACLR מהאי־לינאריות. חשוב לסוללה. המחיר: יעילות ספקטרלית נמוכה.</p>'],
+['mod','בינוני','למה כל הכפלה של M ב־QAM דורשת עוד ~3dB?','<p>באותו הספק ממוצע, הנקודות מתקרבות. מ־16QAM ל־64QAM המרחק המינימלי קטן פי ~2 (−6dB) בשביל 2 ביטים נוספים, כלומר ~3dB לביט. ב־Eb/N0 זה קצת פחות כי יש יותר ביטים לסימבול.</p>'],
+['mod','מתקדם','מה זה APSK ולמה בלוויין?','<p>טבעות קונצנטריות. פחות רמות אמפליטודה מ־QAM באותו M, כך שהן מתמודדות טוב יותר עם AM/AM ו־AM/PM של TWTA בריוויה, ואפשר לבצע predistortion פשוט לכל טבעת. DVB-S2: ‏16APSK (4+12), ‏32APSK (4+12+16).</p>'],
+['bw','בסיס','10Msps, ‏64QAM, קוד 5/6, ‏roll-off 0.2. מה ה־bitrate ומה רוחב הסרט?','<p>Rb = 10M × 6 × 5/6 = 50Mbps. רוחב סרט ≈ 10M × 1.2 = 12MHz. יעילות ספקטרלית ≈ 4.2 bit/s/Hz.</p>'],
+['bw','בינוני','מה זה Root Raised Cosine ולמה מפצלים אותו בין משדר למקלט?','<p>Raised cosine מקיים את קריטריון נייקוויסט (אפס ISI בנקודות הדגימה) עם ספקטרום מוגבל ברוחב Rs(1+α). חלוקה ל־√ בשני הצדדים נותנת matched filter במקלט (SNR מקסימלי) ואת ה־RC הכולל לאפס ISI.</p>'],
+['bw','בינוני','מה גבול שאנון אומר, ומה ה־Eb/N0 המינימלי האפשרי?','<p>C = B·log2(1+SNR): קצב מקסימלי לתקשורת אמינה. כאשר B→∞, ‏Eb/N0_min = ln2 = ‏−1.59dB. אין קוד שיעבוד מתחת. LDPC/Turbo מגיעים לפחות מ־1dB מהגבול.</p>'],
+['quality','בסיס','מה הקשר בין Eb/N0 ל־SNR?','<p>SNR = Eb/N0 + 10log(Rb/B). או: Es/N0 = Eb/N0 + 10log(k·r). עם matched filter RRC רוחב רעש = Rs, ולכן SNR ≈ Es/N0.</p>'],
+['quality','בסיס','EVM של 5%. מה ה־SNR המקביל?','<p>EVM[dB] = 20log(0.05) = ‏−26dB ⇒ SNR ≈ 26dB (בהנחה שהרעש דומיננטי).</p>'],
+['quality','בינוני','איך נראית הקונסטלציה עם: רעש פאזה, IQ imbalance, דחיסת PA, DC offset?','<p>רעש פאזה: מריחה בקשת, חמור יותר בנקודות החיצוניות. IQ imbalance בהגבר: ריבוע הופך למלבן. שגיאת ניצבות: למעוין (מקבילית). דחיסת PA: נקודות חיצוניות נמשכות פנימה (ו־AM/PM מסובב אותן). DC offset: כל הקונסטלציה מוזזת. היסט תדר שיורי: הקונסטלציה מסתובבת.</p>'],
+['quality','מתקדם','EVM מושפע מ־PA (2%), רעש פאזה (1.5%) ו־IQ (1%). מה ה־EVM הכולל?','<p>ליקויים בלתי תלויים מתחברים כ־RSS: √(4+2.25+1) = √7.25 = 2.7%.</p>'],
+['ber','בסיס','מה ההבדל בין BER ל־PER? המר BER=10⁻⁵ ל־PER בחבילה של 1000 בייט.','<p>N=8000 ביט. PER = 1−(1−10⁻⁵)^8000 ≈ 1−e^(−0.08) ≈ 7.7%.</p>'],
+['ber','בינוני','מה זה coding gain? תן מספרים.','<p>החיסכון ב־Eb/N0 לאותו BER לעומת ללא קוד. Viterbi K=7 ‏r=1/2 soft: ~5dB ב־10⁻⁵. RS+Conv: ~7dB ב־10⁻⁶. LDPC/Turbo: ‏8–10dB, בערך 1dB מגבול שאנון.</p>'],
+['ber','בינוני','למה צריך interleaver?','<p>קודים רבים (ו־Viterbi במיוחד) טובים בשגיאות אקראיות ונכשלים בפרצים. Interleaver מפזר ביטים סמוכים בזמן/תדר, כך שפרץ (דעיכה, הפרעה קצרה) הופך לשגיאות בודדות. המחיר: השהייה.</p>'],
+['ber','בינוני','Hard vs Soft decision?','<p>Hard: המפענח מקבל ביטים. Soft: מקבל ערכים עם רמת ביטחון (LLR). Soft משפר ~2dB. LDPC ו־Turbo בנויים על soft information.</p>'],
+['ber','מתקדם','כמה זמן צריך למדוד כדי להוכיח BER < 10⁻⁸ ב־10Mbps?','<p>לביטחון 95% עם אפס שגיאות: ~3/BER = 3×10⁸ ביטים ⇒ 30 שניות. לביטחון 99%: ~4.6/BER. אם מותרות שגיאות, צריך יותר.</p>'],
+['prop','בסיס','מה FSPL ב־2.4GHz ב־1km? ואם המרחק כפול?','<p>20log(1)+20log(2400)+32.44 = 67.6+32.44 ≈ 100dB. במרחק כפול: ‏+6dB ⇒ 106dB.</p>'],
+['prop','בינוני','קבל link budget: Pt=20dBm, אנטנות 3dBi, רגישות ‏−95dBm, 868MHz. מה הטווח בחלל פתוח בלי מרווח? ועם 20dB מרווח?','<p>MAPL = 20+3+3+95 = 121dB. ‏d = 10^((121−32.44−58.77)/20) = 10^1.49 ≈ 31km. עם 20dB מרווח: חלקי 10 ⇒ 3.1km. (וכמובן מוגבל ע"י אופק רדיו בגבהים נמוכים.)</p>'],
+['prop','בינוני','מה זה אזור פרנל ולמה חשוב גם כשיש קו ראייה?','<p>אליפסואיד סביב קו הראייה שבו הפרש המסלול עד חצי גל. מכשול שחודר אליו גורם להפסדי עקיפה/התאבכות. כלל: 60% מרדיוס האזור הראשון פנוי. r = 8.66√(D_km/f_GHz) באמצע.</p>'],
+['prop','מתקדם','למה מעבר למרחק מסוים ההפסד עולה ב־40dB לעשור?','<p>מודל שתי קרניים: הקרן הישירה והמוחזרת מהקרקע מגיעות כמעט בהיפוך פאזה ומבטלות זו את זו. מעבר ל־d_b = 4·ht·hr/λ, ‏PL = 40logd − 20log(ht·hr). הגבהת אנטנה פי 2 = 6dB.</p>'],
+['fading','בינוני','מה ההבדל בין flat fading ל־frequency selective fading?','<p>Flat: רוחב האות קטן מ־coherence bandwidth, כל הספקטרום דועך יחד. Frequency selective: רוחב האות גדול מ־Bc (Bc≈1/5στ), חלק מהתדרים דועכים ⇒ ISI ⇒ equalizer או OFDM.</p>'],
+['fading','בינוני','מכונית ב־120 קמ"ש, ‏3.5GHz. מה הדופלר המקסימלי ומה coherence time?','<p>v=33.3m/s, λ=8.57cm ⇒ fd=389Hz. Tc ≈ 0.423/389 ≈ 1.1ms.</p>'],
+['fading','מתקדם','למה BER בדעיכת Rayleigh יורד רק כ־1/SNR?','<p>ה־BER הממוצע נשלט ע"י הזמן הקטן שבו הערוץ בדעיכה עמוקה, וההסתברות לדעיכה עמוקה פרופורציונלית ל־1/SNR. Diversity בסדר L נותן ירידה של 1/SNR^L.</p>'],
+['ofdm','בינוני','למה OFDM צריך Cyclic Prefix?','<p>(1) מונע ISI אם CP > delay spread. (2) הופך קונבולוציה לינארית עם הערוץ לקונבולוציה מעגלית, כך שאחרי FFT הערוץ הוא כפל פשוט בכל תת־נושא ⇒ equalizer של מקדם אחד.</p>'],
+['ofdm','בינוני','מה החסרונות של OFDM?','<p>PAPR גבוה (10–12dB) ⇒ backoff ב־PA. רגישות לשגיאת תדר (ICI) ולרעש פאזה. תקורה של CP ופיילוטים. ספקטרום עם sidelobes דורש windowing.</p>'],
+['ofdm','מתקדם','מה הבדל בין FDD ל־TDD מבחינת תכנון RF?','<p>FDD: דופלקסר (גדול, יקר, הפסד הכנסה, דרישת בידוד TX→RX גבוהה), TX ו־RX במקביל ⇒ TX noise ב־RX band הוא בעיה. TDD: מתג במקום דופלקסר, הדדיות ערוץ, צריך סנכרון בין תחנות וזמני מעבר, מוגבל בטווח (guard period).</p>'],
+['ofdm','מתקדם','איך beamforming עם 64 אלמנטים משפיע על EIRP?','<p>הגבר מערך ‏10log64 = 18dB, ועוד 18dB מסכום ההספקים של 64 PA. EIRP עולה ב־36dB ביחס לאלמנט בודד עם PA בודד. לכן mmWave עובד עם PA קטנים לכל אלמנט.</p>'],
+['ant','בינוני','מה המרחק המינימלי למדידת far-field של צלחת 1m ב־10GHz?','<p>2D²/λ = 2×1/0.03 ≈ 67m.</p>'],
+['ant','בינוני','מה ההפסד בין אנטנה ליניארית למעגלית?','<p>3dB, בלי תלות בזווית הסיבוב. בין RHCP ל־LHCP: תיאורטית ∞, מעשית 15–25dB.</p>'],
+['lin','בסיס','מה זה P1dB?','<p>הספק שבו ההגבר נמוך ב־1dB מההגבר הלינארי. מצוין בכניסה (IP1dB) או ביציאה (OP1dB). OP1dB = IP1dB + G − 1.</p>'],
+['lin','בינוני','שני טונים של 0dBm בכניסה, IM3 ב־‏−50dBc ביציאה. מה IIP3?','<p>IIP3 = Pin + ΔIM/2 = 0 + 25 = ‏+25dBm. (‏OIP3 = IIP3 + G.)</p>'],
+['lin','בינוני','מה השלב שקובע IIP3 של השרשרת ומה קובע NF?','<p>NF: השלב הראשון (נוסחת פריז). IIP3: השלבים האחרונים, כי הם רואים את האות אחרי כל ההגבר: 1/IIP3 = 1/IIP3_1 + G1/IIP3_2 + .... זה ה־trade-off: הגבר גבוה בהתחלה משפר NF ופוגע ב־IIP3.</p>'],
+['lin','מתקדם','מה זה DPD ואיך הוא עובד?','<p>Digital Pre-Distortion: מודדים את יציאת ה־PA דרך feedback receiver, מאמנים מודל הפוך (Volterra/memory polynomial), ומעוותים את האות הדיגיטלי מראש כך שהשרשרת כולה לינארית. משפר ACLR ב־15–20dB ומאפשר backoff קטן ⇒ יעילות גבוהה.</p>'],
+['arch','בינוני','RF=900MHz, IF=45MHz, high-side LO. מה תדר הדמות?','<p>LO = 945MHz. דמות = 945+45 = 990MHz (2·IF מעל ה־RF).</p>'],
+['arch','בינוני','יתרונות וחסרונות של Zero-IF?','<p>יתרונות: אין דמות חיצונית, אין פילטרי IF, שילוב מלא בשבב, זול. חסרונות: DC offset ו־LO self-mixing, רעש 1/f, IQ imbalance (דמות פנימית), רגישות ל־IIP2, דליפת LO לאנטנה.</p>'],
+['arch','מתקדם','מה רוחב הלולאה של PLL קובע?','<p>בתוך הלולאה, רעש הפאזה עוקב אחרי ה־reference כפול 20logN; מחוצה לה, אחרי ה־VCO. רוחב רחב = lock time מהיר ודיכוי רעש VCO, אבל יותר רעש reference ו־reference spurs. אופטימום: בנקודת החצייה של שתי העקומות.</p>'],
+['pn','מתקדם','רעש פאזה משולב של 0.5° RMS. מה ה־EVM המקסימלי שהוא מאפשר?','<p>0.5° = 0.0087rad ⇒ EVM ≈ 0.87% (‏−41dB). מספיק ל־1024QAM כתורם יחיד.</p>'],
+['pn','מתקדם','ה־LO מוכפל ×8 לתדר גבוה. מה קורה לרעש הפאזה?','<p>גדל ב־20log8 = 18dB. גם הג׳יטר בשניות נשאר זהה, אבל בפאזה הוא פי 8.</p>'],
+['adc','בינוני','מה SNR של ADC בן 14 ביט? ואם האות ברוחב 5MHz עם fs=200MHz?','<p>6.02×14+1.76 = 86dB. Processing gain = 10log(200/10) = 13dB ⇒ ~99dB בפס האות (תיאורטית; ENOB אמיתי נמוך יותר).</p>'],
+['test','בסיס','מה ההבדל בין RBW ל־VBW?','<p>RBW הוא רוחב פילטר ה־IF: קובע הפרדה ורצפת רעש (+10logRBW). VBW הוא פילטר אחרי הגלאי שמחליק את התצוגה, לא משנה את רצפת הרעש הממוצעת.</p>'],
+['test','בינוני','איך תמדוד הספק של אות LTE עם ספקטרום?','<p>Channel Power ברוחב הערוץ (למשל 18MHz ל־LTE20), RMS detector, RBW קטן מהערוץ, מספיק נקודות, זמן סריקה ארוך / ממוצע. או מד הספק תרמי. לא marker בודד ב־peak.</p>'],
+['test','בינוני','איך תוודא שה־IM3 שאתה רואה בספקטרום אמיתי ולא של המכשיר?','<p>הוסף 10dB הנחתה בכניסת הספקטרום. אם האות והתוצר יורדים שניהם ב־10dB (היחס נשמר) ⇒ ה־DUT. אם התוצר יורד ב־30dB ⇒ נוצר במכשיר. גם מקורות: combiner עם בידוד ו־isolator על כל מחולל.</p>'],
+['test','מתקדם','בבדיקת Eb/N0 המקמש מפסיד 3dB לתיאוריה. איך תחלק את האשמה?','<p>מדוד EVM עם רעש מינימלי ⇒ רצפת ה־EVM של המקמש קובעת SNR מקסימלי. בדוק כיול המחולל של הרעש (רוחב הרעש מול רוחב האות). בדוק את הקוד: הבדל בין soft/hard, quantization ב־LLR, מספר איטרציות. בדוק סנכרון: CFO שיורי, timing jitter, phase tracking. השווה ל־golden reference/סימולציה.</p>'],
+['sys','בינוני','מה ה־C/N0 הנדרש ל־1Mbps עם Eb/N0 של 5dB?','<p>C/N0 = Eb/N0 + 10logRb = 5 + 60 = 65dBHz.</p>'],
+['sys','מתקדם','למה LoRa מקבל אות ב־SNR של ‏−20dB?','<p>Chirp spread spectrum: הסימבול מתפרש על פני רוחב סרט רחב ומשך ארוך (SF12 = 4096 chips לסימבול). Processing gain של ~10log(2^SF) יחד עם FEC מאפשרים גילוי מתחת לרצפת הרעש בפס. המחיר: קצב נמוך מאוד.</p>'],
+];
+
+/* ================= FLASHCARDS ================= */
+const FC = [
+['kT ב־290K','‏−174 dBm/Hz'],['רצפת רעש ב־1MHz','‏−114 dBm'],['0 dBm ב־50Ω','0.224 Vrms, 0.632 Vpp'],['dBµV ↔ dBm ב־50Ω','dBµV = dBm + 107'],
+['+3 dB / +6 dB / +10 dB','×2 / ×4 / ×10 בהספק'],['dBi ↔ dBd','dBi = dBd + 2.15'],['VSWR 2:1','RL 9.5dB, ‏|Γ|=0.33, ‏11% מוחזר, ‏0.5dB הפסד'],
+['VSWR 1.5:1','RL 14dB, ‏4% מוחזר'],['Γ','(ZL − Z0)/(ZL + Z0)'],['λ ב־1GHz','30cm. ‏λ[m]=300/f[MHz]'],
+['נוסחת פריז לרעש','F = F1 + (F2−1)/G1 + (F3−1)/(G1G2) + ... (לינארי)'],['NF של רכיב פסיבי','= ההפסד שלו (בטמפרטורת החדר)'],['Te ↔ F','Te = 290·(F−1). ‏NF 3dB = 290K'],
+['Y-factor','F = ENR/(Y−1)'],['נוסחת רגישות','‏−174 + 10logB + NF + SNRmin'],['RSRQ','N·RSRP / RSSI'],
+['SFDR','(2/3)·(IIP3 − Noise floor)'],['IIP3 משני טונים','IIP3 = Pin + ΔIM/2'],['IIP3 ↔ P1dB','IIP3 ≈ P1dB + 10dB'],['שיפוע IM3','3:1 (עולה 2dB לכל 1dB ביחס ליסוד)'],
+['IIP3 של שרשרת','1/IIP3 = 1/IIP3₁ + G₁/IIP3₂ + G₁G₂/IIP3₃ ...'],['תדר דמות','f_LO ± f_IF בצד השני: ‏fRF ± 2fIF'],
+['Image rejection מ־IQ','IRR ≈ 10log(4/(ε²+θ²)). ‏1% ו־1° ≈ 41dB'],['רעש פאזה בהכפלה ×N','+20logN dB'],['EVM ↔ SNR','EVM_rms ≈ 1/√SNR. ‏1% = 40dB, ‏10% = 20dB'],
+['EVM מרעש פאזה','EVM ≈ φ_rms [rad]. ‏1° ≈ 1.75%'],['Es/N0 ↔ Eb/N0','Es/N0 = Eb/N0 + 10log(k·r)'],['SNR ↔ Eb/N0','SNR = Eb/N0 + 10log(Rb/B)'],
+['BPSK BER 10⁻⁶','Eb/N0 ≈ 10.5dB (‏10⁻⁵: 9.6dB)'],['BER BPSK','Q(√(2Eb/N0)) = ½erfc(√(Eb/N0))'],['PER מ־BER','1 − (1−BER)^N ≈ N·BER'],
+['ביטים להוכחת BER','~3/BER ללא שגיאות (95%)'],['שאנון','C = B·log2(1+SNR)'],['Eb/N0 מינימלי של שאנון','ln2 = ‏−1.59dB'],
+['Bitrate','Rb = Rs·log2(M)·r'],['רוחב סרט עם RRC','B ≈ Rs·(1+α)'],['Code rate','k/n. ‏1/2 = מכפיל ביטים משודרים'],
+['Hamming: תיקון t','t = ⌊(dmin−1)/2⌋'],['RS(255,223)','מתקן 16 בייטים שגויים'],['Viterbi K=7 r=1/2','~5dB coding gain, פולינומים 171/133'],
+['FSPL','20log(d_km)+20log(f_MHz)+32.44'],['FSPL ב־2.4GHz, ‏1km','~100dB'],['כפול מרחק','+6dB הפסד (חלל פתוח), +12dB ב־1/d⁴'],
+['טווח מקסימלי','d = 10^((MAPL − 32.44 − 20log f_MHz)/20) km'],['EIRP','Pt − L_cable + Gt'],['אזור פרנל באמצע','8.66·√(D_km/f_GHz) m, לשמור 60%'],
+['אופק רדיו','4.12·(√h1 + √h2) km'],['Two-ray','PL = 40logd − 20log(ht·hr)'],['Coherence BW','≈ 1/(5·στ)'],['Doppler','fd = v/λ'],['Coherence time','≈ 0.423/fd'],
+['Rayleigh, הסתברות לדעיכה של 20dB','~1%'],['OFDM Δf','1/Tu. LTE 15kHz, WiFi 312.5kHz'],['PAPR של OFDM','~10–12dB'],
+['Processing gain (DSSS)','10log(Rc/Rb). ‏GPS: 43dB'],['הגבר צלחת','η·(πD/λ)²'],['Far field','R > 2D²/λ'],['ליניארי ↔ מעגלי','3dB הפסד קיטוב'],
+['ADC SNR','6.02N + 1.76 dB'],['ENOB','(SINAD − 1.76)/6.02'],['Processing gain ב־ADC','10log(fs/2B)'],['SNR מג׳יטר','−20log(2π·fin·tj)'],
+['שגיאת תדר','Δf = f·ppm·10⁻⁶. ‏2.4GHz × 20ppm = 48kHz'],['רצפה בספקטרום מול RBW','+10log(RBW2/RBW1)'],['PAE','(Pout − Pin)/Pdc'],
+['Reciprocal mixing','N = P_blocker + L(Δf) + 10logB'],['C/N0 בלוויין','EIRP − FSPL + G/T + 228.6'],['k בדציבלים','‏−228.6 dBW/K/Hz'],
+];
+
+/* ================= PROBLEMS ================= */
+const PR = [
+['שרשרת קליטה','אנטנה ← כבל (‏−1.5dB) ← LNA (‏G=18dB, NF=1.2dB) ← פילטר SAW (‏−2.5dB) ← מיקסר (‏G=−7dB, NF=7dB) ← מגבר IF (‏G=25dB, NF=4dB). חשב את ה־NF של המערכת. מה ישתנה אם תזיז את ה־LNA לפני הכבל?',
+`<p>המר ללינארי: כבל G=0.708, F=1.413. ‏LNA: G=63.1, F=1.318. ‏SAW: G=0.562, F=1.778. מיקסר: G=0.2, F=5.01. ‏IF: F=2.512.</p>
+<span class="fm">F = 1.413 + (1.318−1)/0.708 + (1.778−1)/(0.708·63.1) + (5.01−1)/(0.708·63.1·0.562) + (2.512−1)/(0.708·63.1·0.562·0.2)
+  = 1.413 + 0.449 + 0.0174 + 0.160 + 0.301 = 2.34   →  NF ≈ 3.69 dB</span>
+<p>LNA לפני הכבל: ‏NF ≈ 2.56dB. שיפור של ~1.1dB בלבד, ולא 1.5dB, כי הבעיה העיקרית כאן היא אחרת: ההגבר נטו לפני המיקסר הוא רק 18−1.5−2.5 = 14dB, אז המיקסר וה־IF תורמים יחד כמעט 0.46 ל־F. המסקנה: צריך גם LNA עם הגבר גבוה יותר (או LNA שני לפני המיקסר), לא רק להזיז אותו. בדוק את זה במחשבון השרשרת בלשונית "מחשבונים".</p>`],
+['רגישות מודם','מקמש עם 16QAM, ‏Rs=2Msps, ‏LDPC 3/4 שדורש Eb/N0=6dB ל־PER 1%. ‏NF=4dB, ‏implementation loss 1.5dB. חשב רגישות.',
+`<span class="fm">Es/N0 = 6 + 10log(4·0.75) = 6 + 4.77 = 10.77 dB
+SNR (RRC) = Es/N0 = 10.77 dB,  + IL = 12.27 dB
+Sens = −174 + 10log(2e6) + 4 + 12.27 = −174 + 63 + 16.27 = −94.7 dBm
+Rb = 2M·4·0.75 = 6 Mbps</span>`],
+['טווח לינק','לינק טלמטריה ב־2.2GHz. משדר 10W, כבל 3dB, אנטנת משדר 3dBi. מקלט: אנטנה 24dBi, כבל 1dB, רגישות ‏−105dBm. מרווח נדרש 12dB. מה הטווח?',
+`<span class="fm">Pt = 40 dBm,  EIRP = 40 − 3 + 3 = 40 dBm
+MAPL = 40 + 24 − 1 − (−105) − 12 = 156 dB
+20log(d_km) = 156 − 32.44 − 20log(2200) = 156 − 32.44 − 66.85 = 56.71
+d = 10^(2.836) ≈ 685 km</span><p>תקף לקו ראייה (למשל מטוס בגובה). לקרקע–קרקע אופק הרדיו יגביל הרבה קודם.</p>`],
+['IP3 משני טונים','מגבר בהגבר 15dB. שני טונים של ‏−20dBm בכניסה. ביציאה רואים IM3 ב־‏−65dBm. חשב OIP3 ו־IIP3. באיזה הספק כניסה ה־IM3 יהיה שווה לרצפת רעש של ‏−100dBm ביציאה?',
+`<span class="fm">Pout_tone = −5 dBm, ΔIM = −5 − (−65) = 60 dBc
+OIP3 = −5 + 30 = +25 dBm,  IIP3 = +10 dBm
+IM3_out = 3·Pin − 2·IIP3 + G  →  −100 = 3Pin − 20 + 15  →  Pin = −31.7 dBm</span>`],
+['דמות ובחירת IF','מקלט ב־1575MHz (GPS) עם IF=175MHz ו־LO נמוך. מה תדר הדמות? יש משדר חזק ב־1225MHz, האם הוא בעיה?',
+`<p>LO = 1400MHz. דמות = 1400 − 175 = 1225MHz. כן, המשדר נופל בדיוק על הדמות! חייבים פילטר RF שמנחית 1225MHz מספיק (או LO עליון: LO=1750, דמות ב־1925MHz).</p>`],
+['EVM ותקציב','משדר 64QAM צריך EVM כולל ≤ 5%. ה־LO תורם 1° RMS, ה־IQ מודולטור 1.5%. כמה EVM נשאר ל־PA?',
+`<span class="fm">EVM_pn ≈ 0.01745 → 1.75%
+EVM_PA = sqrt(5² − 1.75² − 1.5²) = sqrt(25 − 3.06 − 2.25) = sqrt(19.7) ≈ 4.4%</span>`],
+['Bitrate ו־OFDM','OFDM עם 1200 תת־נושאים פעילים, Δf=15kHz, ‏CP 7%, ‏64QAM, קוד 0.75. מה ה־bitrate הגולמי והמידע? מה רוחב הסרט התפוס?',
+`<span class="fm">Tu = 1/15k = 66.7µs, T_sym ≈ 66.7/0.93 ≈ 71.7µs → 13,950 sym/s
+Rb_raw = 1200 · 6 · 13,950 ≈ 100.4 Mbps
+Rb_info = 0.75 · 100.4 ≈ 75 Mbps  (לפני תקורת פיילוטים ובקרה)
+BW = 1200·15k = 18 MHz (בתוך ערוץ 20MHz)</span>`],
+['רעש פאזה וחסימה','מפריע של ‏−25dBm ב־2MHz מהערוץ. רעש הפאזה של ה־LO ב־2MHz: ‏−135dBc/Hz. ערוץ 1MHz, ‏NF=5dB. כמה desense?',
+`<span class="fm">N_rm = −25 − 135 + 60 = −100 dBm
+N_thermal = −174 + 60 + 5 = −109 dBm
+N_total = 10log(10^-10 + 10^-10.9) ≈ −99.5 dBm → desense ≈ 9.5 dB</span><p>צריך LO נקי יותר ב־~10dB או פילטר שמנחית את המפריע לפני המיקסר.</p>`],
+['ADC','מקלט עם ADC של 12 ביט (ENOB=10.5), fs=125MHz, ערוץ 10MHz. AGC שומר את האות 12dB מתחת ל־full scale בגלל PAPR. מה ה־SNR המקסימלי בערוץ שה־ADC מאפשר?',
+`<span class="fm">SNR_FS = 6.02·10.5 + 1.76 = 65 dB
+PG = 10log(125/20) = 7.96 dB
+SNR_ch = 65 + 8 − 12 = 61 dB</span><p>מספיק בהרבה ל־256QAM. ה־ADC כנראה לא הגורם המגביל כאן; רעש הפאזה וה־PA כן.</p>`],
+['שגיאת תדר','שני מקמשים ב־5.8GHz עם TCXO של ±2.5ppm. מה ההיסט המקסימלי ביניהם? מה זה ביחס ל־Δf של WiFi (312.5kHz)?',
+`<span class="fm">Δf_max = 5.8e9 · 5e-6 = 29 kHz   (שני צדדים: ±2.5 כל אחד)
+29k / 312.5k = 9.3% מ־Δf</span><p>חייבים לתקן CFO לפני ה־FFT, אחרת ICI. ב־WiFi משתמשים ב־preamble קצר לשערוך גס וארוך לעדין.</p>`],
+['פרנל','לינק מיקרוגל 15km ב־6GHz. יש בניין במרחק 5km מאחד הקצוות. מה הרדיוס של אזור פרנל הראשון בנקודה הזו ומה המרווח המינימלי?',
+`<span class="fm">r1 = 17.32·sqrt(5·10/(6·15)) = 17.32·sqrt(0.556) = 12.9 m
+מרווח מינימלי (60%) ≈ 7.7 m מעל הבניין (בנוסף לעקמומיות כדור הארץ)</span>`],
+['C/N0 לוויין','EIRP של לוויין GEO ‏52dBW, ‏12GHz, מרחק 38,000km, ‏G/T של תחנה 15dB/K, הפסדי אטמוספרה 0.5dB. מה C/N0? כמה Mbps אפשר עם Eb/N0 נדרש 4dB ומרווח 3dB?',
+`<span class="fm">FSPL = 20log(38000) + 20log(12000) + 32.44 = 91.6 + 81.6 + 32.44 = 205.6 dB
+C/N0 = 52 − 205.6 − 0.5 + 15 + 228.6 = 89.5 dBHz
+10log(Rb) = 89.5 − 4 − 3 = 82.5 → Rb ≈ 178 Mbps (אם רוחב הסרט מאפשר)</span>`],
+];
+
+/* ================= STATE ================= */
+const store={get(k,d){try{const v=localStorage.getItem('rfa_'+k);return v?JSON.parse(v):d}catch(e){return d}},set(k,v){try{localStorage.setItem('rfa_'+k,JSON.stringify(v))}catch(e){}}};
+let done=new Set(store.get('done',[]));
+let cur=store.get('cur','db');
+
+/* ================= LEARN ================= */
+const chList=document.getElementById('chList'), chBody=document.getElementById('chBody');
+function renderRail(){
+  chList.innerHTML=CH.map(c=>'<li class="'+(done.has(c.id)?'done':'')+'"><button data-id="'+c.id+'" aria-current="'+(c.id===cur)+'"><span class="n">'+(done.has(c.id)?'✓':c.n)+'</span><span>'+c.title+'</span><span class="lvl">'+c.lvl+'</span></button></li>').join('');
+  document.getElementById('progTxt').textContent=done.size+'/'+CH.length;
+  document.getElementById('progBar').style.width=(100*done.size/CH.length)+'%';
+}
+function renderCh(id,scroll){
+  const i=CH.findIndex(c=>c.id===id); const c=CH[i]; cur=id; store.set('cur',id);
+  const prev=CH[i-1], next=CH[i+1];
+  chBody.innerHTML='<div class="eyebrow">CH '+c.n+' · '+c.tag+'</div><h2>'+c.title+'</h2><p class="lead">'+c.lead+'</p>'+c.body+
+   '<div class="chfoot">'+(prev?'<button class="btn" data-go="'+prev.id+'">→ '+prev.title+'</button>':'<span></span>')+
+   '<button class="btn '+(done.has(id)?'':'pri')+'" id="markDone">'+(done.has(id)?'✓ סומן כנלמד':'סמן כנלמד')+'</button>'+
+   (next?'<button class="btn" data-go="'+next.id+'">'+next.title+' ←</button>':'<span></span>')+'</div>';
+  renderRail();
+  if(scroll) window.scrollTo({top:0,behavior:'smooth'});
+}
+chList.addEventListener('click',e=>{const b=e.target.closest('button[data-id]');if(b)renderCh(b.dataset.id,true)});
+chBody.addEventListener('click',e=>{
+  const g=e.target.closest('[data-go]'); if(g){renderCh(g.dataset.go,true);return}
+  if(e.target.id==='markDone'){done.has(cur)?done.delete(cur):done.add(cur);store.set('done',[...done]);renderCh(cur)}
+});
+
+/* ================= TABS ================= */
+const tabs=document.querySelectorAll('nav.tabs button');
+function show(v){
+  tabs.forEach(t=>t.setAttribute('aria-selected',t.dataset.v===v));
+  document.querySelectorAll('.view').forEach(s=>s.classList.toggle('on',s.id==='v-'+v));
+  if(location.hash!=='#'+v) history.replaceState(null,'','#'+v);
+  if(v==='sim') drawSim();
+}
+tabs.forEach(t=>t.addEventListener('click',()=>show(t.dataset.v)));
+window.addEventListener('hashchange',()=>{const h=location.hash.slice(1);if(['learn','calc','sim','prob','iv','flash'].includes(h))show(h)});
+
+/* ================= MATH ================= */
+const L10=Math.log10, lin=d=>Math.pow(10,d/10), dB=x=>10*L10(x);
+function erfc(x){const z=Math.abs(x),t=1/(1+0.5*z);const r=t*Math.exp(-z*z-1.26551223+t*(1.00002368+t*(0.37409196+t*(0.09678418+t*(-0.18628806+t*(0.27886807+t*(-1.13520398+t*(1.48851587+t*(-0.82215223+t*0.17087277)))))))));return x>=0?r:2-r}
+const Q=x=>0.5*erfc(x/Math.SQRT2);
+function berTheory(mod,ebn0dB){const g=lin(ebn0dB);
+  switch(mod){case 'bpsk':case 'qpsk':return Q(Math.sqrt(2*g));
+  case '8psk':{const k=3;return (2/k)*Q(Math.sqrt(2*k*g)*Math.sin(Math.PI/8))}
+  default:{const M={'16qam':16,'64qam':64,'256qam':256}[mod],k=Math.log2(M);return Math.min(0.5,(4/k)*(1-1/Math.sqrt(M))*Q(Math.sqrt(3*k*g/(M-1))))}}}
+const fmt=(x,d=2)=>!isFinite(x)?'—':(Math.abs(x)>=1e5||(Math.abs(x)<1e-3&&x!==0))?x.toExponential(2):x.toFixed(d);
+
+/* ================= CALCULATORS ================= */
+const CALCS=[
+{id:'dbm',t:'המרת הספק',w:'dBm ↔ mW ↔ W ↔ Vrms ב־50Ω ↔ dBµV',f:[['dBm','הספק [dBm]',10]],
+ run:v=>{const mw=lin(v.dBm);const vr=Math.sqrt(mw/1000*50);return [['mW',fmt(mw,4)],['W',fmt(mw/1000,6)],['dBW',fmt(v.dBm-30)],['Vrms (50Ω)',fmt(vr,4)+' V'],['Vpp',fmt(vr*2*Math.SQRT2,4)+' V'],['dBµV',fmt(v.dBm+107)]]}},
+{id:'sum',t:'סכום הספקים',w:'חיבור אותות לא קוהרנטיים (או אות + רעש) בדציבלים',f:[['a','אות 1 [dBm]',-90],['b','אות 2 [dBm]',-93],['c','אות 3 [dBm]',-200]],
+ run:v=>{const s=lin(v.a)+lin(v.b)+lin(v.c);return [['big|סכום',fmt(dB(s))+' dBm'],['הפרש a−b',fmt(v.a-v.b)+' dB']]}},
+{id:'sens',t:'רצפת רעש ורגישות',w:'Sens = −174 + 10logB + NF + SNRmin',f:[['B','רוחב סרט [Hz]',1e6],['NF','NF [dB]',5],['snr','SNR נדרש [dB]',10],['T','טמפ׳ מערכת [K]',290]],
+ run:v=>{const kt=dB(1.380649e-23*v.T*1000);const nf=kt+dB(v.B);return [['kT [dBm/Hz]',fmt(kt)],['kTB [dBm]',fmt(nf)],['רצפת רעש מקלט',fmt(nf+v.NF)+' dBm'],['MDS (SNR=0)',fmt(nf+v.NF)+' dBm'],['big|רגישות',fmt(nf+v.NF+v.snr)+' dBm']]}},
+{id:'ebno',t:'Eb/N0 ↔ Es/N0 ↔ SNR',w:'המרות לפי אפנון, קוד וקצב',f:[['eb','Eb/N0 [dB]',6],['k','ביטים לסימבול',4],['r','Code rate',0.75],['Rs','קצב סימבולים [sps]',1e6],['B','רוחב רעש [Hz]',1e6]],
+ run:v=>{const es=v.eb+dB(v.k*v.r);const snr=es-dB(v.B/v.Rs);const Rb=v.Rs*v.k*v.r;return [['Es/N0',fmt(es)+' dB'],['big|SNR',fmt(snr)+' dB'],['Bitrate מידע',fmt(Rb/1e6,3)+' Mbps'],['C/N0',fmt(v.eb+dB(Rb))+' dBHz'],['EVM מקביל',fmt(100*Math.pow(10,-snr/20))+' %']]}},
+{id:'rate',t:'Bitrate ורוחב סרט',w:'Rb = Rs·log2(M)·r ,  B = Rs(1+α)',f:[['Rs','קצב סימבולים [Msps]',10],['M','סדר אפנון M',64],['r','Code rate',0.8333],['a','Roll-off α',0.2]],
+ run:v=>{const k=Math.log2(v.M);const rb=v.Rs*k*v.r,raw=v.Rs*k,bw=v.Rs*(1+v.a);return [['ביט/סימבול',fmt(k,0)],['קצב גולמי',fmt(raw,2)+' Mbps'],['big|קצב מידע',fmt(rb,2)+' Mbps'],['רוחב תפוס',fmt(bw,2)+' MHz'],['יעילות',fmt(rb/bw,2)+' bit/s/Hz'],['שאנון: SNR מינ׳',fmt(dB(Math.pow(2,rb/bw)-1))+' dB']]}},
+{id:'evm',t:'EVM ↔ SNR ↔ MER',w:'בהנחת רעש דומיננטי',f:[['e','EVM [%]',3]],
+ run:v=>{const d=20*L10(v.e/100);return [['EVM [dB]',fmt(d)],['big|SNR מקביל',fmt(-d)+' dB'],['MER',fmt(-d)+' dB'],['פאזה RMS שקולה',fmt(v.e/100*180/Math.PI)+'°']]}},
+{id:'ber',t:'BER תיאורטי',w:'AWGN, ללא קידוד, Gray coding',f:[['eb','Eb/N0 [dB]',10],['N','ביטים בחבילה',8000],['mod','אפנון','sel:bpsk,qpsk,8psk,16qam,64qam,256qam']],
+ run:v=>{const b=berTheory(v.mod,v.eb);const per=1-Math.pow(1-b,v.N);return [['big|BER',fmt(b)],['PER',fmt(per*100,3)+' %'],['ביטים לאימות (95%)',fmt(3/b)]]}},
+{id:'shannon',t:'קיבולת שאנון',w:'C = B·log2(1+SNR)',f:[['B','רוחב סרט [MHz]',20],['snr','SNR [dB]',20]],
+ run:v=>{const c=v.B*Math.log2(1+lin(v.snr));return [['big|קיבולת',fmt(c,2)+' Mbps'],['יעילות',fmt(c/v.B,2)+' bit/s/Hz'],['Eb/N0 בקיבולת',fmt(v.snr-dB(c/v.B))+' dB']]}},
+{id:'vswr',t:'VSWR ↔ Γ ↔ Return Loss',w:'הכנס VSWR, או השאר 0 וחשב מעכבה',f:[['s','VSWR',1.5],['R','ZL ממשי [Ω]',75],['X','ZL מדומה [Ω]',0],['Z0','Z0 [Ω]',50]],
+ run:v=>{let g;if(v.s>=1){g=(v.s-1)/(v.s+1)}else{const nr=v.R-v.Z0,ni=v.X,dr=v.R+v.Z0,di=v.X;g=Math.hypot(nr,ni)/Math.hypot(dr,di)}const s=(1+g)/(1-g);return [['|Γ|',fmt(g,4)],['VSWR',fmt(s,3)],['big|Return Loss',fmt(-20*L10(g))+' dB'],['הספק מוחזר',fmt(g*g*100,2)+' %'],['Mismatch loss',fmt(-dB(1-g*g),3)+' dB']]}},
+{id:'fspl',t:'FSPL, link budget וטווח',w:'נוסחת פריז להעברה בחלל פתוח',f:[['f','תדר [MHz]',2400],['Pt','Pt [dBm]',20],['Gt','Gt [dBi]',6],['Gr','Gr [dBi]',6],['L','הפסדי כבלים סה״כ [dB]',3],['S','רגישות [dBm]',-95],['FM','מרווח דעיכה [dB]',10],['d','מרחק לבדיקה [km]',5]],
+ run:v=>{const fs=20*L10(v.d)+20*L10(v.f)+32.44;const pr=v.Pt+v.Gt+v.Gr-v.L-fs;const mapl=v.Pt+v.Gt+v.Gr-v.L-v.S-v.FM;const dmax=Math.pow(10,(mapl-32.44-20*L10(v.f))/20);return [['λ',fmt(300/v.f*100,2)+' cm'],['EIRP',fmt(v.Pt+v.Gt-v.L/2)+' dBm (חצי מהכבלים)'],['FSPL במרחק',fmt(fs)+' dB'],['Pr במרחק',fmt(pr)+' dBm'],['מרווח במרחק',fmt(pr-v.S)+' dB'],['MAPL',fmt(mapl)+' dB'],['big|טווח מקסימלי',fmt(dmax,2)+' km']]}},
+{id:'logd',t:'טווח במודל Log-distance',w:'PL = FSPL(d0=1m) + 10·n·log(d)',f:[['f','תדר [MHz]',900],['mapl','MAPL כולל מרווח [dB]',130],['n','מקדם n',3.2]],
+ run:v=>{const pl0=20*L10(v.f)-27.55;const d=Math.pow(10,(v.mapl-pl0)/(10*v.n));const dfs=Math.pow(10,(v.mapl-pl0)/20);return [['PL ב־1m',fmt(pl0)+' dB'],['big|טווח',fmt(d,0)+' m'],['בחלל פתוח (n=2)',fmt(dfs/1000,2)+' km']]}},
+{id:'fres',t:'אזור פרנל ואופק רדיו',w:'רדיוס פרנל בנקודה, ואופק עם k=4/3',f:[['D','אורך לינק [km]',10],['d1','מרחק לנקודה [km]',5],['f','תדר [GHz]',5.8],['h1','גובה אנטנה 1 [m]',30],['h2','גובה אנטנה 2 [m]',10]],
+ run:v=>{const r=17.32*Math.sqrt(v.d1*(v.D-v.d1)/(v.f*v.D));const bulge=v.d1*(v.D-v.d1)/(12.74*4/3);return [['big|רדיוס פרנל 1',fmt(r)+' m'],['מרווח נדרש 60%',fmt(0.6*r)+' m'],['בליטת כדור הארץ',fmt(bulge)+' m'],['אופק רדיו',fmt(4.12*(Math.sqrt(v.h1)+Math.sqrt(v.h2)),1)+' km']]}},
+{id:'ip3',t:'IP3 משני טונים, SFDR',w:'מדידת IM3 → OIP3/IIP3 → SFDR',f:[['pin','הספק לטון בכניסה [dBm]',-20],['G','הגבר [dB]',15],['im','IM3 ביציאה [dBm]',-65],['B','רוחב סרט [Hz]',1e6],['NF','NF [dB]',4]],
+ run:v=>{const po=v.pin+v.G;const d=po-v.im;const o=po+d/2;const i=o-v.G;const nf=-174+dB(v.B)+v.NF;return [['ΔIM',fmt(d)+' dBc'],['OIP3',fmt(o)+' dBm'],['big|IIP3',fmt(i)+' dBm'],['IP1dB משוער',fmt(i-9.6)+' dBm'],['SFDR',fmt(2/3*(i-nf))+' dB']]}},
+{id:'pn',t:'רעש פאזה ו־reciprocal mixing',w:'φ_rms מ־L(f) שטוח, desense מחוסם',f:[['L','L(f) ממוצע [dBc/Hz]',-100],['f1','מ־ [Hz]',1e3],['f2','עד [Hz]',1e6],['fc','תדר נושא [MHz]',2400],['pb','חוסם [dBm]',-30],['Lb','L(Δf) בחוסם [dBc/Hz]',-135],['B','רוחב ערוץ [Hz]',1e6]],
+ run:v=>{const ph=Math.sqrt(2*lin(v.L)*(v.f2-v.f1));const nr=v.pb+v.Lb+dB(v.B);return [['big|φ rms',fmt(ph*180/Math.PI,3)+'°'],['EVM מרעש פאזה',fmt(ph*100,2)+' %'],['ג׳יטר',fmt(ph/(2*Math.PI*v.fc*1e6)*1e15,1)+' fs'],['רעש מ־reciprocal mixing',fmt(nr)+' dBm']]}},
+{id:'adc',t:'ADC',w:'SNR, processing gain וג׳יטר',f:[['N','ביטים (או ENOB)',12],['fs','קצב דגימה [MHz]',100],['B','רוחב אות [MHz]',5],['fin','תדר כניסה [MHz]',70],['tj','ג׳יטר שעון [fs]',200]],
+ run:v=>{const s=6.02*v.N+1.76;const pg=dB(v.fs/(2*v.B));const sj=-20*L10(2*Math.PI*v.fin*1e6*v.tj*1e-15);const tot=-dB(lin(-s)+lin(-sj));return [['SNR קוונטיזציה',fmt(s)+' dB'],['SNR מג׳יטר',fmt(sj)+' dB'],['SNR משולב',fmt(tot)+' dB'],['Processing gain',fmt(pg)+' dB'],['big|SNR בערוץ',fmt(tot+pg)+' dB']]}},
+{id:'img',t:'תדר דמות ו־IQ',w:'סופרהטרודין, ודחיית דמות ב־IQ',f:[['rf','RF [MHz]',2400],['iff','IF [MHz]',70],['side','LO','sel:נמוך,גבוה'],['eps','שגיאת הגבר [%]',1],['th','שגיאת פאזה [°]',1]],
+ run:v=>{const lo=v.side==='גבוה'?v.rf+v.iff:v.rf-v.iff;const im=v.side==='גבוה'?v.rf+2*v.iff:v.rf-2*v.iff;const e=v.eps/100,t=v.th*Math.PI/180;return [['LO',fmt(lo,2)+' MHz'],['big|תדר דמות',fmt(im,2)+' MHz'],['IRR מ־IQ',fmt(dB(4/(e*e+t*t)))+' dB']]}},
+{id:'dop',t:'דופלר וקוהרנטיות',w:'fd, Tc, Bc',f:[['v','מהירות [קמ״ש]',100],['f','תדר [MHz]',2000],['ds','Delay spread [µs]',1],['ppm','דיוק שעון [ppm]',2]],
+ run:v=>{const fd=v.v/3.6*v.f*1e6/3e8;return [['big|דופלר מקסימלי',fmt(fd,1)+' Hz'],['Coherence time',fmt(0.423/fd*1000,2)+' ms'],['Coherence BW',fmt(1/(5*v.ds),3)+' MHz'],['היסט מהשעון',fmt(v.f*v.ppm,1)+' Hz']]}},
+{id:'ant',t:'אנטנה',w:'הגבר צלחת, רוחב אלומה, שדה רחוק',f:[['D','קוטר [m]',0.6],['f','תדר [GHz]',12],['eta','יעילות',0.6]],
+ run:v=>{const l=0.3/v.f;const g=v.eta*Math.pow(Math.PI*v.D/l,2);return [['λ',fmt(l*100,2)+' cm'],['big|הגבר',fmt(dB(g))+' dBi'],['רוחב אלומה −3dB',fmt(70*l/v.D,2)+'°'],['שדה רחוק מ־',fmt(2*v.D*v.D/l,1)+' m'],['שטח אפקטיבי',fmt(v.eta*Math.PI*v.D*v.D/4,3)+' m²']]}},
+{id:'sat',t:'לינק לוויין C/N0',w:'C/N0 = EIRP − FSPL − L + G/T + 228.6',f:[['eirp','EIRP [dBW]',52],['f','תדר [GHz]',12],['d','מרחק [km]',38000],['gt','G/T [dB/K]',15],['L','הפסדים נוספים [dB]',0.5],['eb','Eb/N0 נדרש + מרווח [dB]',7]],
+ run:v=>{const fs=20*L10(v.d)+20*L10(v.f*1000)+32.44;const cn=v.eirp-fs-v.L+v.gt+228.6;return [['FSPL',fmt(fs)+' dB'],['big|C/N0',fmt(cn)+' dBHz'],['קצב מקסימלי',fmt(Math.pow(10,(cn-v.eb)/10)/1e6,2)+' Mbps']]}},
+];
+function buildCalcs(){
+  const g=document.getElementById('calcGrid');
+  g.innerHTML='<div class="card wide" id="casc"></div>'+CALCS.map(c=>'<div class="card" data-c="'+c.id+'"><h3>'+c.t+'</h3><p class="why">'+c.w+'</p><div class="fields">'+c.f.map(([k,l,d])=>{
+    if(typeof d==='string'&&d.startsWith('sel:'))return '<label class="fl">'+l+'<select id="c_'+c.id+'_'+k+'">'+d.slice(4).split(',').map(o=>'<option>'+o+'</option>').join('')+'</select></label>';
+    return '<label class="fl">'+l+'<input type="number" step="any" id="c_'+c.id+'_'+k+'" value="'+d+'"></label>'}).join('')+'</div><div class="out" id="o_'+c.id+'"></div></div>').join('');
+  CALCS.forEach(c=>{const upd=()=>{const v={};c.f.forEach(([k,,d])=>{const el=document.getElementById('c_'+c.id+'_'+k);v[k]=(typeof d==='string')?el.value:parseFloat(el.value)});
+    let r;try{r=c.run(v)}catch(e){r=[['שגיאה','בדוק ערכים']]}
+    document.getElementById('o_'+c.id).innerHTML=r.map(([a,b])=>{const big=a.startsWith('big|');return '<div class="'+(big?'big':'')+'"><span>'+(big?a.slice(4):a)+'</span><b>'+b+'</b></div>'}).join('')};
+    document.querySelector('[data-c="'+c.id+'"]').addEventListener('input',upd);upd()});
+  buildCascade();
+}
+
+/* cascade */
+let stages=[['כבל',-1.5,1.5,99],['LNA',18,1.2,10],['SAW',-2.5,2.5,99],['מיקסר',-7,7,15],['IF Amp',25,4,20]];
+function buildCascade(){
+  const el=document.getElementById('casc');
+  el.innerHTML='<h3>שרשרת קליטה: נוסחת פריז ו־IIP3 מצטבר</h3><p class="why">ערוך את השלבים. NF לפי פריז, IIP3 מוחזר לכניסה (1/IIP3 = Σ G_before/IIP3_i). לרכיב פסיבי: NF = הפסד ו־IIP3 גבוה (99). מנגנון הלמידה: נסה להחליף את סדר ה־LNA והכבל.</p>'+
+  '<div class="stages tbl"><table><thead><tr><th>#</th><th>שלב</th><th class="num">G [dB]</th><th class="num">NF [dB]</th><th class="num">IIP3 [dBm]</th><th class="num">G מצטבר</th><th class="num">NF מצטבר</th><th class="num">IIP3 מצטבר</th><th class="num">תרומה ל־F</th><th></th></tr></thead><tbody id="stBody"></tbody></table></div>'+
+  '<div style="display:flex;gap:8px;flex-wrap:wrap"><button class="btn sm" id="stAdd">+ הוסף שלב</button></div>'+
+  '<div class="fields" style="margin-top:6px"><label class="fl">רוחב סרט [Hz]<input type="number" id="stB" value="1000000" step="any"></label><label class="fl">SNR נדרש [dB]<input type="number" id="stS" value="10" step="any"></label></div><div class="out" id="stOut"></div>';
+  drawStages();
+  el.addEventListener('input',e=>{const t=e.target;if(t.dataset.r!==undefined){const r=+t.dataset.r,c=+t.dataset.k;stages[r][c]=c===0?t.value:parseFloat(t.value)||0}calcCascade()});
+  el.addEventListener('click',e=>{const t=e.target;
+    if(t.id==='stAdd'){stages.push(['שלב',10,3,10]);drawStages()}
+    if(t.dataset.del!==undefined){stages.splice(+t.dataset.del,1);drawStages()}
+    if(t.dataset.up!==undefined){const i=+t.dataset.up;if(i>0){[stages[i-1],stages[i]]=[stages[i],stages[i-1]];drawStages()}}});
+}
+function drawStages(){
+  document.getElementById('stBody').innerHTML=stages.map((s,i)=>'<tr><td class="num">'+(i+1)+'</td><td><input type="text" data-r="'+i+'" data-k="0" value="'+s[0]+'" id="st'+i+'n" style="font-family:var(--f-body);direction:rtl;text-align:right"></td>'+[1,2,3].map(k=>'<td><input type="number" step="any" data-r="'+i+'" data-k="'+k+'" value="'+s[k]+'" id="st'+i+'_'+k+'"></td>').join('')+'<td class="num" id="cg'+i+'"></td><td class="num" id="cn'+i+'"></td><td class="num" id="ci'+i+'"></td><td class="num" id="cf'+i+'"></td><td style="white-space:nowrap"><button class="btn sm" data-up="'+i+'" aria-label="הזז למעלה">↑</button> <button class="btn sm" data-del="'+i+'" aria-label="מחק">✕</button></td></tr>').join('');
+  calcCascade();
+}
+function calcCascade(){
+  let G=1,F=1,inv=0;const contrib=[];
+  stages.forEach((s,i)=>{const g=lin(s[1]),f=lin(s[2]),ip=lin(s[3]);const c=i===0?f:(f-1)/G;contrib.push(c);F+= i===0?f-1:(f-1)/G;inv+=G/ip;G*=g;
+    document.getElementById('cg'+i).textContent=fmt(dB(G));document.getElementById('cn'+i).textContent=fmt(dB(F));document.getElementById('ci'+i).textContent=fmt(dB(1/inv));});
+  const tot=F-1+1; stages.forEach((s,i)=>{document.getElementById('cf'+i).textContent=fmt(100*(i===0?contrib[0]-1+1:contrib[i])/tot,1)+'%'});
+  const B=parseFloat(document.getElementById('stB').value)||1,S=parseFloat(document.getElementById('stS').value)||0;
+  const nf=dB(F),ii=dB(1/inv),floor=-174+dB(B)+nf;
+  document.getElementById('stOut').innerHTML=[['הגבר כולל',fmt(dB(G))+' dB'],['big|NF מערכת',fmt(nf)+' dB'],['Te מערכת',fmt(290*(F-1),0)+' K'],['big|IIP3 מערכת',fmt(ii)+' dBm'],['OIP3',fmt(ii+dB(G))+' dBm'],['רצפת רעש בכניסה',fmt(floor)+' dBm'],['רגישות',fmt(floor+S)+' dBm'],['SFDR',fmt(2/3*(ii-floor))+' dB']].map(([a,b])=>{const big=a.startsWith('big|');return '<div class="'+(big?'big':'')+'"><span>'+(big?a.slice(4):a)+'</span><b>'+b+'</b></div>'}).join('');
+}
+
+/* ================= SIM ================= */
+const MODS={bpsk:{k:1},qpsk:{k:2},'8psk':{k:3},'16qam':{k:4},'64qam':{k:6},'256qam':{k:8}};
+function constellation(m){let pts=[];
+  if(m==='bpsk')pts=[[1,0],[-1,0]];
+  else if(m==='qpsk')pts=[[1,1],[-1,1],[-1,-1],[1,-1]].map(p=>[p[0]/Math.SQRT2,p[1]/Math.SQRT2]);
+  else if(m==='8psk')for(let i=0;i<8;i++)pts.push([Math.cos(i*Math.PI/4+Math.PI/8),Math.sin(i*Math.PI/4+Math.PI/8)]);
+  else{const M={'16qam':16,'64qam':64,'256qam':256}[m],s=Math.sqrt(M);for(let i=0;i<s;i++)for(let j=0;j<s;j++)pts.push([2*i-s+1,2*j-s+1]);const e=Math.sqrt(pts.reduce((a,p)=>a+p[0]*p[0]+p[1]*p[1],0)/M);pts=pts.map(p=>[p[0]/e,p[1]/e])}
+  return pts}
+function randn(){let u=0,v=0;while(!u)u=Math.random();while(!v)v=Math.random();return Math.sqrt(-2*Math.log(u))*Math.cos(2*Math.PI*v)}
+let seedIdx=[],seedN=[];
+function regen(){seedIdx=[];seedN=[];for(let i=0;i<2000;i++){seedIdx.push(Math.random());seedN.push([randn(),randn(),randn()])}}
+regen();
+const cv=document.getElementById('cst'),ctx=cv.getContext('2d');
+function css(n){return getComputedStyle(document.documentElement).getPropertyValue(n).trim()}
+function drawSim(){
+  const m=document.getElementById('sMod').value,snr=+document.getElementById('sSnr').value,pn=+document.getElementById('sPn').value,
+    iqg=+document.getElementById('sIqg').value,iqp=+document.getElementById('sIqp').value,dc=+document.getElementById('sDc').value,comp=+document.getElementById('sComp').value;
+  document.getElementById('sSnrV').textContent=snr.toFixed(1)+' dB';document.getElementById('sPnV').textContent=pn.toFixed(2)+'°';
+  document.getElementById('sIqgV').textContent=iqg.toFixed(1)+' dB';document.getElementById('sIqpV').textContent=iqp.toFixed(1)+'°';
+  document.getElementById('sDcV').textContent=(dc*100).toFixed(0)+'%';document.getElementById('sCompV').textContent=comp.toFixed(2);
+  const P=constellation(m),M=P.length,sig=Math.sqrt(1/(2*lin(snr)));
+  const ga=Math.pow(10,iqg/40),gb=1/ga,ph=iqp*Math.PI/180/2;
+  const W=cv.width,H=cv.height,sc=W/3.2,cx=W/2,cy=H/2;
+  ctx.fillStyle=css('--surface');ctx.fillRect(0,0,W,H);
+  ctx.strokeStyle=css('--line');ctx.lineWidth=1;
+  for(let g=-1.5;g<=1.5;g+=0.5){ctx.beginPath();ctx.moveTo(cx+g*sc,0);ctx.lineTo(cx+g*sc,H);ctx.stroke();ctx.beginPath();ctx.moveTo(0,cy+g*sc);ctx.lineTo(W,cy+g*sc);ctx.stroke()}
+  ctx.strokeStyle=css('--muted');ctx.lineWidth=1.5;ctx.beginPath();ctx.moveTo(cx,0);ctx.lineTo(cx,H);ctx.moveTo(0,cy);ctx.lineTo(W,cy);ctx.stroke();
+  ctx.fillStyle=css('--muted');ctx.font='24px JetBrains Mono, monospace';ctx.fillText('I',W-30,cy-10);ctx.fillText('Q',cx+10,28);
+  let errP=0,sigP=0,se=0;const tr=css('--trace');ctx.fillStyle=tr;ctx.globalAlpha=0.55;
+  const r=Math.max(2.2,5-M/80);
+  for(let i=0;i<2000;i++){const idx=Math.floor(seedIdx[i]*M),[x0,y0]=P[idx];
+    let x=x0,y=y0;
+    if(comp>0){const a=Math.hypot(x,y),k=comp*1.2;const an=a/Math.pow(1+Math.pow(a/(1.35-0.5*comp),2*(1+3*k)),1/(2*(1+3*k)));const sc2=a>0?an/a:1;const pm=comp*0.25*a*a;const c=Math.cos(pm),s=Math.sin(pm);const xx=(x*c-y*s)*sc2,yy=(x*s+y*c)*sc2;x=xx;y=yy}
+    const xi=ga*(x*Math.cos(ph)-y*Math.sin(ph)),yq=gb*(y*Math.cos(ph)-x*Math.sin(ph));x=xi;y=yq;
+    const th=seedN[i][2]*pn*Math.PI/180,c=Math.cos(th),s=Math.sin(th);const xr=x*c-y*s,yr=x*s+y*c;
+    const fx=xr+dc+sig*seedN[i][0],fy=yr+dc*0.6+sig*seedN[i][1];
+    errP+=(fx-x0)**2+(fy-y0)**2;sigP+=x0*x0+y0*y0;
+    let best=0,bd=1e9;for(let j=0;j<M;j++){const d=(fx-P[j][0])**2+(fy-P[j][1])**2;if(d<bd){bd=d;best=j}}if(best!==idx)se++;
+    ctx.beginPath();ctx.arc(cx+fx*sc,cy-fy*sc,r,0,6.283);ctx.fill()}
+  ctx.globalAlpha=1;ctx.strokeStyle=css('--accent');ctx.lineWidth=2.5;
+  P.forEach(p=>{const X=cx+p[0]*sc,Y=cy-p[1]*sc;ctx.beginPath();ctx.moveTo(X-7,Y);ctx.lineTo(X+7,Y);ctx.moveTo(X,Y-7);ctx.lineTo(X,Y+7);ctx.stroke()});
+  const evm=Math.sqrt(errP/sigP),k=MODS[m].k,ebn0=snr-dB(k),bt=berTheory(m,ebn0);
+  document.getElementById('simOut').innerHTML=[['EVM נמדד',(evm*100).toFixed(2)+' %  ('+(20*L10(evm)).toFixed(1)+' dB)'],['big|SNR אפקטיבי מ־EVM',(-20*L10(evm)).toFixed(1)+' dB'],['Eb/N0 (מרעש בלבד)',ebn0.toFixed(1)+' dB'],['SER נמדד',(se/2000).toExponential(2)+'  ('+se+'/2000)'],['BER תיאורטי (AWGN)',fmt(bt)]].map(([a,b])=>{const big=a.startsWith('big|');return '<div class="'+(big?'big':'')+'"><span>'+(big?a.slice(4):a)+'</span><b>'+b+'</b></div>'}).join('');
+  drawBer(m,ebn0);
+}
+['sMod','sSnr','sPn','sIqg','sIqp','sDc','sComp'].forEach(id=>document.getElementById(id).addEventListener('input',drawSim));
+document.getElementById('sRegen').addEventListener('click',()=>{regen();drawSim()});
+
+/* BER chart */
+const BM=[['bpsk','BPSK/QPSK','--s1'],['8psk','8PSK','--s2'],['16qam','16QAM','--s3'],['64qam','64QAM','--s4'],['256qam','256QAM','--s5']];
+const bx={l:62,r:740,t:14,b:318},xmin=0,xmax=30,ymin=-8,ymax=-0.3;
+const X=v=>bx.l+(v-xmin)/(xmax-xmin)*(bx.r-bx.l), Y=v=>bx.t+(ymax-v)/(ymax-ymin)*(bx.b-bx.t);
+function drawBer(sel,eb){
+  const svg=document.getElementById('berSvg');let s='';
+  for(let e=-8;e<=-1;e++){s+='<line x1="'+bx.l+'" x2="'+bx.r+'" y1="'+Y(e)+'" y2="'+Y(e)+'" stroke="var(--line)" stroke-width="1"/><text x="'+(bx.l-8)+'" y="'+(Y(e)+4)+'" text-anchor="end" font-size="12" fill="var(--muted)" font-family="JetBrains Mono,monospace">1e'+e+'</text>'}
+  for(let x=0;x<=30;x+=5){s+='<line x1="'+X(x)+'" x2="'+X(x)+'" y1="'+bx.t+'" y2="'+bx.b+'" stroke="var(--line)" stroke-width="1" stroke-dasharray="2 4"/><text x="'+X(x)+'" y="'+(bx.b+18)+'" text-anchor="middle" font-size="12" fill="var(--muted)" font-family="JetBrains Mono,monospace">'+x+'</text>'}
+  s+='<text x="'+((bx.l+bx.r)/2)+'" y="352" text-anchor="middle" font-size="12" fill="var(--muted)">Eb/N0 [dB]</text>';
+  s+='<text x="14" y="'+((bx.t+bx.b)/2)+'" font-size="12" fill="var(--muted)" transform="rotate(-90 14 '+((bx.t+bx.b)/2)+')" text-anchor="middle">BER</text>';
+  BM.forEach(([m,,c])=>{let d='';for(let x=0;x<=30;x+=0.25){const b=berTheory(m,x);if(b<1e-8)break;d+=(d?'L':'M')+X(x).toFixed(1)+','+Y(L10(b)).toFixed(1)}
+    s+='<path d="'+d+'" fill="none" stroke="var('+c+')" stroke-width="'+(m===sel||(sel==='qpsk'&&m==='bpsk')?3:2)+'" stroke-linecap="round" opacity="'+(m===sel||(sel==='qpsk'&&m==='bpsk')?1:0.55)+'"/>'});
+  const bt=berTheory(sel,eb);
+  if(bt>=1e-8&&eb>=0&&eb<=30){s+='<circle cx="'+X(eb)+'" cy="'+Y(L10(bt))+'" r="6" fill="var(--ink)" stroke="var(--surface)" stroke-width="2"/>'}
+  s+='<line id="bxh" x1="0" x2="0" y1="'+bx.t+'" y2="'+bx.b+'" stroke="var(--muted)" stroke-width="1" visibility="hidden"/><rect x="'+bx.l+'" y="'+bx.t+'" width="'+(bx.r-bx.l)+'" height="'+(bx.b-bx.t)+'" fill="transparent" id="bhit"/>';
+  svg.innerHTML=s;
+}
+document.getElementById('berLeg').innerHTML=BM.map(([,n,c])=>'<span><i style="background:var('+c+')"></i>'+n+'</span>').join('');
+(function(){const svg=document.getElementById('berSvg'),tip=document.getElementById('berTip'),box=document.getElementById('berBox');
+  svg.addEventListener('pointermove',e=>{const rc=svg.getBoundingClientRect();const vx=(e.clientX-rc.left)/rc.width*760;if(vx<bx.l||vx>bx.r){tip.hidden=true;return}
+    const eb=xmin+(vx-bx.l)/(bx.r-bx.l)*(xmax-xmin);const h=svg.querySelector('#bxh');h.setAttribute('x1',vx);h.setAttribute('x2',vx);h.setAttribute('visibility','visible');
+    tip.innerHTML='Eb/N0 '+eb.toFixed(1)+' dB<br>'+BM.map(([m,n])=>n+': '+fmt(berTheory(m,eb))).join('<br>');tip.hidden=false;
+    const br=box.getBoundingClientRect();let lx=e.clientX-br.left+14;if(lx>br.width-170)lx=e.clientX-br.left-180;tip.style.left=lx+'px';tip.style.top=(e.clientY-br.top-20)+'px'});
+  svg.addEventListener('pointerleave',()=>{tip.hidden=true;const h=svg.querySelector('#bxh');if(h)h.setAttribute('visibility','hidden')});})();
+
+/* ================= PROBLEMS ================= */
+document.getElementById('probList').innerHTML=PR.map((p,i)=>'<div class="prob"><h3>'+(i+1)+'. '+p[0]+'</h3><p>'+p[1]+'</p><button class="btn sm" data-sol="'+i+'">הצג פתרון</button><div class="sol">'+p[2]+'</div></div>').join('');
+document.getElementById('probList').addEventListener('click',e=>{const b=e.target.closest('[data-sol]');if(!b)return;const d=b.parentElement;d.classList.toggle('open');b.textContent=d.classList.contains('open')?'הסתר פתרון':'הצג פתרון'});
+
+/* ================= INTERVIEW ================= */
+const chName=Object.fromEntries(CH.map(c=>[c.id,c.title]));
+let ivF='all',ivL='all';
+function renderIv(){
+  const topics=['all',...new Set(IV.map(q=>q[0]))];
+  document.getElementById('ivFilters').innerHTML=topics.map(t=>'<button class="chip" data-t="'+t+'" aria-pressed="'+(ivF===t)+'">'+(t==='all'?'הכל ('+IV.length+')':chName[t])+'</button>').join('')+
+    '<span style="width:12px"></span>'+['all','בסיס','בינוני','מתקדם'].map(l=>'<button class="chip" data-l="'+l+'" aria-pressed="'+(ivL===l)+'">'+(l==='all'?'כל הרמות':l)+'</button>').join('');
+  document.getElementById('ivList').innerHTML=IV.filter(q=>(ivF==='all'||q[0]===ivF)&&(ivL==='all'||q[1]===ivL)).map(q=>'<details class="q"><summary><span class="lv">'+q[1]+'</span><span>'+q[2]+'</span><span class="tag">'+chName[q[0]]+'</span></summary><div class="a">'+q[3]+'</div></details>').join('');
+}
+document.getElementById('ivFilters').addEventListener('click',e=>{const b=e.target.closest('.chip');if(!b)return;if(b.dataset.t)ivF=b.dataset.t;if(b.dataset.l)ivL=b.dataset.l;renderIv()});
+
+/* ================= FLASH ================= */
+let fw=store.get('fw',{}),fi=0,flip=false,fstat={y:0,n:0};
+function pick(){let tot=0;const w=FC.map((c,i)=>{const x=Math.pow(2,fw[i]||0);tot+=x;return x});let r=Math.random()*tot;for(let i=0;i<w.length;i++){r-=w[i];if(r<=0)return i===fi&&FC.length>1?(i+1)%FC.length:i}return 0}
+function renderFc(){const c=FC[fi];document.getElementById('fc').innerHTML=flip?'<div class="side">ANSWER</div><div class="term" style="font-size:1.1rem;color:var(--muted)">'+c[0]+'</div><div class="def" style="font-family:var(--f-mono);font-size:1.25rem;direction:auto">'+c[1]+'</div>':'<div class="side">CARD '+(fi+1)+' / '+FC.length+'</div><div class="term">'+c[0]+'</div><div class="def" style="color:var(--muted)">לחץ כדי לראות את התשובה</div>';
+  const weak=Object.values(fw).filter(v=>v>0).length;document.getElementById('fStats').innerHTML='<span>ידעתי: '+fstat.y+'</span><span>לא ידעתי: '+fstat.n+'</span><span>כרטיסים לחיזוק: '+weak+'</span>'}
+const fcEl=document.getElementById('fc');
+fcEl.addEventListener('click',()=>{flip=!flip;renderFc()});fcEl.addEventListener('keydown',e=>{if(e.key===' '||e.key==='Enter'){e.preventDefault();flip=!flip;renderFc()}});
+function nextFc(){fi=pick();flip=false;renderFc()}
+document.getElementById('fYes').addEventListener('click',()=>{fw[fi]=Math.max(-2,(fw[fi]||0)-1);fstat.y++;store.set('fw',fw);nextFc()});
+document.getElementById('fNo').addEventListener('click',()=>{fw[fi]=Math.min(4,(fw[fi]||0)+2);fstat.n++;store.set('fw',fw);nextFc()});
+document.getElementById('fSkip').addEventListener('click',nextFc);
+
+/* ================= INIT ================= */
+if(!CH.find(c=>c.id===cur))cur='db';
+renderCh(cur);buildCalcs();renderIv();fi=pick();renderFc();drawSim();
+{const h=location.hash.slice(1);if(['learn','calc','sim','prob','iv','flash'].includes(h))show(h)}
+try{matchMedia('(prefers-color-scheme: dark)').addEventListener('change',()=>drawSim())}catch(e){}
+new MutationObserver(()=>drawSim()).observe(document.documentElement,{attributes:true,attributeFilter:['data-theme']});
+</script>
