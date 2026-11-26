@@ -158,6 +158,34 @@ details.q .a p{margin:.4em 0;max-width:75ch}
 .prob .sol{display:none;border-top:1px dashed var(--line);margin-top:10px;padding-top:10px}
 .prob.open .sol{display:block}
 
+/* exam + scenarios */
+.exbar{display:flex;flex-wrap:wrap;gap:10px;align-items:end;margin-bottom:16px}
+.exbar label.fl{min-width:160px}
+.exbox{background:var(--surface);border:1px solid var(--line);border-radius:var(--r);padding:22px clamp(16px,3vw,32px);max-width:860px}
+.exbox .meta{display:flex;justify-content:space-between;gap:10px;font-size:.82rem;color:var(--muted);font-family:var(--f-mono);margin-bottom:10px;flex-wrap:wrap}
+.exbox .qq{font-family:var(--f-display);font-size:1.15rem;margin:4px 0 14px;line-height:1.5}
+.opts{display:grid;gap:8px}
+.opt{display:block;width:100%;text-align:right;background:var(--surface-2);border:1px solid var(--line);border-radius:6px;padding:10px 14px;cursor:pointer;line-height:1.5}
+.opt:hover:not([disabled]){border-color:var(--accent)}
+.opt[disabled]{cursor:default}
+.opt.ok{border-color:var(--good);box-shadow:inset -4px 0 0 var(--good)}
+.opt.bad{border-color:var(--bad);box-shadow:inset -4px 0 0 var(--bad)}
+.opt.part{border-color:var(--trace);box-shadow:inset -4px 0 0 var(--trace)}
+.fb{margin-top:14px;padding:12px 16px;border-radius:6px;background:var(--surface-2);font-size:.95rem}
+.fb .v{font-family:var(--f-display);font-weight:700;display:block;margin-bottom:2px}
+.fb .v.ok{color:var(--good)}.fb .v.bad{color:var(--bad)}.fb .v.part{color:var(--trace)}
+.numrow{display:flex;gap:8px;align-items:center;flex-wrap:wrap}
+.numrow input{max-width:180px}
+.score{font-family:var(--f-display);font-size:2.4rem;color:var(--trace);font-variant-numeric:tabular-nums}
+.weak td button{white-space:nowrap}
+.sclist{display:grid;grid-template-columns:repeat(auto-fill,minmax(220px,1fr));gap:12px;margin-bottom:20px}
+.sclist button{text-align:right;background:var(--surface);border:1px solid var(--line);border-radius:var(--r);padding:14px 16px;cursor:pointer;display:flex;flex-direction:column;gap:4px}
+.sclist button:hover,.sclist button[aria-pressed="true"]{border-color:var(--accent)}
+.sclist b{font-family:var(--f-display)}
+.sclist small{color:var(--muted)}
+.steps{display:flex;gap:4px;margin-bottom:12px}
+.steps i{flex:1;height:4px;border-radius:2px;background:var(--line)}
+.steps i.on{background:var(--trace)}
 @media (max-width:860px){
   .learn{grid-template-columns:1fr}
   .rail{position:static;max-height:none}
@@ -184,6 +212,8 @@ details.q .a p{margin:.4em 0;max-width:75ch}
       <button role="tab" data-v="sim" aria-selected="false">סימולטור קונסטלציה</button>
       <button role="tab" data-v="prob" aria-selected="false">תרגילים</button>
       <button role="tab" data-v="iv" aria-selected="false">שאלות ראיון</button>
+      <button role="tab" data-v="exam" aria-selected="false">מבחן</button>
+      <button role="tab" data-v="scen" aria-selected="false">סימולציית ראיון</button>
       <button role="tab" data-v="flash" aria-selected="false">כרטיסיות</button>
     </nav>
   </div>
@@ -254,6 +284,23 @@ details.q .a p{margin:.4em 0;max-width:75ch}
       </div>
       <div class="fstats" id="fStats"></div>
     </div>
+  </section>
+
+  <section class="view" id="v-exam">
+    <div class="sechead"><h2>מבחן</h2><p>שאלות אמריקאיות ושאלות חישוב. אחרי כל תשובה מופיע הסבר. הציונים לפי נושא נשמרים בדפדפן, ובסוף תקבל רשימה של הנושאים החלשים שלך עם קישור לפרק המתאים.</p></div>
+    <div class="exbar">
+      <label class="fl">נושא<select id="exTopic"></select></label>
+      <label class="fl">מספר שאלות<select id="exN"><option>10</option><option>20</option><option value="999">כל השאלות</option></select></label>
+      <button class="btn pri" id="exGo">התחל מבחן</button>
+      <button class="btn" id="exWeak">תרגל נושאים חלשים</button>
+    </div>
+    <div class="exbox" id="exBox"></div>
+  </section>
+
+  <section class="view" id="v-scen">
+    <div class="sechead"><h2>סימולציית ראיון: תרחישים</h2><p>מראיינים למהנדס מערכת לא שואלים רק נוסחאות. הם נותנים תקלה או בעיית תכנון ובודקים איך אתה חושב, צעד אחרי צעד. בחר תרחיש. בכל שלב יש תשובה מצוינת, תשובה חלקית ותשובה שמראיין לא אוהב.</p></div>
+    <div class="sclist" id="scList"></div>
+    <div class="exbox" id="scBox"></div>
   </section>
 </main>
 
@@ -912,6 +959,204 @@ Eb/N0 = C/N0 − 10·log10(Rb)</span>
 <li>תרגול: ‏GNU Radio עם SDR זול (RTL-SDR, HackRF, PlutoSDR). לראות קונסטלציות אמיתיות זה ההבדל בין לדעת להבין.</li>
 <li>במעבדה: כל בדיקה שאתה מבצע, חשב קודם מה התוצאה הצפויה. הפער בין חישוב למדידה הוא המקום שבו לומדים.</li>
 </ul>
+</section>`},
+
+{id:'ew',n:'19',lvl:'טקטי',title:'תקשורת טקטית ועמידות לשיבוש',tag:'FHSS · DSSS · J/S · Jamming margin · LPI/LPD · MANET · Knife-edge',
+lead:'במערכת טקטית לא מספיק שהלינק עובד. הוא צריך לעבוד כשמישהו מנסה לשבש אותו, כשהאנטנה בגובה מטר וחצי מאחורי גבעה, וכשהאויב מנסה לגלות שאתה משדר. זה הפרק שהופך מהנדס RF למהנדס מערכת טקטית.',
+body:`
+<section><h3>הערוץ הטקטי</h3>
+<div class="tbl"><table><tr><th>פס</th><th class="num">תחום</th><th>אופי</th></tr>
+<tr><td>HF</td><td class="num">2–30 MHz</td><td>גל קרקע וגל שמיים. NVIS (‏2–10MHz, קרינה כמעט אנכית) נותן כיסוי של 0–400km מעבר לרכסים, בלי ממסר.</td></tr>
+<tr><td>VHF קרקעי</td><td class="num">30–88 MHz</td><td>רשתות קשר קרביות. עקיפה טובה מעל רכסים וחדירה טובה בצמחייה. אנטנות ארוכות.</td></tr>
+<tr><td>UHF אוויר</td><td class="num">225–400 MHz</td><td>קשר קרקע־אוויר ואוויר־אוויר.</td></tr>
+<tr><td>UHF/L/S רחב סרט</td><td class="num">300 MHz–4 GHz</td><td>MANET, ‏Datalink למל"טים, וידאו. דורש קו ראייה או ממסרים.</td></tr>
+<tr><td>C/X/Ku</td><td class="num">4–18 GHz</td><td>דאטהלינקים רחבי סרט, לוויין, אנטנות כיווניות.</td></tr></table></div>
+<p><b>אנטנות נמוכות</b>: לוחם עם אנטנה בגובה 1.5m ורכב עם 2–3m. מודל שתי הקרניים (40dB לעשור) שולט כבר אחרי מאות מטרים ב־VHF. כל הכפלה של גובה אנטנה שווה 6dB. לכן ממסר על גבעה או אנטנה על תורן משנים את כל התמונה.</p>
+<h4>עקיפה מעל רכס (Knife-edge)</h4>
+<span class="fm">ν = h · sqrt( 2·(d1 + d2) / (λ·d1·d2) )        h = גובה המכשול מעל קו הראייה (שלילי = מתחתיו)
+J(ν) ≈ 6.9 + 20·log10( sqrt((ν − 0.1)² + 1) + ν − 0.1 )   [dB],  ν > −0.7
+ν = 0 (קו הראייה נוגע ברכס) → 6 dB</span>
+<p>רכס בגובה 50m מעל קו הראייה, באמצע לינק של 10km ב־60MHz (‏λ=5m): ‏ν≈0.63 ⇒ ‏~11.3dB. אותו רכס ב־2GHz: ‏ν≈3.65 ⇒ ‏~24dB. זו הסיבה הפיזיקלית ש־VHF "מתגבר על רכסים".</p>
+<p>צמחייה: ב־VHF בערך 0.05–0.1dB למטר, ב־2GHz בערך 0.3–0.5dB למטר (ITU-R P.833). יער של 200m יכול להוסיף 60dB ויותר בפסים גבוהים.</p>
+</section>
+<section><h3>J/S ומרווח שיבוש</h3>
+<span class="fm">J/S [dB] = ERP_J − ERP_S − PL_J + PL_S + (G_R→J − G_R→S)
+חלל פתוח:  J/S = ERP_J − ERP_S + 20·log10(d_S / d_J)
+קרקעי (1/d⁴): J/S = ERP_J − ERP_S + 40·log10(d_S / d_J)
+
+Jamming margin:  M_J = G_p − L_sys − (S/N)_req
+הלינק שורד כאשר J/S < M_J</span>
+<p><b>דוגמה</b>: מערכת DSSS עם ‏G_p=30dB, הפסדי מימוש 2dB, ו־SNR נדרש של 8dB אחרי despreading ⇒ ‏M_J=20dB. המשבש יכול להיות חזק פי 100 מהאות במקלט, והלינק עדיין עובד.</p>
+<p><b>Burn-through range</b>: המרחק שבו האות מספיק חזק כדי "לפרוץ" דרך השיבוש. מתקרבים למשדר, ה־S עולה וה־J/S יורד.</p>
+<p><b>אנטנה כנשק</b>: אנטנה כיוונית במקלט, שמכוונת לשותף ולא למשבש, מורידה את J/S ישירות ב־(G_R→S − G_R→J). מערך אדפטיבי (nulling, כמו CRPA ב־GNSS) מייצר אפס עמוק של 30–40dB לכיוון המשבש.</p>
+</section>
+<section><h3>קפיצות תדר (FHSS)</h3>
+<span class="fm">G_p = 10·log10( W_ss / B_ch ) = 10·log10( N_channels )
+2320 ערוצים של 25kHz (30–88MHz)  →  ~34 dB</span>
+<ul>
+<li><b>Slow vs Fast hopping</b>: איטי = כמה סימבולים בכל קפיצה (נפוץ). מהיר = כמה קפיצות לכל סימבול.</li>
+<li><b>שיבוש פס מלא (Barrage)</b>: המשבש מפזר את ההספק על כל הפס, ולכן מקבל J/S נמוך בכל ערוץ.</li>
+<li><b>שיבוש פס חלקי (Partial-band)</b>: המשבש מרכז את ההספק בחלק ρ מהפס. ה־J/S בערוצים שנפגעים גבוה פי 1/ρ, ונפגעות ρ מהקפיצות. נגד FHSS ללא קידוד זה הרסני: BER≈ρ/2. הפתרון: <b>FEC + interleaving על פני קפיצות</b>, כך שקפיצה שנפגעה היא מחיקה (erasure) שהקוד משלים.</li>
+<li><b>משבש עוקב (Follower)</b>: מגלה את התדר, מתכוונן ומשדר לפני סוף הקפיצה. הוא מנצח רק אם:
+<span class="fm">d_TJ + d_JR − d_TR  ≤  c · ( T_dwell − T_proc )</span>
+כלומר המשבש חייב להיות בתוך אליפסה סביב המשדר והמקלט. קצב קפיצות גבוה יותר מכווץ את האליפסה. ב־1000 קפיצות/שנייה עם עיבוד של 0.5ms: ‏c×0.5ms = 150km "תקציב מסלול". ב־10,000 קפיצות/שנייה זה כמעט אפס.</li>
+</ul>
+<h4>מה FHSS דורש מהחומרה (שאלות ראיון טובות)</h4>
+<ul><li>סינתסייזר עם <b>זמן נעילה</b> קצר בהרבה מזמן הקפיצה, ו־guard time שמכסה אותו.</li><li><b>Power ramping</b> בתחילת ובסוף כל קפיצה, אחרת מתקבל splatter רחב בספקטרום.</li><li><b>AGC מהיר</b> לכל קפיצה, כי הערוץ משתנה בין תדרים.</li><li>כיול (הגבר, IQ, הספק) לאורך <b>כל</b> הפס, לא רק בערוץ אחד.</li><li><b>סנכרון</b>: זמן משותף (TOD), רכישה ראשונית, ומפתחות הקפיצה (TRANSEC).</li><li>פילטרים מתכווננים מהר (tracking filters), כדי לא לוותר על סלקטיביות.</li></ul>
+</section>
+<section><h3>פיזור ישיר (DSSS)</h3>
+<p>${F('G_p = 10·log10(Rc / Rb)')}. מפזר את האות כך שצפיפות ההספק שלו נמוכה מהרעש (LPD). במקלט ה־despreading מכווץ את האות ומפזר את המשבש צר הסרט. החולשות: <b>near-far</b> (משדר קרוב "מסנוור" את המקלט, ולכן צריך בקרת הספק) ורוחב סרט רחב שדורש פס פנוי.</p>
+<p>הכלאה של FH/DS משלבת את היתרונות.</p>
+</section>
+<section><h3>LPI / LPD</h3>
+<p>המטרה: שמקלט יירוט של האויב לא יגלה (LPD) או לא יוכל לנצל (LPI) את השידור.</p>
+<ul><li><b>הספק מינימלי</b>: בקרת הספק אדפטיבית לפי איכות הלינק. כל dB מיותר מגדיל את טווח הגילוי.</li><li><b>פיזור</b>: צפיפות הספק נמוכה מתחת לרצפת הרעש.</li><li><b>אנטנות כיווניות</b>: מעט אנרגיה מחוץ לאלומה.</li><li><b>שידורים קצרים</b> (burst) והסתרה בזמן.</li><li>מקלט יירוט: גלאי אנרגיה (radiometer) או גילוי מאפיינים (cyclostationary). יחס טווחים: ${F('R_intercept / R_comm')} הוא מדד LPD בסיסי.</li></ul>
+</section>
+<section><h3>רשתות MANET ו־TDMA</h3>
+<span class="fm">Guard time ≥ τ_max = d_max / c        1 km → 3.33 µs,  30 km → 100 µs</span>
+<ul><li>כל צומת הוא גם ממסר. כל קפיצה (hop) ברשת מוסיפה latency ומחלקת את הקיבולת.</li><li>בערוץ משותף יחיד, הקיבולת לצומת יורדת ככל שיש יותר צמתים. זה trade-off מרכזי בין גודל הרשת, הטווח והקצב.</li><li>ה־guard time קובע טווח מקסימלי ב־TDMA: לינק ארוך יותר מתנגש בחריץ הבא.</li><li>תקורת ניתוב ושליטה, סנכרון זמן לכל הרשת (GNSS או סנכרון פנימי כשאין GNSS).</li></ul>
+<div class="iv"><b>בראיון</b>"איך תגדיל עמידות לשיבוש בלי להגדיל הספק?" ← פיזור רחב יותר (G_p), FEC חזק עם interleaving בין קפיצות, קצב קפיצות גבוה (נגד follower), אנטנות כיווניות או nulling, בקרת הספק (LPD), וממסרים שמקצרים את d_S. "מה ההבדל בין jamming margin ל־processing gain?" ← G_p הוא הרווח של הפיזור. ה־margin הוא מה שנשאר אחרי שמורידים את ה־SNR הנדרש וההפסדים.</div>
+</section>`},
+
+{id:'syseng',n:'20',lvl:'מערכת',title:'הנדסת מערכת RF: מדרישה למפרט',tag:'Budgets · Level diagram · Frequency plan · Co-site · MIL-STD-461/810 · V&V',
+lead:'מהנדס מערכת מתרגם דרישה מבצעית ("לינק של 50km עם וידאו, עמיד לשיבוש, על רחפן") למספרים לכל רכיב, ואחר כך מוכיח שהמערכת עומדת בהם. כאן הניסיון שלך במעבדה הוא יתרון אמיתי.',
+body:`
+<section><h3>שרשרת ההנדסה</h3>
+<p>דרישות מבצעיות (טווח, קצב, זמינות, latency, SWaP, עמידות לשיבוש, סביבה) ← ניתוח מערכת (link budget, בחירת פס ואפנון) ← <b>תקציבים</b> ← הקצאה לתתי־מערכות (NF, ‏P1dB, רעש פאזה, ספוריות, הספק) ← מפרטי רכיבים ← תכנון ← אינטגרציה ← אימות (ATP/QTP).</p>
+<div class="note"><b>ההבדל בין מהנדס אינטגרציה למהנדס מערכת</b>באינטגרציה שואלים "האם זה עומד במפרט?". מהנדס מערכת שואל "למה המפרט הוא המספר הזה, ומה יקרה אם נשנה אותו?". תתרגל לשאול את זה על כל בדיקה שאתה עושה.</div>
+</section>
+<section><h3>התקציבים</h3>
+<div class="tbl"><table><tr><th>תקציב</th><th>שאלה</th></tr>
+<tr><td>Link budget</td><td>טווח ומרווח בכל תרחיש</td></tr>
+<tr><td>Gain / Level diagram</td><td>איפה האות בכל שלב, ביחס לרצפת הרעש ול־P1dB/full scale</td></tr>
+<tr><td>Noise (NF)</td><td>פריז, כולל כבלים, מתגים, limiter</td></tr>
+<tr><td>Linearity (IIP3/P1dB)</td><td>חסימה, IM, ‏co-site</td></tr>
+<tr><td>EVM</td><td>חלוקה בין PA, ‏LO, ‏IQ, פילטרים (RSS)</td></tr>
+<tr><td>Phase noise</td><td>EVM, ‏reciprocal mixing, מכ"ם/דופלר</td></tr>
+<tr><td>Spurs</td><td>תוכנית תדרים, ‏desense, רגולציה</td></tr>
+<tr><td>Power / Thermal</td><td>יעילות PA, פיזור חום, סוללה</td></tr>
+<tr><td>Frequency accuracy</td><td>ppm מול דופלר ומול טווח הרכישה של המודם</td></tr>
+<tr><td>Latency</td><td>FEC, ‏interleaver, ממסרים</td></tr></table></div>
+<h4>Level diagram: דוגמה</h4>
+<div class="tbl"><table><tr><th>שלב</th><th class="num">G</th><th class="num">אות ברגישות</th><th class="num">אות מקסימלי</th><th class="num">רעש בערוץ 1MHz</th><th class="num">P1dB כניסה של השלב</th></tr>
+<tr><td>כניסה</td><td class="num"></td><td class="num">−100</td><td class="num">−20</td><td class="num">−114</td><td class="num"></td></tr>
+<tr><td>Limiter + פילטר</td><td class="num">−2</td><td class="num">−102</td><td class="num">−22</td><td class="num">−114 (+NF)</td><td class="num">+30</td></tr>
+<tr><td>LNA</td><td class="num">+18</td><td class="num">−84</td><td class="num">−4</td><td class="num">−93</td><td class="num">−10 ⚠</td></tr>
+<tr><td>מיקסר</td><td class="num">−7</td><td class="num">−91</td><td class="num">−11</td><td class="num">−100</td><td class="num">+5</td></tr></table></div>
+<p>ה־⚠ אומר: באות מקסימלי של ‏−20dBm, ה־LNA מקבל ‏−22dBm, וזה 12dB מתחת ל־P1dB שלו. זה בסדר עבור CW, אבל לאות OFDM עם PAPR של 11dB זה גבולי. לכן צריך AGC בשלב ה־RF (bypass ל־LNA או מנחת) ולא רק ב־IF. כך חושב מהנדס מערכת.</p>
+</section>
+<section><h3>תוכנית תדרים וטבלת ספוריות</h3>
+<span class="fm">f_spur = | m·f_RF ± n·f_LO |       נופל ב־IF?  →  ספור בתוך הפס
+Half-IF spur (2×2):  f_RF ± f_IF/2   ← הקלאסי ביותר, קרוב מאוד לאות</span>
+<p>בוחרים IF ו־LO כך שמוצרים מסדר נמוך (עד 5×5 בערך) נופלים מחוץ לפס או מסוננים. מוסיפים הרמוניות של כל השעונים במערכת (מעבד, ADC, ‏DC-DC, ‏Ethernet) ומוודאים שאף אחת לא נופלת בערוצי ה־RX. בקפיצות תדר צריך לבדוק את <b>כל</b> הערוצים.</p>
+</section>
+<section><h3>Co-site: כמה רדיו על אותה פלטפורמה</h3>
+<p>רכב עם 3–5 מכשירי קשר, ומרחק בין האנטנות של מטר או שניים. כאן נשברים הכי הרבה פרויקטים טקטיים.</p>
+<ul><li><b>רעש רחב סרט של המשדר</b> (TX noise) נופל בתדר המקלט השכן. פילטר במקלט לא עוזר, כי הרעש כבר בערוץ.</li><li><b>חסימה</b> (blocking) של המקלט מהספק המשדר, ו־reciprocal mixing.</li><li><b>אינטרמודולציה בין משדרים</b> (reverse IM): אות ממשדר אחד נכנס ל־PA של השני דרך האנטנות ויוצר IM.</li><li>הרמוניות וספוריות.</li></ul>
+<span class="fm">בידוד נדרש = P_TX + N_TX(Δf)[dBc/Hz] + 10·log10(B_RX) − (N_RX − X)
+N_RX = −174 + 10logB + NF  ,  X = 6dB  (desense מתחת ל־1dB)
+
+דוגמה: 40dBm, ‏−140dBc/Hz, ‏B=25kHz (44dB), ‏NF=8
+TX noise בערוץ = 40 − 140 + 44 = −56 dBm ;  N_RX = −122 dBm
+בידוד נדרש = −56 − (−128) = 72 dB</span>
+<p>בידוד בין אנטנות: מונופולים בהפרדה אופקית של 1–2m ב־VHF נותנים רק 15–25dB. הפרדה אנכית (אחת מעל השנייה, באפסים של דפוס הקרינה) נותנת 30–40dB ויותר. את השאר משלימים <b>co-site filters</b> (פילטרים מתכווננים שעוקבים אחרי הקפיצות) במשדר ובמקלט, <b>תוכנית תדרים</b> (הפרדת תדרים מינימלית), ו־<b>blanking</b> או תיאום בין המכשירים.</p>
+</section>
+<section><h3>סביבה ו־EMC: MIL-STD</h3>
+<h4>MIL-STD-461 (EMI)</h4>
+<div class="tbl"><table><tr><th>בדיקה</th><th>מה</th></tr>
+<tr><td>CE102</td><td>פליטה מוליכה בקווי הזנה (10kHz–10MHz)</td></tr>
+<tr><td>CE106</td><td>פליטה מוליכה בפורט האנטנה (משדרים/מקלטים)</td></tr>
+<tr><td>RE102</td><td>פליטה מוקרנת, שדה חשמלי (10kHz–18GHz)</td></tr>
+<tr><td>RE103</td><td>ספוריות והרמוניות מוקרנות מהאנטנה</td></tr>
+<tr><td>CS101 / CS114 / CS116</td><td>רגישות מוליכה: קווי הזנה, הזרקה לכבלים (BCI), טרנזיינטים</td></tr>
+<tr><td>CS103 / CS104 / CS105</td><td>פורט אנטנה של מקלט: IM, דחיית אותות לא רצויים, cross-modulation</td></tr>
+<tr><td>RS103</td><td>רגישות מוקרנת לשדה חשמלי (רמה לפי הפלטפורמה)</td></tr></table></div>
+<p>CS103/104/105 הן בעצם בדיקות המקלט שאתה כבר מכיר (IM, ‏blocking) בשפה של התקן.</p>
+<h4>MIL-STD-810 (סביבה) והשפעות על RF</h4>
+<ul><li><b>טמפרטורה</b>: ‏TCXO נסחף (ppm), ההגבר וה־P1dB של ה־PA יורדים בחום, ה־NF עולה. צריך טבלאות כיול לפי טמפרטורה.</li><li><b>רעידות</b>: גביש רגיש לתאוצה (g-sensitivity, ‏Γ≈10⁻⁹/g) יוצר פסי צד ברעש הפאזה בתדר הרעידה:
+<span class="fm">L(f_v) ≈ 20·log10( Γ · A[g] · f0 / (2·f_v) )   [dBc]</span>
+על מסוק או רכב זה פוגע ב־EVM, ובמכ"ם יוצר מטרות כוזבות. פתרון: גביש בעל Γ נמוך ובולמי רעידות.</li><li><b>הלם ורעידות</b> משחררים מחברים ויוצרים VSWR לסירוגין. במחברי RF משתמשים במומנט מוגדר ובנעילה.</li><li>לחות, גובה (התפרקות במתח גבוה במשדרי הספק), מלח וחול.</li></ul>
+</section>
+<section><h3>אימות (V&V)</h3>
+<ul><li><b>Verification matrix</b>: לכל דרישה מוגדרת שיטה: Test, ‏Analysis, ‏Inspection או Demonstration.</li><li><b>סקרים</b>: SRR (דרישות) ← PDR (תכן ראשוני) ← CDR (תכן מפורט) ← TRR (מוכנות לניסויים).</li><li><b>QTP</b> (בדיקות הסמכה, פעם אחת ובכל הסביבות) מול <b>ATP</b> (בדיקות קבלה לכל יחידה, מהירות).</li><li><b>ESS</b>: סינון סביבתי (מחזורי טמפרטורה ורעידות) כדי לגלות כשלים מוקדמים.</li></ul>
+</section>
+<section><h3>Trade study: בחירת פס</h3>
+<div class="tbl"><table><tr><th></th><th>VHF</th><th>UHF</th><th>L/S</th><th>C</th></tr>
+<tr><td>טווח מעבר לקו ראייה</td><td>טוב</td><td>בינוני</td><td>חלש</td><td>חלש מאוד</td></tr>
+<tr><td>צמחייה</td><td>טוב</td><td>בינוני</td><td>חלש</td><td>חלש</td></tr>
+<tr><td>רוחב סרט זמין</td><td>נמוך</td><td>בינוני</td><td>גבוה</td><td>גבוה מאוד</td></tr>
+<tr><td>גודל אנטנה</td><td>גדול</td><td>בינוני</td><td>קטן</td><td>קטן, ואפשר כיווני</td></tr>
+<tr><td>קצב טיפוסי</td><td>kbps</td><td>עשרות kbps עד Mbps</td><td>Mbps</td><td>עשרות Mbps</td></tr></table></div>
+<div class="iv"><b>בראיון</b>"קיבלת דרישה ל־50km. איך מתחילים?" ← קודם מבררים: גבהים (אופק רדיו), סביבה (פתוח, הררי, עירוני), קצב, זמינות, SWaP ואיום שיבוש. אחר כך בוחרים פס, מחשבים link budget עם מרווח, בוחרים אפנון וקוד, ומקצים NF והספק. בסוף מזהים סיכונים ומה צריך לאמת בניסוי. תענה במבנה הזה ותראה כמו מהנדס מערכת.</div>
+</section>`},
+
+{id:'auto',n:'21',lvl:'מעבדה',title:'אוטומציה במעבדה עם Python ו־SCPI',tag:'pyvisa · SCPI · Sweep · Binary search · Logging',
+lead:'מהנדס שיודע להפוך בדיקה ידנית של יום שלם לסקריפט של רבע שעה, עם נתונים נקיים וגרפים, בולט מאוד בראיון. זה גם הדרך הכי טובה לחבר בין המעבדה לתיאוריה: אתה מודד עקומות שלמות ולא נקודות.',
+body:`
+<section><h3>הבסיס</h3>
+<ul><li><b>VISA</b>: שכבת תקשורת אחידה מעל LAN (VXI-11/HiSLIP), ‏USB ו־GPIB. ב־Python משתמשים ב־<span class="f">pyvisa</span>.</li><li><b>SCPI</b>: שפת פקודות טקסט. פקודות משותפות לכל המכשירים: <span class="f">*IDN?</span> (זיהוי), <span class="f">*RST</span> (איפוס), <span class="f">*OPC?</span> (המתן לסיום), <span class="f">SYST:ERR?</span> (שגיאות).</li><li>פקודות המדידה עצמן משתנות בין יצרנים ודגמים. תמיד בדוק במדריך התכנות של המכשיר.</li></ul>
+</section>
+<section><h3>דוגמה: מדידת רגישות בחיפוש בינארי</h3>
+<pre class="fm">import pyvisa, csv, time
+
+rm  = pyvisa.ResourceManager()
+sg  = rm.open_resource("TCPIP0::192.168.1.10::INSTR")   # signal generator
+sg.timeout = 10000
+print(sg.query("*IDN?"))
+sg.write("*RST"); sg.query("*OPC?")
+
+CABLE_LOSS = {1350e6: 2.1, 1400e6: 2.2, 1450e6: 2.3}  # dB, from calibration
+TARGET_PER = 0.01
+MAX_DUT_IN = -10      # dBm, safety limit at DUT input
+
+def set_level(f, p_dut):
+    p_gen = p_dut + CABLE_LOSS[f]        # compensate for cable loss
+    assert p_dut &lt;= MAX_DUT_IN
+    sg.write(f"FREQ {f}")
+    sg.write(f"POW {p_gen:.2f}")
+    sg.query("*OPC?")
+    time.sleep(0.3)                      # let the DUT AGC settle
+
+def measure_per(n_packets=1000):
+    return dut.get_per(n_packets)       # DUT-specific API (Ethernet/serial)
+
+def sensitivity(f, lo=-115.0, hi=-70.0, res=0.25):
+    sg.write("OUTP ON")
+    while hi - lo > res:
+        mid = (lo + hi) / 2
+        set_level(f, mid)
+        if measure_per() &lt;= TARGET_PER:
+            hi = mid                     # passes: try a weaker signal
+        else:
+            lo = mid
+    return hi
+
+with open("sens.csv", "w", newline="") as fh:
+    w = csv.writer(fh)
+    w.writerow(["freq_Hz", "sens_dBm", "temp_C", "fw", "serial"])
+    for f in CABLE_LOSS:
+        w.writerow([f, sensitivity(f), read_temp(), FW, SN])
+sg.write("OUTP OFF")</pre>
+<p>חיפוש בינארי מגיע לרזולוציה של 0.25dB בטווח של 45dB אחרי ~8 מדידות, במקום 180 בסריקה ליניארית. ליד הסף ה־PER הוא סטטיסטי. לכן ברזולוציה הסופית חוזרים כמה פעמים, או משתמשים ביותר חבילות.</p>
+</section>
+<section><h3>כללי עבודה</h3>
+<ul>
+<li><b>סנכרון</b>: <span class="f">*OPC?</span> אחרי כל שינוי, וזמן התייצבות ל־DUT (AGC, ‏PLL).</li>
+<li><b>בדיקת שגיאות</b>: <span class="f">SYST:ERR?</span> בסוף כל שלב. פקודה שגויה נכשלת בשקט.</li>
+<li><b>בטיחות</b>: גבול הספק בקוד לפני כל שינוי. באג בלולאה יכול לשרוף LNA.</li>
+<li><b>מטא־דאטה</b> בכל שורה: מספר סידורי, גרסת FW, טמפרטורה, קובץ כיול, תאריך. בלי זה אי אפשר לשחזר תוצאה.</li>
+<li><b>כיול</b>: טבלת הפסדים לפי תדר, עם אינטרפולציה. לבדוק אותה מחדש אחרי כל החלפת כבל.</li>
+<li><b>חזרות</b>: למדוד N פעמים ולדווח ממוצע ± סטיית תקן. זה מראה שאתה מבין אי־ודאות מדידה.</li>
+<li><b>המשך מנקודת עצירה</b>: לכתוב לקובץ אחרי כל נקודה, כדי שקריסה לא תמחק לילה של מדידות.</li>
+</ul>
+</section>
+<section><h3>גרפים ששווה להפיק</h3>
+<ul><li>רגישות לפי ערוץ (מגלה desense וספוריות).</li><li>EVM והספק לפי הספק יציאה (bathtub ודחיסה).</li><li>RSSI מדווח מול הספק אמיתי (לינאריות, רצפה, ריוויה).</li><li>PER לפי Eb/N0, מול התיאוריה (implementation loss).</li><li>כל אחד מהם בכמה טמפרטורות.</li></ul>
+<pre class="fm">import pandas as pd, matplotlib.pyplot as plt
+df = pd.read_csv("sens.csv")
+df.plot(x="freq_Hz", y="sens_dBm", marker="o", grid=True)
+plt.axhline(-100, ls="--", label="spec"); plt.legend(); plt.savefig("sens.png")</pre>
+<div class="iv"><b>בראיון</b>"ספר על משהו ששיפרת בעבודה." ← סיפור אוטומציה עם מספרים הוא תשובה מצוינת: "בדיקת רגישות לקחה יום, כתבתי סקריפט עם חיפוש בינארי ומעקב טמפרטורה, ירדנו לחצי שעה וגילינו desense בשלושה ערוצים שלא ראינו בבדיקה הידנית."</div>
 </section>`}
 ];
 
@@ -975,6 +1220,20 @@ const IV = [
 ['test','בינוני','איך תוודא שה־IM3 שאתה רואה בספקטרום אמיתי ולא של המכשיר?','<p>הוסף 10dB הנחתה בכניסת הספקטרום. אם האות והתוצר יורדים שניהם ב־10dB (היחס נשמר) ⇒ ה־DUT. אם התוצר יורד ב־30dB ⇒ נוצר במכשיר. גם מקורות: combiner עם בידוד ו־isolator על כל מחולל.</p>'],
 ['test','מתקדם','בבדיקת Eb/N0 המקמש מפסיד 3dB לתיאוריה. איך תחלק את האשמה?','<p>מדוד EVM עם רעש מינימלי ⇒ רצפת ה־EVM של המקמש קובעת SNR מקסימלי. בדוק כיול המחולל של הרעש (רוחב הרעש מול רוחב האות). בדוק את הקוד: הבדל בין soft/hard, quantization ב־LLR, מספר איטרציות. בדוק סנכרון: CFO שיורי, timing jitter, phase tracking. השווה ל־golden reference/סימולציה.</p>'],
 ['sys','בינוני','מה ה־C/N0 הנדרש ל־1Mbps עם Eb/N0 של 5dB?','<p>C/N0 = Eb/N0 + 10logRb = 5 + 60 = 65dBHz.</p>'],
+['ew','בינוני','מה זה jamming margin ואיך מחשבים אותו?','<p>M_J = G_p − L_sys − (S/N)_req. זה ה־J/S המקסימלי שהמערכת שורדת. עם G_p=30dB, הפסדים 2dB ו־SNR נדרש של 8dB: ‏M_J=20dB.</p>'],
+['ew','בינוני','למה שיבוש פס חלקי מסוכן ל־FHSS, ואיך מתמודדים?','<p>המשבש מרכז הספק בחלק ρ מהפס ומקבל J/S גבוה פי 1/ρ בערוצים האלה. בלי קידוד, BER≈ρ/2 בלי קשר להספק האות. הפתרון: FEC עם interleaving בין קפיצות, שהופך קפיצות שנפגעו למחיקות שהקוד משלים. וגם: זיהוי ערוצים פגועים והוצאתם מרשימת הקפיצות (adaptive hopping).</p>'],
+['ew','מתקדם','איך קצב הקפיצות מגן מפני משבש עוקב?','<p>המשבש צריך לקלוט, לזהות, לכוון ולשדר לפני סוף הקפיצה. התנאי הגאומטרי: d_TJ + d_JR − d_TR ≤ c·(T_dwell − T_proc). קפיצות מהירות מקטינות את T_dwell ומכווצות את האליפסה שבה המשבש יעיל, עד שהוא חייב להיות כמעט על קו הלינק.</p>'],
+['ew','בינוני','מה המחיר של קפיצות תדר מהירות בחומרה?','<p>סינתסייזר עם זמן נעילה קצר (עשרות µs), guard time שמוריד את היעילות, power ramping כדי לא לייצר splatter, AGC וסנכרון מהירים, פילטרים מתכווננים, וכיול לאורך כל הפס. וגם: רוחב הספקטרום של ה־transients בין קפיצות.</p>'],
+['ew','בינוני','למה VHF עובד טוב יותר מ־UHF בשטח הררי?','<p>עקיפה מעל רכס תלויה בפרמטר ν∝h/√λ. אורך גל ארוך ⇒ ν קטן ⇒ הפסד עקיפה קטן. רכס של 50m שעולה ~11dB ב־60MHz עולה ~24dB ב־2GHz. בנוסף, ב־VHF ההנחתה בצמחייה נמוכה יותר.</p>'],
+['ew','מתקדם','איך תשיג LPD?','<p>הספק מינימלי עם בקרת הספק, פיזור (צפיפות הספק מתחת לרעש), אנטנות כיווניות, שידורים קצרים, ותדר/זמן לא צפויים. המדד: יחס בין טווח הגילוי של מקלט יירוט לטווח התקשורת.</p>'],
+['ew','בינוני','רשת TDMA צריכה לתמוך ב־30km. מה ה־guard time המינימלי?','<p>30km / 3×10⁸ m/s = 100µs, ועוד מרווח לשגיאת סנכרון ולזמני מעבר TX/RX.</p>'],
+['syseng','בינוני','מה זה co-site ומה המנגנונים שלו?','<p>הפרעה בין מכשירי קשר על אותה פלטפורמה. רעש רחב סרט של המשדר נופל בערוץ המקלט; חסימה ו־reciprocal mixing מההספק החזק; reverse IM בין משדרים; הרמוניות. הפתרונות: בידוד אנטנות (הפרדה אנכית), ‏co-site filters, תוכנית תדרים, ‏blanking.</p>'],
+['syseng','מתקדם','משדר 40dBm עם רעש של ‏−140dBc/Hz בהיסט של המקלט. המקלט ברוחב 25kHz ועם NF=8dB. כמה בידוד צריך?','<p>TX noise בערוץ = 40−140+44 = ‏−56dBm. רצפת המקלט = ‏−174+44+8 = ‏−122dBm. כדי ש־desense יהיה פחות מ־1dB צריך 6dB מתחת לרצפה: ‏−128dBm. בידוד = 72dB. אנטנות יתנו ~25–35dB, והשאר יבוא מפילטר co-site במשדר.</p>'],
+['syseng','בינוני','מה זה level diagram ולמה הוא חשוב?','<p>טבלה או גרף של רמת האות והרעש בכל שלב בשרשרת, ברגישות ובאות המקסימלי, מול ה־P1dB של כל שלב ומול ה־full scale של ה־ADC. כך רואים איפה נגמר ה־headroom ואיפה צריך AGC. זה הכלי הבסיסי לחלוקת הגבר.</p>'],
+['syseng','מתקדם','למה רעידות פוגעות ברעש הפאזה?','<p>גביש רגיש לתאוצה: Δf/f = Γ·a, עם Γ≈10⁻⁹/g. רעידה בתדר f_v יוצרת פסי צד ברמה ≈ 20log(Γ·A·f0/(2f_v)). בפלטפורמה רועדת זה פוגע ב־EVM, ובמכ"ם יוצר מטרות כוזבות. הפתרון: גביש עם Γ נמוך, בולמי רעידות ו־PLL עם רוחב מתאים.</p>'],
+['syseng','בינוני','מה ההבדל בין QTP ל־ATP?','<p>QTP (Qualification): פעם אחת, על יחידות מייצגות, בכל תנאי הסביבה ועם מרווחים, ומוכיח שהתכן עומד בדרישות. ATP (Acceptance): על כל יחידה בייצור, מהיר יותר, ומוכיח שהיחידה יוצרה נכון.</p>'],
+['syseng','בינוני','מה זה Half-IF spur?','<p>מוצר 2×2 של מיקסר: אות ב־f_RF ± f_IF/2 מייצר (2f_RF − 2f_LO) שנופל ב־IF. הוא קרוב מאוד לאות הרצוי ולכן קשה לסינון. מטפלים בו עם IIP2 טוב במיקסר ועם בחירת IF.</p>'],
+['auto','בסיס','מה תפקיד הפקודה *OPC??','<p>היא ממתינה שהמכשיר יסיים את כל הפעולות שבתור ומחזירה 1. כך יודעים שהמחולל באמת הגיע לתדר ולהספק לפני שמודדים. בלעדיה הסקריפט מודד בזמן מעבר ומקבל תוצאות לא יציבות.</p>'],
 ['sys','מתקדם','למה LoRa מקבל אות ב־SNR של ‏−20dB?','<p>Chirp spread spectrum: הסימבול מתפרש על פני רוחב סרט רחב ומשך ארוך (SF12 = 4096 chips לסימבול). Processing gain של ~10log(2^SF) יחד עם FEC מאפשרים גילוי מתחת לרצפת הרעש בפס. המחיר: קצב נמוך מאוד.</p>'],
 ];
 
@@ -1091,7 +1350,7 @@ function show(v){
   if(v==='sim') drawSim();
 }
 tabs.forEach(t=>t.addEventListener('click',()=>show(t.dataset.v)));
-window.addEventListener('hashchange',()=>{const h=location.hash.slice(1);if(['learn','calc','sim','prob','iv','flash'].includes(h))show(h)});
+window.addEventListener('hashchange',()=>{const h=location.hash.slice(1);if(['learn','calc','sim','prob','iv','exam','scen','flash'].includes(h))show(h)});
 
 /* ================= MATH ================= */
 const L10=Math.log10, lin=d=>Math.pow(10,d/10), dB=x=>10*L10(x);
@@ -1285,10 +1544,179 @@ document.getElementById('fYes').addEventListener('click',()=>{fw[fi]=Math.max(-2
 document.getElementById('fNo').addEventListener('click',()=>{fw[fi]=Math.min(4,(fw[fi]||0)+2);fstat.n++;store.set('fw',fw);nextFc()});
 document.getElementById('fSkip').addEventListener('click',nextFc);
 
+/* ================= EXAM ================= */
+const EX=[
+{t:'noise',q:'מה רצפת הרעש (בדציבלים מעל 1mW) של מקלט ברוחב 5MHz עם NF של 7dB?',n:-100,tol:1,u:'dBm',e:'‏−174 + 10log(5×10⁶) + 7 = ‏−174 + 67 + 7 = ‏−100dBm.'},
+{t:'prop',q:'מה ה־FSPL ב־900MHz במרחק 1km?',n:91.5,tol:1,u:'dB',e:'20log(1) + 20log(900) + 32.44 = 0 + 59.08 + 32.44 ≈ 91.5dB.'},
+{t:'line',q:'מה ה־Return Loss של VSWR=2?',n:9.54,tol:0.3,u:'dB',e:'|Γ| = 1/3. ‏RL = ‏−20log(1/3) = 9.54dB.'},
+{t:'noise',q:'LNA עם G=15dB ו־NF=2dB, ואחריו שלב עם NF=10dB. מה ה־NF הכולל?',n:2.72,tol:0.2,u:'dB',e:'F = 1.585 + (10−1)/31.6 = 1.585 + 0.285 = 1.87 ⇒ 2.72dB. השלב השני מוסיף 0.7dB, כי ההגבר של ה־LNA לא מספיק גבוה.'},
+{t:'quality',q:'Eb/N0 של 8dB, אפנון 16QAM, קוד 1/2. מה ה־Es/N0?',n:11,tol:0.2,u:'dB',e:'Es/N0 = Eb/N0 + 10log(k·r) = 8 + 10log(4×0.5) = 8 + 3.01 = 11dB.'},
+{t:'quality',q:'EVM של 2%. מה ה־SNR המקביל?',n:34,tol:0.3,u:'dB',e:'20log(0.02) = ‏−34dB ⇒ SNR ≈ 34dB.'},
+{t:'ew',q:'מערכת FHSS עם 1000 ערוצים. מה ה־processing gain?',n:30,tol:0.2,u:'dB',e:'10log(1000) = 30dB.'},
+{t:'fading',q:'מל"ט ב־300m/s, תדר 1.5GHz. מה הדופלר המקסימלי?',n:1500,tol:20,u:'Hz',e:'λ = 0.2m, ‏fd = v/λ = 300/0.2 = 1500Hz.'},
+{t:'prop',q:'שתי אנטנות בגובה 10m כל אחת. מה אופק הרדיו (k=4/3)?',n:26.1,tol:0.6,u:'km',e:'4.12 × (√10 + √10) = 4.12 × 6.32 ≈ 26.1km.'},
+{t:'lin',q:'שני טונים של ‏−10dBm בכניסה. ה־IM3 ביציאה נמוך ב־60dB מהטונים. מה ה־IIP3?',n:20,tol:0.5,u:'dBm',e:'IIP3 = Pin + ΔIM/2 = ‏−10 + 30 = ‏+20dBm.'},
+{t:'bw',q:'2Msps, אפנון QPSK, קוד 3/4. מה קצב המידע?',n:3,tol:0.05,u:'Mbps',e:'2M × 2 × 0.75 = 3Mbps.'},
+{t:'adc',q:'מה ה־SNR התיאורטי של ADC בן 10 ביט?',n:61.96,tol:0.3,u:'dB',e:'6.02×10 + 1.76 = 61.96dB.'},
+{t:'ew',q:'רשת TDMA בטווח 30km. מה ה־guard time המינימלי מזמן ההתפשטות?',n:100,tol:2,u:'µs',e:'30,000m / 3×10⁸ m/s = 100µs.'},
+{t:'ew',q:'משבש עם ERP של 50dBm במרחק 20km. משדר שותף עם ERP של 40dBm במרחק 10km. חלל פתוח, אנטנת מקלט omni. מה ה־J/S?',n:4,tol:0.3,u:'dB',e:'J/S = 50 − 40 + 20log(10/20) = 10 − 6.02 ≈ 4dB.'},
+{t:'ew',q:'DSSS עם G_p=30dB, הפסדי מימוש 2dB, ‏SNR נדרש 8dB. מה ה־jamming margin?',n:20,tol:0.2,u:'dB',e:'M_J = 30 − 2 − 8 = 20dB.'},
+{t:'syseng',q:'משדר 40dBm, רעש TX של ‏−140dBc/Hz, מקלט שכן ברוחב 25kHz עם NF=8dB. כמה בידוד צריך ל־desense של פחות מ־1dB?',n:72,tol:1,u:'dB',e:'TX noise בערוץ = ‏−56dBm. רצפת המקלט = ‏−122dBm. היעד הוא 6dB מתחתיה (‏−128dBm), ולכן בידוד = 72dB.'},
+{t:'ew',q:'רכס שקו הראייה בדיוק נוגע בו (ν=0). מה הפסד העקיפה?',n:6,tol:0.3,u:'dB',e:'J(0) ≈ 6dB. גם בנגיעה מתאבדים 6dB, כי חצי מאזור פרנל חסום.'},
+{t:'noise',o:['השלב האחרון','השלב הראשון','השלב עם ההגבר הגבוה ביותר','כל השלבים תורמים באותה מידה'],a:1,q:'לפי נוסחת פריז, איזה שלב קובע בעיקר את ה־NF של המערכת?',e:'הרעש של כל שלב מחולק בהגבר של כל מה שלפניו, ולכן השלב הראשון שולט.'},
+{t:'lin',o:['1:1','2:1','3:1','4:1'],a:2,q:'מה השיפוע של מוצרי IM3 כתלות בהספק הכניסה?',e:'3:1, כי הם נובעים מהאיבר הקובי x³.'},
+{t:'lin',o:['השלב הראשון','השלבים האחרונים','ה־LNA בלבד','אף שלב, זה תלוי רק בהגבר'],a:1,q:'איזה שלב קובע בעיקר את ה־IIP3 של השרשרת?',e:'השלבים האחרונים, כי הם רואים את האות אחרי כל ההגבר: 1/IIP3 = 1/IIP3₁ + G₁/IIP3₂ + …'},
+{t:'arch',o:['800MHz','900MHz','1100MHz','1200MHz'],a:0,q:'RF=1000MHz, ‏IF=100MHz, ‏LO נמוך. מה תדר הדמות?',e:'LO = 900MHz. הדמות בצד השני של ה־LO: 900 − 100 = 800MHz.'},
+{t:'ew',o:['הגדלת הספק השידור','קצב קפיצות גבוה יותר','מעבר ל־QAM גבוה','הקטנת ה־FEC'],a:1,q:'מה הדרך הישירה להתגונן מפני משבש עוקב (follower)?',e:'קצב קפיצות גבוה מקצר את זמן השהייה. המשבש לא מספיק לזהות, לכוון ולשדר לפני הקפיצה הבאה.'},
+{t:'ew',o:['FHSS עם FEC ו־interleaving','FHSS ללא קידוד','DSSS עם G_p גבוה','אף מערכת, הוא חלש תמיד'],a:1,q:'נגד מה שיבוש פס חלקי (partial-band) הכי יעיל?',e:'נגד FHSS ללא קידוד, שבו BER≈ρ/2 בלי קשר להספק האות. FEC עם interleaving בין קפיצות מנטרל את זה.'},
+{t:'test',o:['Peak','Sample','RMS / Average','Negative peak'],a:2,q:'איזה detector בנתח ספקטרום מתאים למדידת Channel Power של אות מאופנן?',e:'RMS. ‏Peak detector על אות מאופנן או על רעש מגזים בכ־10dB.'},
+{t:'fading',o:['10%','1%','0.1%','0.01%'],a:1,q:'בדעיכת Rayleigh, באיזה אחוז מהזמן בערך האות נמוך ב־20dB או יותר מהממוצע?',e:'P ≈ 10^(−X/10): ‏10dB ⇒ 10%, ‏20dB ⇒ 1%, ‏30dB ⇒ 0.1%.'},
+{t:'ofdm',o:['משך הסימבול','ה־delay spread של הערוץ','זמן הקוהרנטיות','זמן הנעילה של ה־PLL'],a:1,q:'ה־Cyclic Prefix ב־OFDM חייב להיות ארוך מ:',e:'מה־delay spread, כדי שההדים ייבלעו בתוך ה־CP ולא יהיה ISI.'},
+{t:'syseng',o:['פליטה מוליכה בקווי הזנה','פליטה מוקרנת של שדה חשמלי','רגישות להזרקה לכבלים','רגישות לשדה מוקרן'],a:1,q:'מה בודקת RE102 ב־MIL-STD-461?',e:'פליטה מוקרנת של שדה חשמלי (Radiated Emission), ‏10kHz–18GHz.'},
+{t:'syseng',o:['פליטה מוקרנת','הזרקת זרם לכבלים (BCI)','ESD','פליטה בפורט אנטנה'],a:1,q:'מה בודקת CS114?',e:'Conducted Susceptibility: הזרקת זרם RF לרתמות הכבלים בעזרת צבת הזרקה (Bulk Cable Injection).'},
+{t:'ant',o:['0dB','3dB','6dB','תלוי בזווית'],a:1,q:'מה הפסד הקיטוב בין אנטנה ליניארית לאנטנה מעגלית?',e:'3dB, בלי תלות בזווית.'},
+{t:'mod',o:['BPSK טוב ב־3dB','QPSK טוב ב־3dB','אותו BER','תלוי בקוד'],a:2,q:'BPSK מול QPSK: מה ה־BER כתלות ב־Eb/N0?',e:'זהה. ‏QPSK הוא שני BPSK ניצבים. ההבדל הוא ב־Es/N0 (‏3dB).'},
+{t:'prop',o:['+3dB','+6dB','+12dB','0dB'],a:1,q:'לינק קרקעי מעבר למרחק השבירה של מודל שתי הקרניים. מגביהים אנטנה אחת מ־2m ל־4m. מה הרווח?',e:'PL = 40logd − 20log(ht·hr). הכפלת גובה אחד = 6dB.'},
+{t:'quality',o:['הנקודות מסתובבות','הנקודות החיצוניות נמשכות פנימה','הקונסטלציה זזה מהמרכז','הריבוע הופך למעוין'],a:1,q:'איך דחיסת PA נראית בקונסטלציית QAM?',e:'הנקודות החיצוניות (האמפליטודה הגבוהה) נדחסות פנימה. AM/PM מוסיף להן גם סיבוב.'},
+{t:'pn',o:['+6dB','+12dB','+18dB','+20dB'],a:1,q:'מכפילים את תדר ה־LO ×4. כמה עולה רעש הפאזה?',e:'20log4 = 12dB.'},
+{t:'sens',o:['דחיסה של ה־LNA','רעש הפאזה של ה־LO בהיסט של החוסם','ה־NF של ה־LNA','ה־roll-off של פילטר RRC'],a:1,q:'reciprocal mixing תלוי בעיקר ב:',e:'רעש הפאזה של ה־LO בהיסט של החוסם: N = P_block + L(Δf) + 10logB.'},
+{t:'syseng',o:['Test, Analysis, Inspection, Demonstration','Test, Audit, Inspection, Design','Trial, Analysis, Install, Deliver','Test, Approve, Integrate, Deploy'],a:0,q:'מה ארבע שיטות האימות ב־verification matrix?',e:'Test, ‏Analysis, ‏Inspection, ‏Demonstration (TAID).'},
+{t:'lin',o:['1dB לכל 1dB','2dB לכל 1dB','3dB לכל 1dB','לא משתנה'],a:1,q:'בכמה גדל ACLR (ביחס, dBc) כשמעלים את הספק ה־PA ב־1dB, באזור שבו IM3 שולט?',e:'ה־IM3 עולה ב־3dB והאות ב־1dB, ולכן היחס מורע ב־2dB לכל 1dB.'},
+{t:'ew',o:['VHF טווח קצר','HF ב־NVIS','UHF בקו ראייה','Ku בלוויין'],a:1,q:'מה מתאים לקשר של 50–300km מעבר לרכסים, בלי ממסר ובלי לוויין?',e:'HF ב־NVIS: קרינה כמעט אנכית שחוזרת מהיונוספירה ומכסה אזור ברדיוס של מאות ק"מ.'},
+{t:'auto',o:['מאפסת את המכשיר','ממתינה לסיום הפעולות שבתור','קוראת שגיאות','מזהה את המכשיר'],a:1,q:'מה עושה הפקודה *OPC??',e:'מחזירה 1 כשכל הפעולות שבתור הסתיימו. היא משמשת לסנכרון לפני מדידה.'},
+{t:'ber',o:['~0.8%','~8%','~0.08%','~80%'],a:1,q:'BER=10⁻⁵, חבילה של 1000 בייט. מה ה־PER?',e:'N=8000. ‏PER ≈ 1 − e^(−0.08) ≈ 7.7%.'},
+{t:'ber',o:['רק מגלה שגיאות','מתקן עד 16 בייטים','מתקן עד 32 ביטים','קוד קונבולוציוני'],a:1,q:'מה יכולת התיקון של RS(255,223)?',e:'(255−223)/2 = 16 סימבולים (בייטים).'},
+];
+const chTitle=id=>(CH.find(c=>c.id===id)||{}).title||id;
+let exStats=store.get('ex',{});
+let exQ=[],exI=0,exRight=0,exAns=false,exSess={};
+(function(){const tp=[...new Set(EX.map(q=>q.t))];document.getElementById('exTopic').innerHTML='<option value="all">כל הנושאים ('+EX.length+')</option>'+tp.map(t=>'<option value="'+t+'">'+chTitle(t)+'</option>').join('')})();
+function shuffle(a){for(let i=a.length-1;i>0;i--){const j=Math.floor(Math.random()*(i+1));[a[i],a[j]]=[a[j],a[i]]}return a}
+function exStart(pool,n){exQ=shuffle(pool.slice()).slice(0,n);exI=0;exRight=0;exAns=false;exSess={};renderEx()}
+document.getElementById('exGo').addEventListener('click',()=>{const t=document.getElementById('exTopic').value,n=+document.getElementById('exN').value;exStart(EX.filter(q=>t==='all'||q.t===t),n)});
+document.getElementById('exWeak').addEventListener('click',()=>{const w=weakTopics().slice(0,4).map(x=>x[0]);const pool=w.length?EX.filter(q=>w.includes(q.t)):EX;exStart(pool,10)});
+function weakTopics(){return Object.entries(exStats).filter(([,v])=>v[1]>0).map(([t,v])=>[t,v[0]/v[1],v[1]]).sort((a,b)=>a[1]-b[1]).filter(x=>x[1]<0.8)}
+function record(t,ok){exStats[t]=exStats[t]||[0,0];exStats[t][1]++;if(ok)exStats[t][0]++;store.set('ex',exStats);exSess[t]=exSess[t]||[0,0];exSess[t][1]++;if(ok)exSess[t][0]++}
+function renderEx(){
+  const box=document.getElementById('exBox');
+  if(!exQ.length){const w=weakTopics();box.innerHTML='<p style="margin:0">בחר נושא ומספר שאלות ולחץ "התחל מבחן". יש '+EX.length+' שאלות, מהן '+EX.filter(q=>q.n!==undefined).length+' שאלות חישוב שעונים עליהן במספר.</p>'+(w.length?weakTable(w,'הנושאים החלשים שלך עד עכשיו'):'');return}
+  if(exI>=exQ.length){const pct=Math.round(100*exRight/exQ.length);const sess=Object.entries(exSess).map(([t,v])=>[t,v[0]/v[1],v[1]]).sort((a,b)=>a[1]-b[1]);
+    box.innerHTML='<div class="meta"><span>סיום</span><span>'+exRight+'/'+exQ.length+'</span></div><div class="score">'+pct+'%</div><p>'+(pct>=85?'רמה של ראיון. תמשיך לתרגל את מה שנפל.':pct>=60?'בסיס טוב. חזור לפרקים שבטבלה ונסה שוב.':'כדאי לחזור לפרקים שבטבלה לפני מבחן נוסף.')+'</p>'+weakTable(sess,'תוצאות לפי נושא במבחן הזה')+'<div class="frow" style="justify-content:flex-start"><button class="btn pri" id="exAgain">מבחן חדש</button></div>';return}
+  const q=exQ[exI];
+  let h='<div class="meta"><span>שאלה '+(exI+1)+' / '+exQ.length+'</span><span>'+chTitle(q.t)+'</span><span>נכונות: '+exRight+'</span></div><div class="qq">'+q.q+'</div>';
+  if(q.o)h+='<div class="opts">'+q.o.map((o,i)=>'<button class="opt" data-o="'+i+'">'+o+'</button>').join('')+'</div>';
+  else h+='<div class="numrow"><input type="number" step="any" id="exNum" placeholder="תשובה"><span class="f">'+q.u+'</span><button class="btn pri" id="exCheck">בדוק</button></div>';
+  h+='<div id="exFb"></div>';box.innerHTML=h;exAns=false;
+  const ni=document.getElementById('exNum');if(ni){ni.focus();ni.addEventListener('keydown',e=>{if(e.key==='Enter')checkNum()})}
+}
+function weakTable(rows,title){if(!rows.length)return'';return '<h3 style="font-size:1rem;margin:16px 0 6px">'+title+'</h3><div class="tbl weak"><table><tr><th>נושא</th><th class="num">הצלחה</th><th class="num">שאלות</th><th></th></tr>'+rows.map(([t,r,n])=>'<tr><td>'+chTitle(t)+'</td><td class="num" style="color:var('+(r>=0.8?'--good':r>=0.5?'--trace':'--bad')+')">'+Math.round(r*100)+'%</td><td class="num">'+n+'</td><td>'+(CH.find(c=>c.id===t)?'<button class="btn sm" data-goch="'+t+'">לפרק ←</button>':'')+'</td></tr>').join('')+'</table></div>'}
+function feedback(ok,q,extra){exAns=true;if(ok)exRight++;record(q.t,ok);
+  document.getElementById('exFb').innerHTML='<div class="fb"><span class="v '+(ok?'ok':'bad')+'">'+(ok?'נכון':'לא נכון')+'</span>'+(extra||'')+q.e+'</div><div class="frow" style="justify-content:flex-start"><button class="btn pri" id="exNext">'+(exI+1<exQ.length?'השאלה הבאה':'לתוצאות')+'</button></div>';
+  document.getElementById('exNext').focus()}
+function checkNum(){if(exAns)return;const q=exQ[exI],v=parseFloat(document.getElementById('exNum').value);if(isNaN(v))return;const ok=Math.abs(v-q.n)<=q.tol;document.getElementById('exNum').disabled=true;feedback(ok,q,ok?'':'התשובה: <b class="f">'+q.n+' '+q.u+'</b>. ')}
+document.getElementById('exBox').addEventListener('click',e=>{const t=e.target;
+  const o=t.closest('.opt');if(o&&!exAns){const q=exQ[exI],i=+o.dataset.o,ok=i===q.a;document.querySelectorAll('#exBox .opt').forEach((b,j)=>{b.disabled=true;if(j===q.a)b.classList.add('ok');else if(j===i)b.classList.add('bad')});feedback(ok,q);return}
+  if(t.id==='exCheck'){checkNum();return}
+  if(t.id==='exNext'){exI++;renderEx();return}
+  if(t.id==='exAgain'){exQ=[];renderEx();return}
+  const g=t.closest('[data-goch]');if(g){show('learn');renderCh(g.dataset.goch,true)}});
+
+/* ================= SCENARIOS ================= */
+const SC=[
+{t:'הרדיו לא מגיע לטווח בשטח',d:'רדיו טקטי VHF על רכב. במפרט: 10 ק"מ. בניסוי שטח: 4 ק"מ.',st:[
+ {s:'ראש הצוות מבקש תוכנית פעולה. מה הצעד הראשון?',o:[
+  ['לחשב link budget צפוי עם הגבהים והשטח האמיתיים, ולהשוות ל־RSSI שנמדד בכמה מרחקים',2,'מצוין. בלי ציפייה מחושבת אין דרך לדעת אם 4 ק"מ זה "רע". השוואה בכמה מרחקים מפרידה בין הפסד קבוע (חומרה) לבין הפסד שגדל עם המרחק (התפשטות).'],
+  ['להעלות את ההספק למקסימום ולנסות שוב',0,'זה מטפל בסימפטום ולא מגלה את הסיבה. בנוסף, הספק גבוה מגדיל את טווח הגילוי (LPD) ואת הבעיות על הרכב (co-site).'],
+  ['למדוד VSWR של האנטנה על הרכב',1,'צעד טוב, אבל מוקדם מדי. קודם צריך לדעת כמה dB חסרים ואיך הפער מתנהג עם המרחק.'],
+  ['להחליף את הרדיו ביחידה אחרת',0,'יקר ולא מלמד כלום. אם הבעיה בהתקנה, היא תחזור עם כל יחידה.']]},
+ {s:'החישוב (שתי קרניים, אנטנות בגובה 2.5m) צופה כ־11 ק"מ. ה־RSSI שנמדד נמוך ב־~15dB מהצפוי, ובאותה כמות בכל המרחקים. מה המסקנה?',o:[
+  ['הפסד קבוע בשרשרת: אנטנה, כבל, מחבר או התקנה על הרכב',2,'נכון. הפסד שלא תלוי במרחק מצביע על רכיב בשרשרת ולא על התפשטות. 15dB בטווח של 1/d⁴ מסביר בדיוק ירידה מ־10 ל־4 ק"מ (‏40log(2.5)≈16dB).'],
+  ['צמחייה ותוואי שטח',1,'יכול להוסיף הפסד, אבל הפסד כזה בדרך כלל גדל עם המרחק ומשתנה בין נקודות, ולא קבוע בכל מקום.'],
+  ['הפרעה חיצונית',1,'הפרעה מעלה את הרצפה ולא מורידה את ה־RSSI. בדוק את רצפת הרעש בלי שידור כדי לשלול אותה.'],
+  ['באג בקושחה',0,'אין לכך שום אינדיקציה. ‏RSSI נמוך הוא תופעה פיזיקלית.']]},
+ {s:'מדידה עם cable & antenna analyzer: בכניסת הכבל, מצד הרדיו, ‏VSWR של 4:1. בצד האנטנה, אחרי ניתוק, הכבל תקין. מה עכשיו?',o:[
+  ['לבדוק את בסיס האנטנה: הארקה למרכב, המחבר והתאמה. אחר כך להוסיף בדיקת VSWR או הספק מוחזר לנוהל ההכנה לפני כל משימה',2,'מצוין. בסיס אנטנה ברכב תלוי במישור ההארקה של המרכב. צבע, חלודה או ברגים רופפים הורסים את ההתאמה. ההוספה לנוהל מונעת חזרה של התקלה, וזו חשיבה של מהנדס מערכת.'],
+  ['להחליף את הכבל',0,'הכבל נמדד תקין. החלפה לא תפתור.'],
+  ['להוסיף מגבר הספק',0,'עם VSWR של 4:1 יותר הספק יחזור ל־PA ועלול לשרוף אותו.'],
+  ['לקבל את התוצאה ולעדכן את המפרט ל־4 ק"מ',0,'מהנדס מערכת לא מוריד דרישה לפני שהוא מבין את הסיבה.']]}]},
+{t:'Desense ברכב עם שני רדיו',d:'על הרכב מותקנים רדיו VHF (A) ודאטהלינק UHF (B). כש־A משדר, הרגישות של B יורדת ב־12dB.',st:[
+ {s:'איך תבדיל בין רעש שידור של A שנופל בערוץ של B לבין חסימה של המקלט B?',o:[
+  ['להכניס פילטר מעביר־פס במוצא של A. אם יש שיפור, זה רעש TX. אם אין, ופילטר בכניסה של B עוזר, זו חסימה',2,'בדיוק. פילטר במשדר מנקה את הרעש הרחב שלו. פילטר במקלט מנחית את האות החזק עצמו. זה ניסוי מבדיל קלאסי.'],
+  ['להוריד את ההספק של A ב־10dB ולראות',1,'נותן רמז: חסימה משתנה בצורה לא לינארית (דחיסה), ורעש TX משתנה 1:1. אבל זה פחות חד מהניסוי עם הפילטרים.'],
+  ['להזיז את B לתדר אחר',1,'אם השיפור גדול כשמתרחקים מההרמוניה או מהמוצר, זה מצביע על ספור. מידע שימושי, אבל לא מבדיל בין שני המנגנונים.'],
+  ['לבקש מהמפעיל לא לשדר במקביל',0,'זה פתרון מבצעי שמוותר על יכולת, לא אבחון.']]},
+ {s:'התברר שזה רעש TX של A. הרעש ב־UHF הוא ‏−145dBc/Hz, ‏A=47dBm, ‏B ברוחב 1MHz עם NF של 6dB. הבידוד הנמדד בין האנטנות: 30dB. מה הפער?',o:[
+  ['רעש בערוץ = 47−145+60 = ‏−38dBm. אחרי 30dB: ‏−68dBm. הרצפה של B = ‏−108dBm. חסרים בערך 46dB',2,'חישוב נכון. היעד הוא 6dB מתחת לרצפה (‏−114dBm), כלומר צריך 76dB בידוד במקום 30. (המדידה הראתה רק 12dB של desense, כנראה כי הרעש ב־UHF נמוך יותר בפועל מהמפרט. אז תשתמש בנתון הנמדד.)'],
+  ['חסרים 12dB, כמו ה־desense',1,'ה־desense הוא תוצאה ולא הבידוד החסר. צריך להגיע 6dB מתחת לרצפה, וזה יותר מ־12dB.'],
+  ['אי אפשר לחשב בלי סימולציה',0,'החישוב פשוט, ומראיינים מצפים לראות אותו על הלוח.']]},
+ {s:'איך סוגרים את הפער?',o:[
+  ['שילוב: פילטר co-site במוצא של A (נגד רעש ב־UHF), הפרדה אנכית בין האנטנות, ותוכנית תדרים',2,'זו תשובה של מהנדס מערכת. כל פתרון תורם dB אחר. פילטר ב־A יכול לתת 40–60dB בפס של B, והפרדה אנכית מוסיפה 10–15dB.'],
+  ['פילטר חד בכניסה של B',0,'הרעש של A כבר נמצא בתוך הערוץ של B, אז הפילטר יעביר אותו יחד עם האות.'],
+  ['להגביר את B',0,'הגבר מגביר את הרעש ואת האות באותה מידה.'],
+  ['להרחיק את האנטנות ככל האפשר על הרכב',1,'עוזר, אבל ברכב יש מקום מוגבל. אופקית תקבל עוד 6–10dB, שזה רחוק מ־46dB.']]}]},
+{t:'EVM נכשל בחום',d:'משדר 64QAM עובר EVM בטמפרטורת החדר (2.5%) ונכשל ב־+55°C בהספק מקסימלי (6%).',st:[
+ {s:'מה המדידה הראשונה?',o:[
+  ['EVM כפונקציה של הספק היציאה, בחדר ובחום, באותו גרף',2,'זה מגלה את הסיבה מיד. אם בחום ה־EVM מתחיל לעלות בהספק נמוך יותר, הדחיסה של ה־PA ירדה, כלומר ה־P1dB נמוך יותר בחום.'],
+  ['רעש פאזה בחום',1,'אפשרי, אבל אז הבעיה הייתה מופיעה בכל ההספקים ולא רק במקסימום.'],
+  ['ספקטרום ACLR',1,'יראה כתפיים אם יש דחיסה, ולכן יתמוך באבחנה. אבל עקומת EVM מול הספק ישירה יותר.'],
+  ['להחליף את ה־PA',0,'קודם להבין. ייתכן שכל PA יתנהג כך בחום.']]},
+ {s:'בחום ה־P1dB של ה־PA יורד ב־1.5dB, וגם ההגבר יורד ב־1dB. לולאת בקרת ההספק (ALC) מפצה ומעלה את הדרייב. מה קורה?',o:[
+  ['ה־ALC דוחף את ה־PA עמוק יותר לדחיסה, כי עכשיו צריך יותר כניסה בשביל אותו הספק, וה־P1dB נמוך יותר. ה־backoff האפקטיבי קטן בכ־2.5dB',2,'בדיוק. זה מנגנון קלאסי: הלולאה "מתקנת" את ההגבר ופוגעת בלינאריות.'],
+  ['ה־ALC פותר את הבעיה',0,'הוא שומר על ההספק, לא על הלינאריות.'],
+  ['ה־EVM עולה בגלל רעש תרמי',0,'ההשפעה של 25°C על kT היא שבריר dB, ולא מסבירה מעבר מ־2.5% ל־6%.']]},
+ {s:'מה הפתרון ברמת המערכת?',o:[
+  ['שילוב: הגבלת הספק לפי טמפרטורה (derating) או DPD עם עדכון לפי טמפרטורה, שיפור הפיזור התרמי, ועדכון של תקציב ה־EVM והמפרט',2,'מצוין. מציג trade-off בין הספק ליניארי, יעילות וחום, ומזכיר שצריך לעדכן מפרט ובדיקות QTP.'],
+  ['להוריד את ההספק בכל הטמפרטורות',1,'עובד, אבל מוותר על טווח בטמפרטורת החדר בלי צורך.'],
+  ['לבחור אפנון נמוך יותר תמיד',1,'מוריד את הקצב לכולם. עדיף ACM שעובר לאפנון נמוך רק כשצריך.']]}]},
+{t:'BER floor רק בקפיצות תדר',d:'במצב תדר קבוע ה־BER מצוין בכל ערוץ שנבדק. במצב קפיצות יש רצפת BER של 10⁻⁴, שלא משתפרת גם באות חזק.',st:[
+ {s:'רצפת BER שלא משתפרת עם הספק אומרת:',o:[
+  ['הבעיה דטרמיניסטית ולא רעש: משהו פוגע בחלק מהקפיצות או בחלק מכל קפיצה',2,'נכון. אם זה היה רעש, הספק גבוה יותר היה עוזר. רצפה מצביעה על שגיאות שיטתיות.'],
+  ['ה־NF גבוה מדי',0,'NF משפיע ליד הרגישות ולא באות חזק.'],
+  ['הקוד חלש',1,'קוד חזק יכול להסתיר את הבעיה, אבל לא מסביר אותה.']]},
+ {s:'מה המדידה הבאה?',o:[
+  ['VSA במצב zero-span או ספקטרוגרמה: לראות את ההספק והתדר בתחילת כל קפיצה, ולמדוד PER לפי ערוץ על כל רשימת הקפיצות בתדר קבוע',2,'מצוין. זה בודק את שתי ההשערות העיקריות: transient בתחילת קפיצה (PLL, AGC, ramp) וערוצים בודדים פגועים (ספור, כיול).'],
+  ['לבדוק את המודם בסימולציה',1,'שימושי אחר כך, אבל קודם כדאי לראות את האות האמיתי.'],
+  ['להחליף את כל הכבלים',0,'כבלים לא מסבירים בעיה שמופיעה רק בקפיצות.']]},
+ {s:'רואים שבכ־40µs הראשונים של כל קפיצה התדר עוד לא התייצב, וה־guard time מוגדר ל־25µs. מה הפתרון?',o:[
+  ['לבחור: לקצר את זמן הנעילה (רוחב לולאה, ‏pre-tuning ל־VCO, ‏ping-pong בין שני סינתסייזרים) או להאריך את ה־guard. לנתח את ה־trade-off מול היעילות ומול עמידות לשיבוש עוקב',2,'מצוין. כל פתרון עולה משהו: guard ארוך מוריד את הקצב ואת קצב הקפיצות. ‏ping-pong עולה בחומרה. רוחב לולאה רחב מוסיף רעש reference.'],
+  ['להאריך את ה־guard ל־50µs',1,'עובד, אבל לא שוקל את המחיר בקצב ובעמידות לשיבוש.'],
+  ['להוסיף FEC חזק יותר',1,'מכסה על הבעיה במחיר של תקורה, במקום לפתור אותה.']]}]},
+{t:'תכנון דאטהלינק למל"ט',d:'שאלת תכנון קלאסית: מל"ט בגובה 3000m, טווח 100km בקו ראייה, וידאו של 4Mbps. תחנת הקרקע בגובה 10m.',st:[
+ {s:'מה הבדיקה הראשונה?',o:[
+  ['אופק רדיו: ‏4.12×(√3000 + √10) ≈ 239km. ה־100km בתוך האופק, אז קו ראייה אפשרי (בלי מכשולים)',2,'נכון. זה הדבר הראשון שבודקים בכל לינק קרקע־אוויר.'],
+  ['לחשב FSPL',1,'בהמשך. קודם לוודא שבכלל יש קו ראייה.'],
+  ['לבחור אפנון',0,'מוקדם מדי. צריך קודם לדעת כמה מרווח יש.']]},
+ {s:'בחירת פס ואנטנות?',o:[
+  ['C או L/S: ‏omni (‏~3dBi) במל"ט, אנטנה כיוונית עם עקיבה בקרקע (~20–25dBi). מאזנים בין זמינות ספקטרום, גודל אנטנה והפסד מרחב',2,'מצוין. אנטנה כיוונית בקרקע לא מוגבלת במשקל, ומספקת גם עמידות לשיבוש (מנחיתה כיוונים אחרים).'],
+  ['VHF עם אנטנות omni בשני הצדדים',0,'לא יהיה רוחב סרט ל־4Mbps, והאנטנות גדולות מדי למל"ט.'],
+  ['Ka עם צלחת במל"ט',1,'גשם ומשקל הם בעיה, וכיוון צלחת במל"ט מורכב. מתאים לממסור לווייני, לא לקו ראייה.']]},
+ {s:'ב־5GHz: ‏FSPL≈146.4dB ב־100km. ‏Pt=37dBm, ‏Gt=3, ‏Gr=24, הפסדים 4dB. הרגישות ל־QPSK 1/2 ב־4Mbps (‏Rs=4Msps) עם NF=4dB היא בערך ‏−100dBm. מה המרווח?',o:[
+  ['Pr = 37+3+24−4−146.4 = ‏−86.4dBm. המרווח ≈ 13.6dB. סביר לקו ראייה, כולל מעט מקום לדעיכה בגלל החזרות מהקרקע ומיקום האנטנה על גוף המל"ט',2,'נכון. עכשיו מוסיפים: הסתרות של גוף המל"ט בתמרון (5–10dB), ומשאירים את ACM לנצל את המרווח בטווחים קצרים.'],
+  ['Pr = ‏−86dBm, יש 14dB מרווח ולכן אפשר לעבור ל־64QAM',0,'‏64QAM דורש ~12–15dB יותר מ־QPSK 1/2, כך שלא יישאר מרווח. עדיף ACM שעולה לאפנון גבוה רק בטווחים קצרים.'],
+  ['אין מספיק מרווח, חייבים להכפיל הספק',0,'יש 13.6dB, וזה מספיק ל־LOS. הכפלת הספק נותנת רק 3dB ועולה בחשמל ובחום.']]}]}
+];
+let scI=-1,stI=0,scScore=0,scAns=false;
+function renderScList(){document.getElementById('scList').innerHTML=SC.map((s,i)=>'<button data-sc="'+i+'" aria-pressed="'+(i===scI)+'"><b>'+s.t+'</b><small>'+s.d+'</small></button>').join('')}
+function renderSc(){const box=document.getElementById('scBox');
+  if(scI<0){box.innerHTML='<p style="margin:0">בחר תרחיש מהרשימה למעלה. ענה כאילו אתה מדבר עם המראיין: לפני שאתה בוחר תשובה, נסה לנסח לעצמך למה.</p>';return}
+  const s=SC[scI],n=s.st.length;
+  if(stI>=n){const max=2*n,pct=Math.round(100*scScore/max);box.innerHTML='<div class="meta"><span>'+s.t+'</span><span>'+scScore+'/'+max+'</span></div><div class="score">'+pct+'%</div><p>'+(pct>=85?'חשיבה מערכתית מצוינת.':pct>=50?'כיוון נכון. קרא שוב את ההסברים של התשובות שהיו "מצוין".':'כדאי לעבור שוב על התרחיש ועל הפרקים הקשורים.')+'</p><div class="frow" style="justify-content:flex-start"><button class="btn pri" data-restart="1">שוב</button></div>';return}
+  const st=s.st[stI];
+  box.innerHTML='<div class="steps">'+s.st.map((_,i)=>'<i class="'+(i<=stI?'on':'')+'"></i>').join('')+'</div><div class="meta"><span>'+s.t+' · שלב '+(stI+1)+'/'+n+'</span><span>ניקוד: '+scScore+'</span></div>'+(stI===0?'<p style="margin:0 0 8px;color:var(--muted)">'+s.d+'</p>':'')+'<div class="qq">'+st.s+'</div><div class="opts">'+shuffle(st.o.map((o,i)=>[o,i])).map(([o,i])=>'<button class="opt" data-so="'+i+'">'+o[0]+'</button>').join('')+'</div><div id="scFb"></div>';scAns=false}
+document.getElementById('scList').addEventListener('click',e=>{const b=e.target.closest('[data-sc]');if(!b)return;scI=+b.dataset.sc;stI=0;scScore=0;renderScList();renderSc();document.getElementById('scBox').scrollIntoView({behavior:'smooth',block:'nearest'})});
+document.getElementById('scBox').addEventListener('click',e=>{const t=e.target;
+  const o=t.closest('.opt');if(o&&!scAns){scAns=true;const st=SC[scI].st[stI],i=+o.dataset.so,[txt,sc,fb]=st.o[i];scScore+=sc;
+    document.querySelectorAll('#scBox .opt').forEach(b=>{b.disabled=true;const j=+b.dataset.so,v=st.o[j][1];if(j===i)b.classList.add(v===2?'ok':v===1?'part':'bad');else if(v===2)b.classList.add('ok')});
+    const best=st.o.find(x=>x[1]===2);
+    document.getElementById('scFb').innerHTML='<div class="fb"><span class="v '+(sc===2?'ok':sc===1?'part':'bad')+'">'+(sc===2?'מצוין':sc===1?'חלקי':'מראיין לא יאהב את זה')+'</span>'+fb+(sc<2?'<p style="margin:.6em 0 0"><b>התשובה החזקה:</b> '+best[2]+'</p>':'')+'</div><div class="frow" style="justify-content:flex-start"><button class="btn pri" data-next="1">'+(stI+1<SC[scI].st.length?'השלב הבא':'לסיכום')+'</button></div>';return}
+  if(t.dataset.next){stI++;renderSc();return}
+  if(t.dataset.restart){stI=0;scScore=0;renderSc()}});
+
 /* ================= INIT ================= */
+renderEx();renderScList();renderSc();
 if(!CH.find(c=>c.id===cur))cur='db';
 renderCh(cur);buildCalcs();renderIv();fi=pick();renderFc();drawSim();
-{const h=location.hash.slice(1);if(['learn','calc','sim','prob','iv','flash'].includes(h))show(h)}
+{const h=location.hash.slice(1);if(['learn','calc','sim','prob','iv','exam','scen','flash'].includes(h))show(h)}
 try{matchMedia('(prefers-color-scheme: dark)').addEventListener('change',()=>drawSim())}catch(e){}
 new MutationObserver(()=>drawSim()).observe(document.documentElement,{attributes:true,attributeFilter:['data-theme']});
 </script>
