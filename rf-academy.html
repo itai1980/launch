@@ -129,6 +129,7 @@ main{padding-block:28px 72px}
 .chc small{color:var(--muted);font-size:.75rem}
 /* learn */
 .learn{display:grid;grid-template-columns:280px minmax(0,1fr);gap:24px;align-items:start}
+.learn>*{min-width:0}
 .rail{position:sticky;top:calc(env(safe-area-inset-top,0px) + 80px);max-height:calc(100vh - 100px);overflow:auto;background:var(--surface);border:1px solid var(--line);border-radius:var(--r);box-shadow:var(--shadow);padding:14px 10px 10px;scrollbar-width:thin}
 .rail .prog{font-size:.82rem;color:var(--muted);margin:0 6px 6px;display:flex;justify-content:space-between;align-items:center}
 .rail .prog b{font-family:var(--f-mono);color:var(--ink);font-weight:600}
@@ -165,7 +166,7 @@ article.ch{background:var(--surface);border:1px solid var(--line);border-radius:
 .ch li::marker{color:var(--accent)}
 .f,.fm{font-family:var(--f-mono);direction:ltr;unicode-bidi:isolate}
 .f{font-size:.88em;background:var(--surface-3);padding:1px 6px;border-radius:5px;white-space:nowrap;color:var(--ink)}
-.fm{display:block;text-align:left;background:var(--surface-2);border:1px solid var(--line);border-radius:10px;padding:12px 16px;margin:12px 0;font-size:.9rem;overflow-x:auto;white-space:pre;line-height:1.65;color:var(--ink)}
+.fm{display:block;text-align:left;unicode-bidi:plaintext;font-family:var(--f-mono),'Heebo',sans-serif;background:var(--surface-2);border:1px solid var(--line);border-radius:10px;padding:12px 16px;margin:12px 0;font-size:.9rem;overflow-x:auto;white-space:pre;line-height:1.65;color:var(--ink)}
 pre.fm{margin:12px 0}
 .note,.iv,.trap,.lab{border-radius:10px;padding:13px 16px 13px 16px;padding-inline-start:46px;margin:16px 0;font-size:.94rem;position:relative;border:1px solid transparent;color:var(--ink-2)}
 .note::before,.iv::before,.trap::before,.lab::before{content:"";position:absolute;inset-inline-start:15px;top:15px;width:19px;height:19px;background:currentColor;-webkit-mask:var(--ico) center/contain no-repeat;mask:var(--ico) center/contain no-repeat}
@@ -276,6 +277,32 @@ details.q .a p{margin:.4em 0;max-width:78ch}
 .prob .sol{display:none;border-top:1px dashed var(--line-2);margin-top:12px;padding-top:12px;color:var(--ink-2)}
 .prob.open .sol{display:block}
 
+/* glossary */
+.term{border-bottom:1.5px dotted var(--accent);cursor:help;transition:background .15s;border-radius:2px}
+.term:hover,.term:focus{background:var(--accent-soft);outline:none}
+.gtip{position:fixed;z-index:50;background:var(--surface);border:1px solid var(--accent-line);border-radius:10px;box-shadow:var(--shadow-lg);padding:12px 14px;font-size:.88rem;line-height:1.6;color:var(--ink-2);direction:rtl;text-align:right}
+.gtip .gt{font-family:var(--f-mono);color:var(--accent);font-size:.95rem;margin-inline-end:8px}
+.gtip .gs{font-weight:600;color:var(--ink)}
+.gtip p{margin:6px 0 0}
+.fmleg{display:flex;flex-wrap:wrap;gap:6px 10px;margin:-4px 0 14px;font-size:.8rem;color:var(--ink-2);background:var(--surface);border:1px dashed var(--line-2);border-radius:8px;padding:8px 12px}
+.fmleg .fmlt{font-weight:600;color:var(--muted);width:100%}
+.fmleg b{font-family:var(--f-mono);color:var(--accent);font-weight:600;margin-inline-end:3px}
+.fmleg span:not(.fmlt){background:var(--surface-2);border-radius:5px;padding:1px 7px}
+details.gloss{margin:6px 0 4px;background:var(--surface-2);border:1px solid var(--line);border-radius:10px}
+details.gloss summary{cursor:pointer;padding:9px 14px;display:flex;align-items:center;gap:8px;font-weight:600;font-size:.9rem;color:var(--accent);list-style:none}
+details.gloss summary::-webkit-details-marker{display:none}
+details.gloss summary .chev{margin-inline-start:auto;transition:transform .2s}
+details.gloss[open] summary .chev{transform:rotate(180deg)}
+.glgrid{display:grid;grid-template-columns:repeat(auto-fill,minmax(230px,1fr));gap:6px 14px;padding:4px 14px 14px;font-size:.84rem}
+.glgrid div{display:flex;gap:8px;align-items:baseline;border-bottom:1px dashed var(--line);padding:4px 0}
+.glgrid b{font-family:var(--f-mono);color:var(--accent);white-space:nowrap}
+.glgrid span{color:var(--ink-2)}
+.gllist{display:grid;grid-template-columns:repeat(auto-fill,minmax(300px,1fr));gap:10px}
+.glc{background:var(--surface);border:1px solid var(--line);border-radius:10px;box-shadow:var(--shadow);padding:12px 16px}
+.glh{display:flex;gap:10px;align-items:baseline;flex-wrap:wrap}
+.glh b{font-family:var(--f-mono);font-size:1rem;color:var(--accent)}
+.glh span{font-weight:600}
+.glc p{margin:6px 0 0;font-size:.88rem;color:var(--ink-2)}
 /* figures */
 .fig{margin:18px 0 8px;background:var(--surface-2);border:1px solid var(--line);border-radius:12px;padding:14px 14px 10px}
 .fsvg{width:100%;height:auto;display:block;direction:ltr;max-height:300px}
@@ -358,7 +385,7 @@ td.hw-bad{color:var(--bad);font-weight:600}td.hw-warn{color:var(--warn);font-wei
 
 @media (max-width:1100px){nav.tabs button .lb2{display:none}}
 @media (max-width:900px){
-  .learn{grid-template-columns:1fr}
+  .learn{grid-template-columns:minmax(0,1fr)}
   .rail{position:static;max-height:none;padding:10px}
   .rail ol{flex-direction:row;overflow-x:auto;gap:4px;padding-bottom:4px}
   .rail .grp{display:none}
@@ -413,6 +440,7 @@ td.hw-bad{color:var(--bad);font-weight:600}td.hw-warn{color:var(--warn);font-wei
 <symbol id="i-antenna" viewBox="0 0 24 24"><path d="M12 10v11"/><path d="M8.5 21h7"/><circle cx="12" cy="8" r="2"/><path d="M7.8 3.8a6 6 0 0 0 0 8.4M16.2 3.8a6 6 0 0 1 0 8.4"/><path d="M5 1.5a9.5 9.5 0 0 0 0 13M19 1.5a9.5 9.5 0 0 1 0 13" opacity=".55"/></symbol>
 <symbol id="i-wave" viewBox="0 0 24 24"><path d="M2 12c2.5 0 2.5-6 5-6s2.5 12 5 12 2.5-12 5-12 2.5 6 5 6"/></symbol>
 <symbol id="i-chain" viewBox="0 0 24 24"><rect x="2.5" y="9" width="5" height="6" rx="1.2"/><rect x="9.5" y="9" width="5" height="6" rx="1.2"/><rect x="16.5" y="9" width="5" height="6" rx="1.2"/><path d="M7.5 12h2M14.5 12h2"/></symbol>
+<symbol id="i-search" viewBox="0 0 24 24"><circle cx="10.5" cy="10.5" r="6.5"/><path d="m20 20-4.8-4.8"/></symbol>
 <symbol id="i-trash" viewBox="0 0 24 24"><path d="M4 7h16M9.5 7V4.5h5V7M6.5 7l1 13h9l1-13"/></symbol>
 </svg>
 
@@ -434,6 +462,7 @@ td.hw-bad{color:var(--bad);font-weight:600}td.hw-warn{color:var(--warn);font-wei
       <button role="tab" data-v="exam" aria-selected="false"><svg class="ic"><use href="#i-check-sq"/></svg><span>מבחן</span></button>
       <button role="tab" data-v="scen" aria-selected="false"><svg class="ic"><use href="#i-case"/></svg><span>תרחישים</span></button>
       <button role="tab" data-v="flash" aria-selected="false"><svg class="ic"><use href="#i-layers"/></svg><span>כרטיסיות</span></button>
+      <button role="tab" data-v="gloss" aria-selected="false"><svg class="ic"><use href="#i-search"/></svg><span>מילון</span></button>
     </nav>
   </div>
 </header>
@@ -505,6 +534,12 @@ td.hw-bad{color:var(--bad);font-weight:600}td.hw-warn{color:var(--warn);font-wei
       </div>
       <div class="fstats" id="fStats"></div>
     </div>
+  </section>
+
+  <section class="view" id="v-gloss">
+    <div class="sechead"><span class="hic"><svg class="ic lg"><use href="#i-search"/></svg></span><div><h2>מילון מונחים וסימנים</h2><p>כל קיצור, סימן ומונח שמופיע באתר, עם הסבר בעברית. בפרקים עצמם: לחיצה על מונח עם קו מקווקו מציגה את ההסבר שלו, ומתחת לכל נוסחה יש מקרא לסימנים.</p></div></div>
+    <div class="exbar"><label class="fl" style="flex:1;min-width:220px">חיפוש<input type="text" id="glQ" placeholder="למשל N0, ‏EVM, רעש, דמות…" style="direction:rtl;text-align:right;font-family:var(--f-body)"></label><span id="glCount" class="badge"></span></div>
+    <div class="gllist" id="glList"></div>
   </section>
 
   <section class="view" id="v-exam">
@@ -1949,8 +1984,242 @@ function renderCh(id,scroll){
    (next?'<button class="navcard next" data-go="'+next.id+'"><small>הפרק הבא'+I('left','sm')+'</small><b>'+next.title+'</b></button>':'<span></span>')+'</div>';
   renderRail();
   chBody.querySelectorAll('.chainx').forEach(hydrateChain);chBody.querySelectorAll('.schem').forEach(hydrateSchem);
+  const terms=annotate(chBody);if(terms.length){const d=document.createElement('details');d.className='gloss';d.innerHTML='<summary>'+I('book','sm')+'<span>מונחים וסימנים בפרק הזה ('+terms.length+')</span>'+I('down','sm chev')+'</summary><div class="glgrid">'+terms.map(g=>'<div><b>'+g.t+'</b><span>'+g.s+'</span></div>').join('')+'</div>';chBody.querySelector('.tags').after(d)}
   if(scroll) window.scrollTo({top:0,behavior:'smooth'});
 }
+
+/* ================= GLOSSARY ================= */
+/* [מונח, תבניות התאמה (| מפריד), הגדרה קצרה, הסבר מלא, 1=רק בנוסחאות] */
+const GL=[
+['N0','N0|N₀','צפיפות הספק הרעש [W/Hz]','הספק הרעש בכל 1Hz של רוחב סרט. N = Noise, ו־0 מציין צפיפות (לכל הרץ). לרעש תרמי N0 = kT, כלומר ‏−174dBm/Hz בטמפרטורת החדר. הספק הרעש הכולל ברוחב B הוא N = N0·B.'],
+['Eb/N0','Eb/N0','אנרגיה לביט חלקי צפיפות הרעש','Eb היא האנרגיה של ביט מידע אחד (הספק האות כפול משך הביט). Eb/N0 הוא "SNR לכל ביט", שלא תלוי ברוחב הסרט או בקצב, ולכן משווים איתו אפנונים וקודים. ‏Eb/N0 = S/N × (B/Rb).'],
+['Es/N0','Es/N0','אנרגיה לסימבול חלקי צפיפות הרעש','Es היא האנרגיה של סימבול אחד. בכל סימבול יש k·r ביטי מידע, ולכן Es/N0 = Eb/N0 + 10log(k·r). עם matched filter (RRC), ‏Es/N0 שווה בקירוב ל־SNR.'],
+['Eb','Eb','אנרגיה לביט מידע [J]','הספק האות חלקי קצב הביטים: Eb = S/Rb.',1],
+['Es','Es','אנרגיה לסימבול [J]','הספק האות חלקי קצב הסימבולים: Es = S/Rs.',1],
+['C/N0','C/N0','הספק נושא חלקי צפיפות רעש [dBHz]','יחס בין הספק האות (Carrier) לצפיפות הרעש, ביחידות dBHz. נפוץ בלוויין וב־GNSS, כי הוא לא תלוי ברוחב סרט. ‏Eb/N0 = C/N0 − 10log(Rb).'],
+['SNR','SNR','יחס אות לרעש','Signal-to-Noise Ratio: הספק האות חלקי הספק הרעש, בתוך רוחב סרט מוגדר. ב־dB: ‏SNR = P_signal − P_noise.'],
+['CNR','CNR|C/N','יחס נושא לרעש','Carrier-to-Noise Ratio: כמו SNR, אבל נמדד ב־RF לפני הגילוי.'],
+['SINR','SINR','אות חלקי (הפרעות + רעש)','Signal to Interference plus Noise Ratio: כמו SNR, אבל במכנה יש גם את ההפרעות. במערכות סלולריות זה מה שקובע את הביצועים.'],
+['kT','kT','צפיפות הרעש התרמי: ‏−174dBm/Hz','מכפלת קבוע בולצמן בטמפרטורה. ב־290K: ‏4×10⁻²¹ W/Hz = ‏−174dBm/Hz. זה N0 של רעש תרמי.'],
+['kTB','kTB','הספק הרעש התרמי ברוחב B','N = k·T·B. ב־dBm: ‏−174 + 10log(B). למשל ‏−114dBm ב־1MHz.'],
+['k','k','קבוע בולצמן, או ביטים לסימבול','בנוסחאות רעש: קבוע בולצמן, 1.38×10⁻²³ J/K. בנוסחאות אפנון: מספר הביטים לסימבול, k = log2(M). למשל k=4 ב־16QAM.',1],
+['T0','T0','טמפרטורת ייחוס: 290K','טמפרטורת החדר התקנית (כ־17°C), שלפיה מוגדרים NF ו־kT = ‏−174dBm/Hz.'],
+['T','T','טמפרטורה [K]','טמפרטורה במעלות קלווין (K = °C + 273). בהקשר אחר: משך זמן.',1],
+['Te','Te','טמפרטורת רעש שקולה [K]','דרך אחרת לתאר NF: הטמפרטורה שמקור רעש בכניסה היה צריך כדי לייצר את הרעש שהרכיב מוסיף. ‏Te = 290·(F−1).'],
+['Tsys','Tsys','טמפרטורת רעש של המערכת [K]','Tsys = Tant + Te: רעש האנטנה ועוד רעש המקלט. בלוויין משתמשים בו כדי לחשב G/T.'],
+['B','B','רוחב סרט [Hz]','Bandwidth: רוחב הסרט שבו מודדים או מסננים. בנוסחת הרעש זה רוחב הרעש האפקטיבי של המקלט.',1],
+['F','F','Noise Factor (לינארי)','היחס בין SNR בכניסה ל־SNR ביציאה, כמספר לינארי ≥1. ‏NF = 10log(F).',1],
+['NF','NF','Noise Figure [dB]','בכמה dB הרכיב או המקלט מורידים את ה־SNR. ‏LNA טוב: 0.5–2dB. רכיב פסיבי: NF שווה להפסד שלו.'],
+['G','G','הגבר','Gain: יחס הספק היציאה להספק הכניסה, ב־dB או כמספר לינארי. באנטנה: הגבר ביחס לאיזוטרופית (dBi).',1],
+['G/T','G/T','הגבר אנטנה חלקי טמפרטורת מערכת [dB/K]','מדד הרגישות של תחנת קליטה לוויינית. גבוה יותר זה טוב יותר.'],
+['S','S','הספק האות','Signal: הספק האות הרצוי (בהקשר של S/N).',1],
+['N','N','הספק רעש, או מספר','בהקשר של רעש: הספק הרעש הכולל. בהקשר אחר: מספר (ביטים בחבילה, אלמנטים במערך, ביטים ב־ADC, מחלק ב־PLL).',1],
+['P','P','הספק [W או dBm]','Power. ‏Pt: הספק שידור. ‏Pr: הספק קליטה.',1],
+['Pt','Pt','הספק משדר','הספק ביציאת המשדר (transmit power), בדרך כלל ב־dBm.'],
+['Pr','Pr','הספק נקלט','ההספק שמגיע לכניסת המקלט.'],
+['L','L','הפסד [dB]','Loss: הפסד של כבל, פילטר, מתג, או הפסד התפשטות.',1],
+['dB','dB','יחס בדציבלים','10·log10 של יחס הספקים. ‏+3dB זה פי 2, ‏+10dB זה פי 10. ל־dB לבד אין יחידות.'],
+['dBm','dBm','הספק ביחס ל־1mW','הספק מוחלט: 0dBm = 1mW, ‏30dBm = 1W, ‏−30dBm = 1µW.'],
+['dBW','dBW','הספק ביחס ל־1W','dBW = dBm − 30.'],
+['dBc','dBc','ביחס לנושא','כמה dB מתחת לאות הראשי (Carrier). למשל הרמוניה ב־‏−40dBc נמוכה ב־40dB מהאות.'],
+['dBi','dBi','הגבר אנטנה ביחס לאיזוטרופית','הגבר ביחס לאנטנה תיאורטית שמקרינה באופן שווה לכל הכיוונים.'],
+['dBd','dBd','הגבר אנטנה ביחס לדיפול','dBi = dBd + 2.15.'],
+['dBFS','dBFS','ביחס לסקאלה המלאה של ADC/DAC','0dBFS הוא האות המקסימלי שה־ADC או ה־DAC יכולים לייצג.'],
+['dBHz','dBHz','dB ביחס ל־1Hz','יחידה של C/N0 (יחס לכל הרץ).'],
+['dBµV','dBµV','מתח ביחס ל־1µV','ב־50Ω: ‏dBµV = dBm + 107.'],
+['λ','λ','אורך גל [m]','λ = c/f. ב־1GHz: ‏30cm. ב־2.4GHz: ‏12.5cm.'],
+['c','c','מהירות האור','3×10⁸ m/s.',1],
+['f','f','תדר [Hz]','Frequency. ‏fc: תדר נושא. ‏fs: קצב דגימה.',1],
+['fc','fc|f0','תדר הנושא','Carrier frequency: התדר המרכזי של האות.'],
+['fs','fs','קצב דגימה','Sampling frequency: כמה דגימות בשנייה. התדר המקסימלי שאפשר לייצג בלי קיפול הוא fs/2.'],
+['fd','fd','הסטת דופלר [Hz]','fd = v/λ·cos(θ). השינוי בתדר הנקלט בגלל תנועה יחסית.'],
+['d','d','מרחק','Distance.',1],
+['h','h','גובה אנטנה [m]','Height.',1],
+['D','D','קוטר אנטנה, או אורך לינק','בנוסחאות אנטנה: הקוטר הגדול של האנטנה. בנוסחת פרנל: האורך הכולל של הלינק.',1],
+['M','M','מספר נקודות בקונסטלציה','סדר האפנון: 4 ב־QPSK, ‏16 ב־16QAM, ‏64 ב־64QAM.',1],
+['r','r','Code rate (קצב קוד)','היחס בין ביטי מידע לביטים משודרים, k/n. למשל r = 1/2: ביט מידע אחד מכל שני ביטים משודרים.',1],
+['Rs','Rs','קצב סימבולים [sym/s, Baud]','כמה סימבולים משודרים בשנייה.'],
+['Rb','Rb','קצב ביטים [bit/s]','כמה ביטי מידע עוברים בשנייה. ‏Rb = Rs·k·r.'],
+['Rc','Rc','קצב chips','ב־DSSS: קצב רצף הפיזור, מהיר בהרבה מקצב הביטים.'],
+['α','α','Roll-off של פילטר RRC','קובע כמה רוחב סרט נוסף מעל Rs: ‏B = Rs(1+α). ערכים טיפוסיים: 0.05–0.35.'],
+['η','η','יעילות','ביעילות ספקטרלית: ביטים לשנייה לכל הרץ. באנטנה: יעילות קרינה או צמצם (0 עד 1).'],
+['C','C','קיבולת ערוץ [bit/s]','בנוסחת שאנון: הקצב המקסימלי שאפשר להעביר בלי שגיאות.',1],
+['Baud','Baud','סימבולים לשנייה','יחידה של Rs. ‏1 Baud = סימבול אחד בשנייה.'],
+['bps','bps|Mbps|kbps','ביטים לשנייה','יחידת קצב נתונים.'],
+['Q(x)','Q\\(','פונקציית Q','ההסתברות שמשתנה גאוסי תקני יהיה גדול מ־x. משמשת לחישוב BER.'],
+['erfc','erfc','פונקציית השגיאה המשלימה','erfc(x) = 2·Q(x√2). משמשת לחישוב BER.'],
+['Γ','Γ','מקדם החזרה','Γ = (ZL − Z0)/(ZL + Z0): איזה חלק מהגל חוזר מהעומס. ‏0 זו התאמה מושלמת, ו־1 זו החזרה מלאה.'],
+['Γopt','Γopt','עכבת מקור ל־NF מינימלי','העכבה שה־LNA צריך "לראות" בכניסה כדי לקבל את ה־NF הנמוך ביותר. בדרך כלל שונה מהתאמה להספק.'],
+['Z0','Z0','עכבה אופיינית של קו','בדרך כלל 50Ω ב־RF ו־75Ω בווידאו.'],
+['ZL','ZL','עכבת העומס','העכבה בקצה הקו (אנטנה, כניסת מגבר).'],
+['VSWR','VSWR','יחס גלים עומדים','Voltage Standing Wave Ratio: ‏Vmax/Vmin לאורך הקו. ‏1:1 זו התאמה מושלמת. ‏VSWR = (1+|Γ|)/(1−|Γ|).'],
+['RL','RL|Return Loss','Return Loss [dB]','כמה הגל המוחזר חלש מהפוגע: RL = −20log|Γ|. גבוה יותר זה טוב יותר.'],
+['S11','S11','החזרה בכניסה','S־פרמטר: הגל שחוזר מהכניסה, ביחס לגל שנכנס. ‏S11 = −RL.'],
+['S21','S21','תמסורת קדימה','S־פרמטר: הגבר או הפסד הכנסה מהכניסה ליציאה.'],
+['S12','S12','תמסורת אחורה (בידוד)','כמה אות עובר מהיציאה חזרה לכניסה.'],
+['S22','S22','החזרה ביציאה','S־פרמטר של התאמת היציאה.'],
+['K','K','מקדם יציבות','K>1 (יחד עם |Δ|<1) אומר שהמגבר יציב בכל עכבה ולא יתנדנד.',1],
+['FSPL','FSPL','הפסד התפשטות בחלל פתוח','Free Space Path Loss: ההפסד בגלל התפשטות האנרגיה על פני ספירה. ‏20log(d)+20log(f)+קבוע.'],
+['EIRP','EIRP','הספק מוקרן שקול','Effective Isotropic Radiated Power: ‏Pt − הפסדי כבל + הגבר אנטנה. זה מה שהרגולציה מגבילה.'],
+['ERP','ERP','הספק מוקרן ביחס לדיפול','ERP = EIRP − 2.15dB.'],
+['MAPL','MAPL','הפסד מסלול מקסימלי מותר','Maximum Allowable Path Loss: כמה הפסד התפשטות הלינק יכול לסבול ועדיין לעבוד.'],
+['FM','FM','מרווח דעיכה, או אפנון תדר','בהקשר של link budget: Fade Margin, רזרבה ב־dB לדעיכות. בהקשר של אפנון: Frequency Modulation.'],
+['r1','r1','רדיוס אזור פרנל הראשון [m]','הרדיוס של האליפסואיד סביב קו הראייה שבו חייב להיות שטח פנוי.'],
+['ν','ν','פרמטר עקיפה','מדד לכמה המכשול חודר לקו הראייה, בהתחשב באורך הגל. ‏ν=0: המכשול נוגע בקו, והפסד העקיפה הוא 6dB.'],
+['στ','στ','פיזור השהיות (delay spread)','הפרש הזמנים האפקטיבי בין המסלולים השונים של מולטיפאס.'],
+['Bc','Bc','רוחב סרט קוהרנטי','טווח התדרים שבו הערוץ דועך "ביחד". ‏Bc ≈ 1/(5στ).'],
+['Tc','Tc','זמן קוהרנטי','כמה זמן הערוץ נשאר בערך קבוע. ‏Tc ≈ 0.423/fd.'],
+['Δf','Δf','מרווח בין תתי־נושאים, או היסט תדר','ב־OFDM: המרחק בין תתי־נושאים (1/Tu). בהקשר אחר: היסט תדר מהנושא.'],
+['Tu','Tu','משך הסימבול השימושי ב־OFDM','משך הסימבול בלי ה־CP. ‏Tu = 1/Δf.'],
+['T_CP','T_CP','משך ה־Cyclic Prefix','חייב להיות ארוך מה־delay spread.'],
+['n','n','מקדם הפסד מסלול, או אורך מילת קוד','במודל log-distance: קצב ירידת האות עם המרחק (2 בחלל פתוח, 3–5 בעיר). ב־FEC: מספר הביטים במילת קוד.',1],
+['dmin','dmin','מרחק Hamming מינימלי','המספר הקטן ביותר של ביטים שבהם שתי מילות קוד נבדלות. ממנו נגזר כמה שגיאות הקוד יכול לתקן.'],
+['t','t','מספר שגיאות שאפשר לתקן','t = ⌊(dmin−1)/2⌋.',1],
+['IIP3','IIP3','נקודת חיתוך מסדר 3, בכניסה','Input Third-order Intercept Point: מדד לינאריות. גבוה יותר זה לינארי יותר. כ־10dB מעל IP1dB.'],
+['OIP3','OIP3','נקודת חיתוך מסדר 3, ביציאה','OIP3 = IIP3 + G.'],
+['IP3','IP3','נקודת חיתוך מסדר 3','הנקודה (התיאורטית) שבה הקו של מוצרי IM3 פוגש את קו היסוד.'],
+['P1dB','P1dB|IP1dB|OP1dB','נקודת דחיסה של 1dB','ההספק שבו ההגבר ירד ב־1dB מהערך הלינארי. ‏IP1dB נמדד בכניסה ו־OP1dB ביציאה.'],
+['Psat','Psat','הספק רוויה','ההספק המקסימלי שהמגבר יכול להוציא.'],
+['IM3','IM3|IMD','אינטרמודולציה מסדר 3','מוצרים בתדרים 2f1−f2 ו־2f2−f1 שנוצרים כששני אותות עוברים ברכיב לא לינארי. הם נופלים ליד האותות.'],
+['ΔIM','ΔIM','הפרש בין הטון למוצר ה־IM3 [dBc]','משמש לחישוב IP3: ‏OIP3 = Pout + ΔIM/2.'],
+['IIP2','IIP2','נקודת חיתוך מסדר 2','מדד לעיוות ריבועי. קריטי במקלט Zero-IF.'],
+['SFDR','SFDR','תחום דינמי חופשי מספוריות','Spurious-Free Dynamic Range: מרצפת הרעש עד הרמה שבה מוצרי IM3 עולים מעליה.'],
+['ACLR','ACLR|ACPR','דליפה לערוץ הסמוך','Adjacent Channel Leakage Ratio: ההספק שהמשדר דולף לערוץ הסמוך, ביחס להספק בערוץ שלו (dBc).'],
+['ACS','ACS','סלקטיביות לערוץ סמוך','Adjacent Channel Selectivity: כמה חזק יכול להיות אות בערוץ הסמוך בלי שהמקלט ייפגע.'],
+['PAPR','PAPR','יחס הספק שיא לממוצע','Peak-to-Average Power Ratio: בכמה dB השיאים של האות גבוהים מהממוצע. ב־OFDM: ‏10–12dB.'],
+['CFR','CFR','הקטנת PAPR','Crest Factor Reduction: גזימה מבוקרת של שיאי האות.'],
+['DPD','DPD','קדם־עיוות דיגיטלי','Digital Pre-Distortion: עיוות האות מראש בכיוון ההפוך לעיוות של ה־PA, כך שהיציאה יוצאת לינארית.'],
+['PAE','PAE','יעילות הספק מוסף','Power Added Efficiency: ‏(Pout − Pin)/Pdc. כמה מהחשמל הופך לאות.'],
+['AM/AM','AM/AM','דחיסת הגבר','שינוי ההגבר כתלות באמפליטודה של האות.'],
+['AM/PM','AM/PM','שינוי פאזה עם האמפליטודה','שינוי בפאזת היציאה כתלות באמפליטודה. מסובב את הנקודות החיצוניות בקונסטלציה.'],
+['EVM','EVM','גודל וקטור השגיאה','Error Vector Magnitude: המרחק הממוצע (RMS) בין הנקודות שהתקבלו לנקודות האידאליות, באחוזים או ב־dB.'],
+['MER','MER','יחס שגיאת אפנון','Modulation Error Ratio: אותו מידע כמו EVM, ב־dB. ‏MER ≈ −EVM[dB].'],
+['BER','BER','שיעור שגיאות ביט','Bit Error Rate: שגיאות ביט חלקי סך הביטים.'],
+['PER','PER','שיעור שגיאות חבילה','Packet Error Rate: חבילות שגויות חלקי סך החבילות.'],
+['SER','SER','שיעור שגיאות סימבול','Symbol Error Rate.'],
+['FEC','FEC','קוד לתיקון שגיאות','Forward Error Correction: מוסיפים ביטי יתירות, והמקלט מתקן שגיאות בלי שידור חוזר.'],
+['LDPC','LDPC','קוד בדיקת זוגיות דליל','Low-Density Parity-Check: קוד חזק מאוד, קרוב לגבול שאנון. ב־WiFi, ‏5G ו־DVB-S2.'],
+['CRC','CRC','בדיקת שגיאות','Cyclic Redundancy Check: מגלה שהחבילה שגויה, אבל לא מתקן.'],
+['ARQ','ARQ|HARQ','שידור חוזר אוטומטי','Automatic Repeat reQuest. ‏HARQ משלב שידור חוזר עם FEC.'],
+['LLR','LLR','לוג יחס סבירות','החלטה "רכה": כמה המקלט בטוח שהביט הוא 0 או 1.'],
+['PRBS','PRBS','רצף פסאודו־אקראי','Pseudo-Random Binary Sequence: רצף ביטים ידוע שנראה אקראי, לבדיקת BER (למשל PRBS-9, ‏PRBS-15).'],
+['BPSK','BPSK','אפנון פאזה בינארי','2 פאזות, ביט אחד לסימבול.'],
+['QPSK','QPSK','אפנון פאזה מרובע','4 פאזות, 2 ביטים לסימבול.'],
+['PSK','PSK|8PSK','אפנון פאזה','המידע נמצא בפאזה של האות.'],
+['QAM','QAM|16QAM|64QAM|256QAM|1024QAM|4096QAM','אפנון אמפליטודה וניצב','המידע נמצא גם באמפליטודה וגם בפאזה, על רשת ריבועית. ‏16QAM: ‏4 ביטים לסימבול.'],
+['APSK','APSK|16APSK|32APSK','אפנון אמפליטודה ופאזה בטבעות','נקודות על כמה טבעות. עמיד יותר לאי־לינאריות של מגבר בלוויין.'],
+['FSK','FSK|GFSK','אפנון תדר דיגיטלי','המידע נמצא בתדר. מעטפת קבועה.'],
+['GMSK','GMSK|MSK','MSK עם פילטר גאוסי','FSK עם הפרדה מינימלית ומעטפת קבועה. ב־GSM.'],
+['I/Q','I/Q|IQ','רכיבים בפאזה וניצב','I (In-phase) ו־Q (Quadrature): שני רכיבי האות המרוכב, מוזזים ב־90°.'],
+['Gray','Gray','קידוד Gray','סידור ביטים שבו כל שתי נקודות שכנות נבדלות בביט אחד בלבד.'],
+['RRC','RRC|Raised Cosine','פילטר Root Raised Cosine','פילטר עיצוב פולסים. מחולק בין המשדר למקלט, ונותן אפס ISI ו־SNR מקסימלי.'],
+['ISI','ISI','הפרעה בין סימבולים','Inter-Symbol Interference: סימבול "נמרח" לתוך הסימבול הבא.'],
+['ICI','ICI','הפרעה בין תתי־נושאים','Inter-Carrier Interference ב־OFDM, בגלל שגיאת תדר או רעש פאזה.'],
+['OFDM','OFDM|OFDMA','ריבוב חלוקת תדר אורתוגונלי','מחלקים את הערוץ להרבה תתי־נושאים צרים. ‏OFDMA: משתמשים שונים מקבלים תתי־נושאים שונים.'],
+['CP','CP|Cyclic Prefix','קידומת מחזורית','העתק של סוף סימבול ה־OFDM בתחילתו, שבולע הדים.'],
+['FFT','FFT|IFFT','התמרת פורייה מהירה','מעבר בין זמן לתדר. ‏IFFT במשדר OFDM, ‏FFT במקלט.'],
+['CFO','CFO','היסט תדר נושא','Carrier Frequency Offset: ההפרש בין התדר של המשדר לזה של המקלט.'],
+['MIMO','MIMO','ריבוי אנטנות בשידור ובקליטה','Multiple-Input Multiple-Output: כמה זרמים במקביל באותו תדר, או diversity.'],
+['MRC','MRC','שילוב ביחס מקסימלי','Maximal Ratio Combining: שילוב ענפי diversity לפי ה־SNR של כל אחד.'],
+['TDD','TDD','דופלקס בחלוקת זמן','שידור וקליטה באותו תדר, בזמנים שונים.'],
+['FDD','FDD','דופלקס בחלוקת תדר','שידור וקליטה בתדרים שונים, באותו זמן. דורש דופלקסר.'],
+['TDMA','TDMA|FDMA|CDMA','גישה מרובה','חלוקת הערוץ בין משתמשים: בזמן (TDMA), בתדר (FDMA) או בקוד (CDMA).'],
+['DSSS','DSSS','פיזור ספקטרום ישיר','כל ביט מוכפל ברצף chips מהיר, והאות מתפרש על פס רחב.'],
+['FHSS','FHSS','קפיצות תדר','Frequency Hopping: התדר משתנה כל הזמן לפי רצף סודי.'],
+['Gp','G_p|Gp','Processing gain','הרווח מפיזור הספקטרום: היחס בין רוחב הפס המפוזר לרוחב המידע.'],
+['M_J','M_J','מרווח שיבוש','Jamming margin: ה־J/S המקסימלי שהמערכת שורדת.'],
+['J/S','J/S','יחס משבש לאות','הספק המשבש חלקי הספק האות במקלט, ב־dB.'],
+['LPI','LPI|LPD','סבירות יירוט / גילוי נמוכה','Low Probability of Intercept/Detection: שידור שקשה לגלות או לנצל.'],
+['MANET','MANET','רשת אד־הוק ניידת','רשת שבה כל מכשיר הוא גם ממסר, בלי תשתית קבועה.'],
+['NVIS','NVIS','קרינה כמעט אנכית ב־HF','Near Vertical Incidence Skywave: כיסוי של מאות ק"מ מעבר לרכסים, בעזרת היונוספירה.'],
+['AGC','AGC','בקרת הגבר אוטומטית','Automatic Gain Control: משנה את ההגבר כך שהרמה ב־ADC תישאר קבועה.'],
+['TOP','Take-Over Point|TOP','נקודת המעבר של ה־AGC','הרמה שממנה ה־AGC מתחיל להוריד את ההגבר הקדמי (LNA).'],
+['RSSI','RSSI','מחוון עוצמת אות','Received Signal Strength Indicator: הספק כולל בערוץ (אות + רעש + הפרעות).'],
+['RSRP','RSRP|RSRQ','מדדי LTE','RSRP: הספק אות הייחוס. ‏RSRQ: איכות (N·RSRP/RSSI).'],
+['MDS','MDS','האות המינימלי שניתן לגלות','Minimum Detectable Signal: רגישות עם SNR=0dB.'],
+['LNA','LNA','מגבר רעש נמוך','Low Noise Amplifier: השלב הראשון במקלט. קובע את ה־NF.'],
+['PA','PA','מגבר הספק','Power Amplifier: השלב האחרון במשדר.'],
+['VGA','VGA','מגבר הגבר משתנה','Variable Gain Amplifier.'],
+['LO','LO','מתנד מקומי','Local Oscillator: האות שמכפילים איתו במיקסר כדי להזיז תדר.'],
+['IF','IF','תדר ביניים','Intermediate Frequency: התדר שאליו מורידים את האות לפני הדגימה.'],
+['RF','RF','תדר רדיו','Radio Frequency: התדר באוויר.'],
+['Zero-IF','Zero-IF','המרה ישירה לפס בסיס','LO בדיוק בתדר הנושא, ולכן אין IF.'],
+['IRR','IRR','יחס דחיית דמות','Image Rejection Ratio: כמה dB הדמות חלשה מהאות.'],
+['ADC','ADC','ממיר אנלוגי לדיגיטלי','Analog-to-Digital Converter.'],
+['DAC','DAC','ממיר דיגיטלי לאנלוגי','Digital-to-Analog Converter.'],
+['ENOB','ENOB','מספר ביטים אפקטיבי','Effective Number Of Bits: כמה ביטים ה־ADC באמת נותן, אחרי רעש ועיוותים.'],
+['SINAD','SINAD','אות חלקי (רעש + עיוות)','מדד איכות של ADC.'],
+['DDC','DDC|NCO','המרה דיגיטלית מטה','Digital Down Conversion: הזזה דיגיטלית לפס בסיס בעזרת NCO (מתנד דיגיטלי).'],
+['PLL','PLL','לולאת נעילת פאזה','Phase-Locked Loop: מייצר תדר יציב ומדויק, מנעול על ייחוס.'],
+['VCO','VCO','מתנד מבוקר מתח','Voltage-Controlled Oscillator: התדר משתנה עם מתח.'],
+['TCXO','TCXO|OCXO|GPSDO','מתנדי ייחוס','TCXO: גביש מפוצה טמפרטורה (±1ppm). ‏OCXO: בתנור (±0.01ppm). ‏GPSDO: ממושמע ל־GPS.'],
+['ppm','ppm','חלקים למיליון','דיוק תדר: 1ppm ב־1GHz = ‏1kHz.'],
+['L(f)','L\\(f\\)|L\\(Δf\\)|dBc/Hz','רעש פאזה [dBc/Hz]','הספק רעש הפאזה בפס של 1Hz במרחק מהנושא, ביחס לנושא.'],
+['φ_rms','φ_rms','רעש פאזה משולב [רדיאנים]','סטיית התקן של שגיאת הפאזה. ‏1° ≈ 1.75% EVM.'],
+['jitter','jitter|ג׳יטר|ג\'יטר','רעידת זמן','סטייה אקראית בתזמון של שעון. ‏SNR מג׳יטר: ‏−20log(2π·f·tj).'],
+['RBW','RBW','רוחב פס רזולוציה','Resolution Bandwidth של נתח הספקטרום. קובע הפרדה ורצפת רעש מוצגת.'],
+['VBW','VBW','רוחב פס וידאו','מחליק את התצוגה של נתח הספקטרום.'],
+['DANL','DANL','רצפת רעש מוצגת','Displayed Average Noise Level של נתח הספקטרום.'],
+['VNA','VNA','נתח רשתות וקטורי','מודד S־פרמטרים בגודל ובפאזה.'],
+['VSA','VSA','נתח אותות וקטורי','מנתח אפנון: EVM, קונסטלציה, שגיאת תדר.'],
+['SOLT','SOLT','כיול Short-Open-Load-Thru','כיול VNA שמעביר את מישור הייחוס לקצה הכבלים.'],
+['DUT','DUT','הרכיב בבדיקה','Device Under Test.'],
+['ENR','ENR','יחס רעש עודף','Excess Noise Ratio של מקור רעש מכויל, למדידת NF.'],
+['Y','Y','Y-factor','יחס בין רעש היציאה כשמקור הרעש דולק לבין כשהוא כבוי.',1],
+['SCPI','SCPI','שפת פקודות למכשירים','פקודות טקסט לשליטה במכשירי מדידה (למשל *IDN?).'],
+['OBW','OBW','רוחב סרט תפוס','Occupied Bandwidth: הרוחב שמכיל 99% מההספק.'],
+['PIM','PIM','אינטרמודולציה פסיבית','IM שנוצר במחברים, כבלים ואנטנות.'],
+['XPD','XPD','הבחנת קיטוב צולב','כמה dB אנטנה דוחה את הקיטוב הניצב.'],
+['TRP','TRP|TIS','מדדי OTA','TRP: ההספק הכולל שנקרן. ‏TIS: רגישות איזוטרופית כוללת.'],
+['SAW','SAW|BAW','פילטרים אקוסטיים','פילטרים קטנים וחדים ל־RF ול־IF, עד כ־6GHz.'],
+['ESD','ESD','פריקה אלקטרוסטטית','Electrostatic Discharge, שעלולה להרוס LNA.'],
+['GaN','GaN|GaAs|LDMOS','טכנולוגיות טרנזיסטור','GaN: הספק גבוה ומתח גבוה. ‏GaAs: תדרים גבוהים. ‏LDMOS: תחנות בסיס.'],
+['MTTF','MTTF','זמן ממוצע לכשל','Mean Time To Failure.'],
+['θjc','θ_jc|θjc','התנגדות תרמית','Junction-to-case: כמה מעלות עולה ה־junction לכל ואט שמתפזר.'],
+['EMC','EMC|EMI','תאימות אלקטרומגנטית','EMC: עמידה בתקני פליטה וחסינות. ‏EMI: הפרעה אלקטרומגנטית.'],
+['QTP','QTP|ATP','בדיקות הסמכה וקבלה','QTP: הסמכת התכן (פעם אחת). ‏ATP: קבלה של כל יחידה.'],
+['ESS','ESS','סינון סביבתי','Environmental Stress Screening: מחזורי חום ורעידות לגילוי כשלים מוקדמים.'],
+['Γ_N','Γ \\(Gamma\\)','רגישות לתאוצה של גביש','בכמה התדר משתנה לכל g של תאוצה (למשל 10⁻⁹/g).'],
+['TAID','TAID','שיטות אימות','Test, ‏Analysis, ‏Inspection, ‏Demonstration.'],
+['Doherty','Doherty','מגבר Doherty','שני מגברים (main ו־peak) שמשפרים יעילות כשהאות רחוק משיא ההספק.'],
+['Shannon','שאנון','גבול שאנון','C = B·log2(1+SNR): הקצב המקסימלי האפשרי בערוץ.'],
+['Nyquist','נייקוויסט','משפט נייקוויסט','קצב הדגימה חייב להיות יותר מפי 2 מהתדר המקסימלי. וגם: ברוחב B אפשר להעביר עד 2B סימבולים לשנייה בלי ISI.'],
+['ν_dir','Directivity','כיווניות של coupler','כמה המצמד מבחין בין הגל הקדמי לגל המוחזר.']
+];
+const GLB='(?<![A-Za-z0-9_\u05D0-\u05EA])',GLA='(?![A-Za-z0-9_])';
+const escRe=p=>p.includes('\\(')?p:p.replace(/[.*+?^${}()|[\]\\\/]/g,'\\$&');
+const GLR=GL.map((g,i)=>{const pats=g[1].split('|').map(escRe);return {i,t:g[0],s:g[2],d:g[3],fo:!!g[4],pats,re:new RegExp(GLB+'(?:'+pats.join('|')+')'+GLA)}});
+const GLP=[];GLR.filter(g=>!g.fo).forEach(g=>g.pats.forEach(p=>GLP.push([p,g])));GLP.sort((a,b)=>b[0].length-a[0].length);
+const GLBIG=new RegExp(GLB+'('+GLP.map(x=>x[0]).join('|')+')'+GLA,'g');
+const GLX=GLP.map(([p,g])=>[new RegExp('^(?:'+p+')$'),g]);
+function glFind(text,formula){return GLR.filter(g=>(formula||!g.fo)&&g.re.test(text))}
+let gTip=null;
+function annotate(root){
+  const found=new Map();
+  root.querySelectorAll('.fm').forEach(fm=>{const hits=glFind(fm.textContent,true);if(!hits.length)return;hits.forEach(h=>found.set(h.i,h));
+    const leg=document.createElement('div');leg.className='fmleg';leg.innerHTML='<span class="fmlt">מה הסימנים אומרים:</span>'+hits.map(h=>'<span><b>'+h.t+'</b> '+h.s+'</span>').join('');fm.after(leg)});
+  const big=GLBIG;
+  const skip='.fm,.fmleg,svg,h2,h3,h4,button,.gloss,.term,.tags,.chtop,.chfoot,.schctl,figcaption,.blk,.badge';
+  const tw=document.createTreeWalker(root,NodeFilter.SHOW_TEXT,{acceptNode:n=>{if(n.parentElement.closest(skip))return NodeFilter.FILTER_REJECT;big.lastIndex=0;const ok=big.test(n.nodeValue);big.lastIndex=0;return ok?NodeFilter.FILTER_ACCEPT:NodeFilter.FILTER_SKIP}});
+  const nodes=[];while(tw.nextNode())nodes.push(tw.currentNode);
+  nodes.forEach(n=>{const s=n.nodeValue;let last=0,m;const frag=document.createDocumentFragment();big.lastIndex=0;
+    while((m=big.exec(s))){const tok=m[1];const hit=GLX.find(x=>x[0].test(tok));if(!hit)continue;const g=hit[1];
+      frag.append(s.slice(last,m.index));const sp=document.createElement('span');sp.className='term';sp.tabIndex=0;sp.dataset.g=g.i;sp.textContent=tok;frag.append(sp);last=m.index+tok.length;found.set(g.i,g)}
+    frag.append(s.slice(last));n.replaceWith(frag)});
+  return [...found.values()].sort((a,b)=>a.i-b.i)}
+function showTip(el){hideTip();const g=GLR[+el.dataset.g];gTip=document.createElement('div');gTip.className='gtip';gTip.setAttribute('role','tooltip');
+  gTip.innerHTML='<b class="gt">'+g.t+'</b><span class="gs">'+g.s+'</span><p>'+g.d+'</p>';document.body.append(gTip);
+  const r=el.getBoundingClientRect(),w=Math.min(320,innerWidth-24);gTip.style.width=w+'px';let left=r.left+r.width/2-w/2;left=Math.max(12,Math.min(innerWidth-w-12,left));
+  let top=r.bottom+8;if(top+gTip.offsetHeight>innerHeight-8)top=r.top-gTip.offsetHeight-8;gTip.style.left=left+'px';gTip.style.top=top+'px'}
+function hideTip(){if(gTip){gTip.remove();gTip=null}}
+document.addEventListener('click',e=>{const t=e.target.closest('.term');if(t){e.stopPropagation();if(gTip&&gTip.dataset.for===t.dataset.g){hideTip();return}showTip(t);gTip.dataset.for=t.dataset.g;return}if(!e.target.closest('.gtip'))hideTip()});
+document.addEventListener('keydown',e=>{if(e.key==='Escape')hideTip();const t=e.target.closest&&e.target.closest('.term');if(t&&(e.key==='Enter'||e.key===' ')){e.preventDefault();showTip(t)}});
+window.addEventListener('scroll',hideTip,{passive:true});
+if(matchMedia('(hover:hover)').matches){document.addEventListener('mouseover',e=>{const t=e.target.closest('.term');if(t)showTip(t)});document.addEventListener('mouseout',e=>{const t=e.target.closest('.term');if(t&&!(e.relatedTarget&&e.relatedTarget.closest&&e.relatedTarget.closest('.gtip')))hideTip()})}
+function renderGlossary(){const q=(document.getElementById('glQ').value||'').trim().toLowerCase();
+  const list=GLR.filter(g=>!q||(g.t+' '+g.s+' '+g.d).toLowerCase().includes(q));
+  document.getElementById('glCount').textContent=list.length+' מונחים';
+  document.getElementById('glList').innerHTML=list.map(g=>'<div class="glc"><div class="glh"><b>'+g.t+'</b><span>'+g.s+'</span></div><p>'+g.d+'</p></div>').join('')||'<p class="empty">לא נמצא מונח. נסה מילה אחרת.</p>'}
 
 /* ================= STEP-BY-STEP SCHEMATIC ================= */
 const RFAX=[[10,'1.9GHz'],[45,'2.30GHz'],[75,'2.44GHz'],[95,'2.6GHz']],IFAX=[[15,'40MHz'],[50,'70MHz'],[85,'100MHz']];
@@ -2076,11 +2345,12 @@ function show(v){
   if(location.hash!=='#'+v) history.replaceState(null,'','#'+v);
   if(v==='sim') drawSim();
   if(v==='home') renderHome();
+  if(v==='gloss') renderGlossary();
   window.scrollTo({top:0});
 }
 document.querySelector('.brand').addEventListener('click',()=>show('home'));
 tabs.forEach(t=>t.addEventListener('click',()=>show(t.dataset.v)));
-window.addEventListener('hashchange',()=>{const h=location.hash.slice(1);show(['home','learn','calc','sim','prob','iv','exam','scen','flash'].includes(h)?h:'home')});
+window.addEventListener('hashchange',()=>{const h=location.hash.slice(1);show(['home','learn','calc','sim','prob','iv','exam','scen','flash','gloss'].includes(h)?h:'home')});
 
 /* ================= MATH ================= */
 const L10=Math.log10, lin=d=>Math.pow(10,d/10), dB=x=>10*L10(x);
@@ -2548,7 +2818,7 @@ document.getElementById('scBox').addEventListener('click',e=>{const t=e.target.c
   if(t.dataset.restart){stI=0;scScore=0;renderSc()}});
 
 /* ================= HOME ================= */
-const TOOLS=[['calc','calc','מחשבונים','20 מחשבונים ומפות רמות לשרשראות קליטה ושידור'],['sim','iq','סימולטור קונסטלציה','ליקויים, EVM ועקומות BER'],['prob','pencil','תרגילים פתורים','שאלות חישוב מסגנון ראיון'],['iv','chat','שאלות ראיון','בנק שאלות עם תשובות לפי נושא ורמה'],['exam','check-sq','מבחן','ציון, הסברים ומעקב אחר נושאים חלשים'],['scen','case','סימולציית ראיון','תרחישי תקלה ותכנון, צעד אחרי צעד'],['flash','layers','כרטיסיות','שינון נוסחאות ומספרי מפתח']];
+const TOOLS=[['calc','calc','מחשבונים','20 מחשבונים ומפות רמות לשרשראות קליטה ושידור'],['sim','iq','סימולטור קונסטלציה','ליקויים, EVM ועקומות BER'],['prob','pencil','תרגילים פתורים','שאלות חישוב מסגנון ראיון'],['iv','chat','שאלות ראיון','בנק שאלות עם תשובות לפי נושא ורמה'],['exam','check-sq','מבחן','ציון, הסברים ומעקב אחר נושאים חלשים'],['scen','case','סימולציית ראיון','תרחישי תקלה ותכנון, צעד אחרי צעד'],['flash','layers','כרטיסיות','שינון נוסחאות ומספרי מפתח'],['gloss','search','מילון מונחים','כל קיצור וסימן, עם הסבר וחיפוש']];
 function renderHome(){
   const el=document.getElementById('v-home');const tot=CH.length,dn=CH.filter(c=>done.has(c.id)).length,pct=Math.round(100*dn/tot);
   const nextCh=CH.find(c=>c.id===cur&&!done.has(c.id))||CH.find(c=>!done.has(c.id))||CH[0];
@@ -2574,10 +2844,11 @@ document.getElementById('v-home').addEventListener('click',e=>{const b=e.target.
   if(b.dataset.v)show(b.dataset.v)});
 
 /* ================= INIT ================= */
+document.getElementById('glQ').addEventListener('input',renderGlossary);
 renderEx();renderScList();renderSc();
 if(!CH.find(c=>c.id===cur))cur='db';
 renderCh(cur);buildCalcs();renderIv();fi=pick();renderFc();drawSim();
-{const h=location.hash.slice(1);show(['home','learn','calc','sim','prob','iv','exam','scen','flash'].includes(h)?h:'home')}
+{const h=location.hash.slice(1);show(['home','learn','calc','sim','prob','iv','exam','scen','flash','gloss'].includes(h)?h:'home')}
 try{matchMedia('(prefers-color-scheme: dark)').addEventListener('change',()=>drawSim())}catch(e){}
 new MutationObserver(()=>drawSim()).observe(document.documentElement,{attributes:true,attributeFilter:['data-theme']});
 </script>
