@@ -276,6 +276,10 @@ details.q .a p{margin:.4em 0;max-width:78ch}
 .prob .sol{display:none;border-top:1px dashed var(--line-2);margin-top:12px;padding-top:12px;color:var(--ink-2)}
 .prob.open .sol{display:block}
 
+/* figures */
+.fig{margin:18px 0 8px;background:var(--surface-2);border:1px solid var(--line);border-radius:12px;padding:14px 14px 10px}
+.fsvg{width:100%;height:auto;display:block;direction:ltr;max-height:300px}
+.fig figcaption{font-size:.86rem;color:var(--muted);margin-top:8px;padding-top:8px;border-top:1px solid var(--line);line-height:1.6}
 /* schematic */
 .schem{margin:12px 0}
 .schnote{font-size:.88rem;color:var(--muted);margin:0 0 10px}
@@ -1703,6 +1707,228 @@ C/N0 = 52 − 205.6 − 0.5 + 15 + 228.6 = 89.5 dBHz
 /* ================= STATE ================= */
 const store={get(k,d){try{const v=localStorage.getItem('rfa_'+k);return v?JSON.parse(v):d}catch(e){return d}},set(k,v){try{localStorage.setItem('rfa_'+k,JSON.stringify(v))}catch(e){}}};
 CH.forEach((c,i)=>c.n=String(i+1).padStart(2,'0'));
+/* ================= FIGURES ================= */
+const FG=(()=>{
+const SV=(w,h,inner)=>`<svg viewBox="0 0 ${w} ${h}" class="fsvg" role="img"><defs><marker id="fa" viewBox="0 0 10 10" refX="9" refY="5" markerWidth="6" markerHeight="6" orient="auto-start-reverse"><path d="M0,0 L10,5 L0,10 z" fill="context-stroke"/></marker></defs>${inner}</svg>`;
+const T=(x,y,s,o={})=>{const mono=o.m,a=o.a||'m';const anc=mono?(a==='l'?'start':a==='r'?'end':'middle'):(a==='l'?'end':a==='r'?'start':'middle');
+  return `<text x="${x}" y="${y}" text-anchor="${anc}" ${mono?'':'direction="rtl"'} font-size="${o.s||12}" font-weight="${o.w||400}" fill="var(${o.c||'--ink-2'})" font-family="${mono?'JetBrains Mono,monospace':'Heebo,sans-serif'}">${s}</text>`};
+const L=(x1,y1,x2,y2,c='--muted',w=1.5,o={})=>`<line x1="${x1}" y1="${y1}" x2="${x2}" y2="${y2}" stroke="var(${c})" stroke-width="${w}"${o.d?` stroke-dasharray="${o.d}"`:''}${o.ar?' marker-end="url(#fa)"':''}${o.ar2?' marker-start="url(#fa)"':''}/>`;
+const P=(d,c='--s1',w=2,o={})=>`<path d="${d}" fill="${o.f?`var(${o.f})`:'none'}"${o.fo?` fill-opacity="${o.fo}"`:''} stroke="var(${c})" stroke-width="${w}"${o.d?` stroke-dasharray="${o.d}"`:''} stroke-linejoin="round" stroke-linecap="round"${o.ar?' marker-end="url(#fa)"':''}/>`;
+const R=(x,y,w,h,o={})=>`<rect x="${x}" y="${y}" width="${w}" height="${h}" rx="${o.r??4}" fill="var(${o.f||'--surface'})"${o.fo?` fill-opacity="${o.fo}"`:''} stroke="var(${o.c||'--line-2'})" stroke-width="${o.w||1.5}"${o.d?` stroke-dasharray="${o.d}"`:''}/>`;
+const C=(x,y,r,o={})=>`<circle cx="${x}" cy="${y}" r="${r}" fill="var(${o.f||'--s1'})" stroke="var(${o.c||'--surface'})" stroke-width="${o.w??1.5}"/>`;
+const path=(pts)=>pts.map((p,i)=>(i?'L':'M')+p[0].toFixed(1)+','+p[1].toFixed(1)).join(' ');
+const F={};
+
+F.dbLadder=()=>{const X=v=>40+(v+180)/220*570;let s=L(40,120,610,120,'--ink-2',2);
+  [[-180],[-150],[-120],[-90],[-60],[-30],[0],[30]].forEach(([v])=>{s+=L(X(v),115,X(v),125,'--muted')+T(X(v),142,v,{m:1,s:11,c:'--muted'})});
+  const pts=[[30,'1 W','משדר טקטי ידני',2],[0,'1 mW','',1],[-30,'1 µW','',1],[-60,'1 nW','',1],[-92,'0.6 pW','רגישות WiFi',2],[-130,'','אות GPS',2],[-174,'kT/Hz','רצפה תרמית',2]];
+  pts.forEach(([v,u,a,row])=>{s+=C(X(v),120,5,{f:'--accent'});if(u)s+=T(X(v),104,u,{m:1,s:11,c:'--ink'});if(a)s+=L(X(v),115,X(v),row===2?72:88,'--line-2',1)+T(X(v),row===2?66:82,a,{s:11.5,w:500})});
+  s+=T(325,172,'dBm',{m:1,s:11,c:'--muted'})+P(`M${X(-174)} 186 H${X(30)}`,'--trace',1.5,{d:'4 4'})+T(X(-72),200,'204 dB  ≈  ×10^20',{m:1,s:11.5,c:'--trace',w:600});
+  return SV(650,210,s)};
+
+F.reflect=()=>{let s=R(20,40,70,50,{f:'--surface-2'})+T(55,70,'מקור',{s:12,w:600})+L(90,55,520,55,'--ink-2',2)+L(90,75,520,75,'--ink-2',2)+R(520,40,70,50,{f:'--surface-2'})+T(555,70,'ZL',{m:1,s:13,w:600})+T(305,108,'קו תמסורת Z0',{s:11.5,c:'--muted'});
+  s+=L(140,30,300,30,'--s1',2.5,{ar:1})+T(220,22,'גל פוגע',{s:12,c:'--s1',w:600})+L(470,30,340,30,'--s2',2.5,{ar:1})+T(405,22,'גל מוחזר = Γ × פוגע',{s:12,c:'--s2',w:600});
+  const pts=[];for(let x=90;x<=520;x+=3){const z=(520-x)/430*3*Math.PI;pts.push([x,215-50*(1+0.45*Math.cos(2*z))/1.45])}
+  s+=L(90,215,520,215,'--line-2',1)+P(path(pts),'--accent',2.5)+L(90,215-50,520,215-50,'--muted',1,{d:'4 4'})+L(90,215-50*0.55/1.45,520,215-50*0.55/1.45,'--muted',1,{d:'4 4'})+T(560,170,'Vmax',{m:1,s:11})+T(560,200,'Vmin',{m:1,s:11})+T(305,240,'מעטפת המתח לאורך הקו: VSWR = Vmax / Vmin',{s:12,w:500});
+  return SV(620,250,s)};
+
+F.snrFall=()=>{const st=[['אנטנה',20],['כבל',18.5],['LNA',17.3],['פילטר',17.2],['מיקסר',16.95],['IF',16.7]];const Y=v=>220-(v-15)/6*170;let s='';
+  for(let v=15;v<=21;v++)s+=L(50,Y(v),610,Y(v),'--line',1)+T(42,Y(v)+4,v,{m:1,s:10,c:'--muted',a:'r'});
+  st.forEach(([n,v],i)=>{const x=70+i*92;s+=R(x,Y(v),60,220-Y(v),{f:i<3?'--accent':'--s1',fo:i<3?1:.45,c:'--surface',w:0,r:3})+T(x+30,Y(v)-6,v+' dB',{m:1,s:11,c:'--ink'})+T(x+30,238,n,{s:12,w:500});
+    if(i)s+=T(x-16,Y(v)+((st[i-1][1]-v)>0.5?18:-14),'−'+(st[i-1][1]-v).toFixed(2).replace(/0$/,''),{m:1,s:10,c:(st[i-1][1]-v)>0.5?'--bad':'--muted'})});
+  s+=T(20,130,'SNR',{m:1,s:11,c:'--muted'});return SV(630,250,s)};
+
+F.sensStack=()=>{const Y=v=>20+(v+90)/(-95)*-1*0+((-90-v)/90)*200;const bars=[['kT',-174,null,'--muted'],['+10logB',-174,-114,'--s1'],['+NF',-114,-109,'--s2'],['+SNR נדרש',-109,-99,'--s3'],['רגישות',-99,null,'--accent']];
+  const y=v=>20+(-90-v)/90*200;let s='';for(let v=-180;v<=-90;v+=15)s+=L(60,y(v),600,y(v),'--line',1)+T(52,y(v)+4,v,{m:1,s:10,c:'--muted',a:'r'});
+  bars.forEach(([n,a,b,c],i)=>{const x=90+i*102;if(b==null){s+=L(x,y(a),x+70,y(a),`${c}`,4)+T(x+35,y(a)-8,a+' dBm',{m:1,s:11,c:'--ink',w:600})}else{s+=R(x,y(b),70,y(a)-y(b),{f:c,fo:.8,c:c,w:0,r:3})+T(x+35,y(b)-8,(b-a>0?'+':'')+(b-a)+' dB',{m:1,s:11,c:'--ink'})}
+    s+=T(x+35,238,n,{s:12,w:500});if(i<4)s+=L(x+70,y(b??a),x+102,y(b??a),'--muted',1,{d:'3 3'})});
+  return SV(620,250,s)+''};
+
+F.consts=()=>{let s='';const panels=[['BPSK',[[-1,0],[1,0]],['0','1']],['QPSK',[[1,1],[-1,1],[-1,-1],[1,-1]].map(p=>[p[0]*.7,p[1]*.7]),['00','01','11','10']],['8PSK',Array.from({length:8},(_,i)=>[Math.cos(i*Math.PI/4+Math.PI/8),Math.sin(i*Math.PI/4+Math.PI/8)]),null],['16QAM',(()=>{const a=[];for(let i=0;i<4;i++)for(let j=0;j<4;j++)a.push([(2*i-3)/3.2,(2*j-3)/3.2]);return a})(),null]];
+  panels.forEach(([n,pts,lb],k)=>{const cx=80+k*160,cy=95,r=55;s+=L(cx-r-8,cy,cx+r+8,cy,'--line-2',1)+L(cx,cy-r-8,cx,cy+r+8,'--line-2',1);if(n==='8PSK')s+=`<circle cx="${cx}" cy="${cy}" r="${r}" fill="none" stroke="var(--line-2)" stroke-dasharray="3 3"/>`;
+    pts.forEach((p,i)=>{s+=C(cx+p[0]*r,cy-p[1]*r,5,{f:'--accent'});if(lb)s+=T(cx+p[0]*r,cy-p[1]*r-9,lb[i],{m:1,s:10,c:'--ink'})});
+    s+=T(cx,182,n,{m:1,s:13,w:600,c:'--ink'})+T(cx,200,['1 ביט/סימבול','2 ביט/סימבול','3 ביט/סימבול','4 ביט/סימבול'][k],{s:11,c:'--muted'})});
+  return SV(640,210,s)};
+
+F.rrc=()=>{const X=f=>320+f*200,Y=h=>190-h*140;const rc=(f,a)=>{f=Math.abs(f);if(f<=(1-a)/2)return 1;if(f>(1+a)/2)return 0;return 0.5*(1+Math.cos(Math.PI/a*(f-(1-a)/2)))};
+  let s=L(40,190,600,190,'--ink-2',1.5)+L(320,40,320,195,'--line-2',1);
+  s+=P(`M${X(-0.5)} 190 V${Y(1)} H${X(0.5)} V190`,'--muted',1.5,{d:'5 4'});
+  const pa=[],pb=[];for(let f=-0.8;f<=0.8;f+=0.005){pa.push([X(f),Y(rc(f,0.35))]);pb.push([X(f),Y(rc(f,0.1))])}
+  s+=P(path(pa),'--s1',2.5)+P(path(pb),'--s2',2,{d:'2 3'});
+  [[-0.675,'−Rs(1+α)/2',1],[-0.5,'−Rs/2',0],[0,'0',0],[0.5,'Rs/2',0],[0.675,'Rs(1+α)/2',1]].forEach(([f,t,r])=>{s+=L(X(f),190,X(f),196+r*14,'--muted')+T(X(f),208+r*14,t,{m:1,s:10,c:'--muted'})});
+  s+=L(X(-0.675),238,X(0.675),238,'--accent',1.5,{ar:1,ar2:1})+T(320,256,'רוחב סרט תפוס = Rs·(1+α)',{s:12,w:600,c:'--accent'});
+  s+=`<g>${L(430,52,452,52,'--s1',2.5)}${T(458,56,'α = 0.35',{m:1,s:11,a:'l'})}${L(430,72,452,72,'--s2',2,{d:'2 3'})}${T(458,76,'α = 0.1',{m:1,s:11,a:'l'})}${L(430,92,452,92,'--muted',1.5,{d:'5 4'})}${T(458,96,'נייקוויסט אידאלי',{s:11,a:'l'})}</g>`;
+  return SV(640,265,s)};
+
+F.evm=()=>{const ox=200,oy=210,k=120;let s=L(40,oy,380,oy,'--line-2',1.5,{ar:1})+L(ox,250,ox,20,'--line-2',1.5,{ar:1})+T(388,oy+4,'I',{m:1,s:13,a:'l'})+T(ox,14,'Q',{m:1,s:13});
+  const ix=ox+k,iy=oy-k,mx=ix+28,my=iy+22;s+=`<circle cx="${ix}" cy="${iy}" r="34" fill="var(--s1)" fill-opacity=".08" stroke="var(--s1)" stroke-dasharray="3 3"/>`;
+  s+=L(ox,oy,ix,iy,'--accent',2,{ar:1})+L(ox,oy,mx,my,'--s2',2,{ar:1,d:'5 3'})+L(ix,iy,mx,my,'--bad',2.5,{ar:1});
+  s+=P(`M${ix-6} ${iy} H${ix+6} M${ix} ${iy-6} V${iy+6}`,'--accent',2.5)+C(mx,my,5,{f:'--s2'});
+  s+=T(ix-22,iy-14,'נקודה אידאלית',{s:12,c:'--accent',w:600,a:'r'})+T(mx+10,my+26,'נקודה שנמדדה',{s:12,c:'--s2',w:600,a:'l'})+T(ix+42,iy+6,'וקטור שגיאה',{s:12,c:'--bad',w:600,a:'l'});
+  s+=R(450,60,180,110,{f:'--surface-2',c:'--line'})+T(540,88,'EVM = |שגיאה| / |אידאלי|',{s:12,w:600})+T(540,114,'RMS על כל הסימבולים',{s:11.5,c:'--muted'})+T(540,140,'EVM 3% ≈ SNR 30dB',{m:1,s:11.5,c:'--ink'});
+  return SV(640,260,s)};
+
+F.interleave=()=>{let s='';const box=(x,y,c,t)=>R(x,y,20,22,{f:c,c:'--line-2',w:1,r:3})+(t?T(x+10,y+15,t,{m:1,s:9,c:'--ink'}):'');
+  s+=T(620,26,'מילת קוד: k ביטי מידע ועוד n−k ביטי יתירות.  r = k/n',{s:12,w:600,a:'r'});
+  for(let i=0;i<24;i++)s+=box(40+i*23,36,i<16?'--accent-soft':'--trace-soft',i<16?'d':'p');
+  s+=T(40+8*23,76,'מידע (k)',{s:11,c:'--accent'})+T(40+20*23,76,'יתירות (n−k)',{s:11,c:'--trace'});
+  s+=T(620,110,'פרץ שגיאות בערוץ (אחרי interleaving בשידור):',{s:12,w:600,a:'r'});
+  for(let i=0;i<24;i++)s+=box(40+i*23,120,(i>=9&&i<=12)?'--bad-soft':'--surface-2',(i>=9&&i<=12)?'✕':'');
+  s+=T(620,176,'אחרי deinterleaving במקלט: השגיאות מפוזרות, והקוד מתקן כל אחת:',{s:12,w:600,a:'r'});
+  const bad=[3,9,15,21];for(let i=0;i<24;i++)s+=box(40+i*23,186,bad.includes(i)?'--bad-soft':'--surface-2',bad.includes(i)?'✕':'');
+  return SV(640,220,s)};
+
+F.linkFall=()=>{const y=v=>20+(45-v)/155*200;const st=[['Pt',0,30],['+Gt',30,36],['−FSPL',36,-84],['+Gr',-84,-78]];let s='';
+  for(let v=40;v>=-110;v-=20)s+=L(60,y(v),610,y(v),'--line',1)+T(52,y(v)+4,v,{m:1,s:10,c:'--muted',a:'r'});
+  st.forEach(([n,a,b],i)=>{const x=90+i*110,top=Math.max(a,b),bot=i?Math.min(a,b):-110;s+=R(x,y(top),70,y(bot)-y(top),{f:i===2?'--bad':i===0?'--accent':'--s3',fo:i===2?.35:.8,c:'--surface',w:0,r:3})+T(x+35,y(top)-7,(i?((b-a>0?'+':'')+(b-a)+' dB'):'30 dBm'),{m:1,s:11,c:'--ink'})+T(x+35,238,n,{m:1,s:12,w:600});
+    if(i<3)s+=L(x+70,y(b),x+110,y(b),'--muted',1,{d:'3 3'})});
+  s+=L(80,y(-100),540,y(-100),'--bad',2,{d:'6 4'})+T(545,y(-100)+4,'−100 dBm',{m:1,s:11,c:'--bad',a:'l'})+T(545,y(-100)+20,'רגישות',{s:11.5,c:'--bad',a:'l'});
+  s+=L(500,y(-78),500,y(-100),'--good',2,{ar:1,ar2:1})+T(508,y(-89)+4,'מרווח 22dB',{s:12,c:'--good',w:600,a:'l'})+L(420,y(-78),520,y(-78),'--s3',2)+T(545,y(-78)+4,'Pr = −78 dBm',{m:1,s:11,a:'l'})+T(200,y(36)-22,'EIRP = 36 dBm',{m:1,s:11,c:'--accent'});
+  return SV(640,250,s)};
+
+F.fresnel=()=>{let s=L(20,220,620,220,'--line-2',1.5);s+=R(56,70,8,150,{f:'--muted',c:'--muted',w:0,r:1})+R(576,90,8,130,{f:'--muted',c:'--muted',w:0,r:1});
+  s+=P('M60 70 L580 90','--accent',2,{d:'6 4'})+`<ellipse cx="320" cy="80" rx="262" ry="42" transform="rotate(2.2 320 80)" fill="var(--accent)" fill-opacity=".08" stroke="var(--accent)" stroke-width="1.5"/>`;
+  s+=P('M250 220 L250 170 M228 175 Q250 120 272 175 Z','--good',2,{f:'--good',fo:.25})+L(250,122,250,80,'--bad',1.5,{ar:1,ar2:1})+T(258,108,'מרווח: לפחות 60% מהרדיוס',{s:11.5,c:'--bad',w:600,a:'l'});
+  s+=L(320,80,320,38,'--accent',1.5,{ar:1})+T(328,52,'r1',{m:1,s:12,c:'--accent',a:'l'})+T(60,58,'TX',{m:1,s:12,w:600})+T(580,78,'RX',{m:1,s:12,w:600})+T(430,140,'אזור פרנל הראשון',{s:12,c:'--accent',w:600})+T(430,72,'קו ראייה',{s:11,c:'--muted'});
+  return SV(640,235,s)};
+
+F.multipath=()=>{let s=L(20,215,620,215,'--line-2',2)+R(250,20,140,40,{f:'--surface-3',c:'--line-2'})+T(320,45,'בניין',{s:12});
+  s+=R(56,120,6,95,{f:'--muted',c:'--muted',w:0,r:1})+R(578,140,6,75,{f:'--muted',c:'--muted',w:0,r:1})+T(59,112,'TX',{m:1,s:12,w:600})+T(581,132,'RX',{m:1,s:12,w:600});
+  s+=P('M62 122 L578 142','--s1',2.5,{ar:1})+P('M62 120 L320 60 L578 140','--s2',2,{ar:1,d:'6 4'})+P('M62 124 L330 215 L578 144','--s3',2,{ar:1,d:'2 4'});
+  s+=T(320,125,'ישיר',{s:12,c:'--s1',w:600})+T(190,78,'החזרה מבניין',{s:12,c:'--s2',w:600})+T(450,200,'החזרה מהקרקע',{s:12,c:'--s3',w:600});
+  return SV(640,230,s)};
+
+F.rayleigh=()=>{const pts=[];const N=10;const ph=Array.from({length:N},(_,i)=>[(Math.sin(i*91.7)+1)*Math.PI,Math.cos(i*37.3)]);for(let x=0;x<=560;x+=2){let re=0,im=0;ph.forEach(([p,c])=>{const a=p+x*0.11*c;re+=Math.cos(a);im+=Math.sin(a)});const pw=(re*re+im*im)/N;pts.push([40+x,0,10*Math.log10(pw+1e-4)])}
+  const Y=d=>30+(8-d)/40*170;let s='';for(let d=0;d>=-30;d-=10)s+=L(40,Y(d),600,Y(d),'--line',1)+T(34,Y(d)+4,d,{m:1,s:10,c:'--muted',a:'r'});
+  s+=P(path(pts.map(p=>[p[0],Y(Math.max(-32,p[2]))])),'--s1',2);const mn=pts.reduce((a,b)=>b[2]<a[2]?b:a);
+  s+=C(mn[0],Y(Math.max(-32,mn[2])),5,{f:'--bad'})+T(mn[0]+8,Y(Math.max(-32,mn[2]))+4,'דעיכה עמוקה',{s:12,c:'--bad',w:600,a:'l'})+T(320,228,'מרחק (המקלט זז). בין דעיכות: בערך חצי אורך גל',{s:12,c:'--muted'})+T(14,24,'dB',{m:1,s:10,c:'--muted'});
+  return SV(640,238,s)};
+
+F.ofdmSub=()=>{const X=f=>80+f*100,Y=v=>170-v*120;let s=L(40,170,620,170,'--ink-2',1.5);const cols=['--s1','--s2','--s3','--s4','--s5'];
+  for(let k=0;k<5;k++){const pts=[];for(let f=-1;f<=5;f+=0.02){const u=f-k;const v=Math.abs(u)<1e-6?1:Math.sin(Math.PI*u)/(Math.PI*u);pts.push([X(f),Y(v)])}s+=P(path(pts),cols[k],2);s+=L(X(k),170,X(k),Y(1),'--muted',1,{d:'3 3'})}
+  s+=L(X(1),195,X(2),195,'--accent',1.5,{ar:1,ar2:1})+T(X(1.5),214,'Δf = 1/Tu',{m:1,s:12,c:'--accent',w:600})+T(500,40,'בשיא של כל תת־נושא, כל השכנים באפס',{s:12,w:600});
+  return SV(640,225,s)};
+
+F.cp=()=>{let s='';const row=(y,dx,lab,c)=>R(60+dx,y,70,40,{f:'--trace-soft',c:'--trace'})+T(95+dx,y+25,'CP',{m:1,s:12,c:'--trace',w:600})+R(130+dx,y,400,40,{f:c,fo:.18,c:c})+T(330+dx,y+25,lab,{s:12,w:500});
+  s+=row(30,0,'סימבול OFDM: משך Tu','--s1')+R(460,30,70,40,{f:'--trace',fo:.25,c:'--trace',d:'4 3'})+P('M495 28 C470 0 120 0 95 28','--trace',1.5,{ar:1,d:'4 3'})+T(300,90,'מעתיקים את סוף הסימבול להתחלה',{s:11.5,c:'--trace',w:600});
+  s+=row(110,0,'מסלול ישיר','--s1')+row(160,40,'הד מאוחר (delay spread)','--s2');
+  s+=L(130,100,130,215,'--bad',1.5,{d:'4 3'})+T(136,232,'כאן מתחיל ה־FFT: ההד כבר בתוך ה־CP, ואין ISI',{s:12,c:'--bad',w:600,a:'l'});
+  return SV(640,245,s)};
+
+F.pattern=()=>{let s='';const polar=(cx,cy,R0,fn,c,lab)=>{let g='';[0,-10,-20].forEach(d=>g+=`<circle cx="${cx}" cy="${cy}" r="${R0*(d+30)/30}" fill="none" stroke="var(--line)" ${d?'stroke-dasharray="3 3"':''}/>`);g+=L(cx-R0,cy,cx+R0,cy,'--line',1)+L(cx,cy-R0,cx,cy+R0,'--line',1);
+    const pts=[];for(let a=0;a<=360;a+=1.5){const t=a*Math.PI/180,db=Math.max(-30,fn(t));const r=R0*(db+30)/30;pts.push([cx+r*Math.cos(t),cy-r*Math.sin(t)])}g+=P(path(pts)+'Z',c,2,{f:c,fo:.12});g+=T(cx,cy+R0+22,lab,{s:12.5,w:600});return g};
+  s+=polar(160,120,90,()=>0,'--s3','אומני (במישור האופקי)');
+  const N=4,dir=t=>{const psi=Math.PI*Math.sin(t);const af=Math.abs(psi)<1e-6?1:Math.sin(N*psi/2)/(N*Math.sin(psi/2));const el=(1+Math.cos(t))/2;return 20*Math.log10(Math.abs(af*el)+1e-6)};
+  s+=polar(470,120,90,dir,'--s1','כיוונית');const bw=13*Math.PI/180;s+=L(470,120,470+95*Math.cos(bw),120-95*Math.sin(bw),'--bad',1.2,{d:'3 3'})+L(470,120,470+95*Math.cos(bw),120+95*Math.sin(bw),'--bad',1.2,{d:'3 3'})+T(575,88,'−3dB',{m:1,s:11,c:'--bad',a:'l'})+T(560,170,'אונה ראשית',{s:11,c:'--s1',a:'l'})+T(400,40,'אונות צד',{s:11,c:'--muted'});
+  return SV(640,245,s)};
+
+F.ip3=()=>{const X=p=>60+(p+40)/60*520,Y=o=>20+(40-o)/140*200;let s='';for(let o=40;o>=-100;o-=20)s+=L(60,Y(o),580,Y(o),'--line',1)+T(54,Y(o)+4,o,{m:1,s:10,c:'--muted',a:'r'});for(let p=-40;p<=20;p+=10)s+=T(X(p),236,p,{m:1,s:10,c:'--muted'});
+  const fu=[],im=[];for(let p=-40;p<=20;p+=0.5){fu.push([X(p),Y(p+10-10*Math.log10(1+Math.pow(10,(p-3)/10)))]);const v=3*p-10-3*10*Math.log10(1+Math.pow(10,(p-3)/10));if(v>-100)im.push([X(p),Y(v)])}
+  s+=L(X(-40),Y(-30),X(12),Y(22),'--s1',1.2,{d:'5 4'})+L(X(-30),Y(-100),X(12),Y(26),'--s2',1.2,{d:'5 4'});
+  s+=P(path(fu),'--s1',2.5)+P(path(im),'--s2',2.5)+C(X(10),Y(20),6,{f:'--bad'})+T(X(10)-8,Y(20)-10,'IP3',{m:1,s:12,c:'--bad',w:700,a:'r'});
+  const p1=0.1;s+=C(X(p1),Y(p1+10-1),5,{f:'--trace'})+T(X(p1)+8,Y(p1+9)+18,'P1dB',{m:1,s:12,c:'--trace',w:700,a:'l'});
+  s+=T(X(-30)+6,Y(-20)-8,'היסוד עולה 1:1',{s:12,c:'--s1',w:600,a:'l'})+T(X(-14)+8,Y(-52)+4,'IM3 עולה 3:1',{s:12,c:'--s2',w:600,a:'l'})+T(320,252,'הספק כניסה [dBm]',{s:11,c:'--muted'})+T(16,120,'Pout',{m:1,s:10,c:'--muted'});
+  return SV(620,262,s)};
+
+F.superhet=()=>{const X=f=>40+(f-2200)/300*560;let s=L(30,150,620,150,'--ink-2',1.5);
+  s+=P(`M${X(2290)} 150 L${X(2300)} 100 L${X(2310)} 150`,'--s5',2,{f:'--s5',fo:.2,d:'4 3'})+T(X(2300),90,'תדר דמות 2300',{s:12,c:'--s5',w:600});
+  s+=L(X(2370),150,X(2370),60,'--s4',3)+T(X(2370),50,'LO 2370',{m:1,s:12,c:'--ink',w:600});
+  s+=P(`M${X(2430)} 150 L${X(2440)} 95 L${X(2450)} 150`,'--s1',2,{f:'--s1',fo:.25})+T(X(2440),85,'RF רצוי 2440',{s:12,c:'--s1',w:600});
+  s+=L(X(2370),175,X(2440),175,'--muted',1.2,{ar:1,ar2:1})+T(X(2405),192,'IF = 70',{m:1,s:11})+L(X(2300),175,X(2370),175,'--muted',1.2,{ar:1,ar2:1})+T(X(2335),192,'IF = 70',{m:1,s:11});
+  s+=T(320,224,'שני התדרים נמצאים במרחק IF מה־LO, ולכן שניהם יוצאים ב־70MHz. את הדמות חייבים לסנן לפני המיקסר.',{s:12,w:500});
+  return SV(640,235,s)};
+
+F.agc=()=>{const X=p=>60+(p+110)/100*520,Y=g=>30+(60-g)/60*180;let s='';for(let g=0;g<=60;g+=20)s+=L(60,Y(g),580,Y(g),'--line',1)+T(54,Y(g)+4,g,{m:1,s:10,c:'--muted',a:'r'});for(let p=-110;p<=-10;p+=20)s+=T(X(p),228,p,{m:1,s:10,c:'--muted'});
+  const back=[],front=[];for(let p=-110;p<=-10;p+=1){back.push([X(p),Y(p<-80?40:Math.max(0,40-(p+80)))]);front.push([X(p),Y(p<-45?18:Math.max(0,18-(p+45)*0.8))])}
+  s+=P(path(back),'--s1',2.5)+P(path(front),'--s2',2.5)+L(X(-45),30,X(-45),210,'--bad',1.5,{d:'5 4'})+T(X(-45)+6,46,'Take-Over Point',{m:1,s:11,c:'--bad',w:600,a:'l'});
+  s+=T(X(-100),Y(40)-8,'הגבר IF / VGA',{s:12,c:'--s1',w:600,a:'l'})+T(X(-100),Y(18)-8,'הגבר LNA (קדמי)',{s:12,c:'--s2',w:600,a:'l'})+T(320,248,'הספק בכניסה [dBm]',{s:11,c:'--muted'})+T(18,120,'G [dB]',{m:1,s:10,c:'--muted'});
+  return SV(620,258,s)};
+
+F.papr=()=>{const Y=v=>200-v*14;let s='';const pts=[];for(let x=0;x<=560;x+=2){let v=0;for(let k=1;k<9;k++)v+=Math.cos(x*0.045*k+k*k*1.7)/k;pts.push([40+x,Math.abs(v)])}
+  const mx=Math.max(...pts.map(p=>p[1]));const avg=Math.sqrt(pts.reduce((a,p)=>a+p[1]*p[1],0)/pts.length);
+  s+=P(path(pts.map(p=>[p[0],Y(p[1]/mx*11)])),'--s1',1.8)+L(40,Y(avg/mx*11),600,Y(avg/mx*11),'--s3',2,{d:'6 4'})+L(40,Y(11),600,Y(11),'--s2',2,{d:'6 4'})+L(40,Y(12.4),600,Y(12.4),'--bad',2);
+  s+=T(604,Y(avg/mx*11)+4,'הספק ממוצע',{s:12,c:'--s3',w:600,a:'l'})+T(604,Y(11)+4,'שיא (PAPR)',{s:12,c:'--s2',w:600,a:'l'})+T(604,Y(12.4)+4,'P1dB של ה־PA',{s:12,c:'--bad',w:600,a:'l'});
+  s+=L(20,Y(avg/mx*11),20,Y(11),'--ink-2',1.5,{ar:1,ar2:1})+T(26,(Y(avg/mx*11)+Y(11))/2+4,'PAPR',{m:1,s:11,a:'l',w:600});return SV(700,215,s)};
+
+F.recip=()=>{const X=x=>40+x*5.6,Y=v=>20+(-10-v)/110*180;let s=L(40,200,600,200,'--ink-2',1.5);
+  const sk=[];for(let x=0;x<=100;x+=0.5){const d=Math.abs(x-70);sk.push([X(x),Y(Math.max(-118,-25-(d<0.6?0:30+20*Math.log10(d))))])}
+  s+=P(path(sk)+` L${X(100)} 200 L${X(0)} 200 Z`,'--s2',1.5,{f:'--s2',fo:.15});
+  s+=`<rect x="${X(33)}" y="20" width="${X(47)-X(33)}" height="180" fill="var(--accent-soft)" fill-opacity=".7"/>`+T((X(33)+X(47))/2,34,'הערוץ שלי',{s:12,c:'--accent',w:600});
+  s+=P(`M${X(36)} 200 L${X(38)} ${Y(-95)} L${X(42)} ${Y(-95)} L${X(44)} 200`,'--s1',2,{f:'--s1',fo:.3})+T(X(40),Y(-95)-8,'אות רצוי',{s:12,c:'--s1',w:600});
+  s+=L(X(70),200,X(70),Y(-25),'--s2',3)+T(X(70),Y(-25)-8,'חוסם חזק',{s:12,c:'--s2',w:600})+T(X(60),Y(-75),'"חצאית" רעש הפאזה של ה־LO',{s:12,c:'--s2',a:'l'});
+  s+=L(40,Y(-108),600,Y(-108),'--muted',1,{d:'4 3'})+T(596,Y(-108)-5,'רצפת רעש תרמית',{s:11,c:'--muted',a:'r'});return SV(640,215,s)};
+
+F.alias=()=>{const X=f=>40+f*280;let s=L(30,170,620,170,'--ink-2',1.5);
+  s+=`<rect x="${X(0)}" y="40" width="${X(0.5)-X(0)}" height="130" fill="var(--accent-soft)"/>`+T((X(0)+X(0.5))/2,56,'אזור נייקוויסט 1',{s:12,c:'--accent',w:600});
+  [[0.5,'fs/2'],[1,'fs'],[1.5,'3fs/2'],[2,'2fs']].forEach(([f,t])=>{s+=L(X(f),40,X(f),175,'--line-2',1,{d:'4 4'})+T(X(f),190,t,{m:1,s:11,c:'--muted'})});
+  s+=L(X(0.8),170,X(0.8),95,'--s2',3)+T(X(0.8),87,'אות ב־0.8fs',{s:12,c:'--s2',w:600})+L(X(0.2),170,X(0.2),95,'--s2',3,{d:'4 3'})+T(X(0.2),87,'מופיע ב־0.2fs',{s:12,c:'--s2',w:600});
+  s+=P(`M${X(0.8)-4} 112 Q${X(0.5)} 80 ${X(0.2)+6} 112`,'--bad',1.5,{ar:1})+T(X(0.5),132,'מתקפל סביב fs/2',{s:11.5,c:'--bad'});return SV(640,200,s)};
+
+F.setup=()=>{let s='';const B=(x,y,w,t1,t2,o={})=>R(x,y,w,52,{f:o.f||'--surface-2',c:o.c||'--line-2'})+T(x+w/2,y+(t2?22:31),t1,{s:12.5,w:600})+(t2?T(x+w/2,y+40,t2,{s:10.5,c:'--muted'}):'');
+  s+=B(20,60,110,'מחולל אותות','PRBS / חבילות')+B(170,60,110,'מנחת מתכנת','0–110 dB')+R(320,30,170,112,{f:'--surface-3',c:'--line-2',d:'5 4'})+T(405,48,'קופסה מסוככת',{s:11,c:'--muted'})+B(345,64,120,'DUT','מקמש בבדיקה',{f:'--accent-soft',c:'--accent'})+B(530,60,96,'מחשב','BER / PER, SCPI');
+  s+=L(130,86,168,86,'--ink-2',2,{ar:1})+L(280,86,343,86,'--ink-2',2,{ar:1})+L(465,86,528,86,'--ink-2',1.5,{ar:1,d:'5 3'})+T(497,78,'Ethernet',{m:1,s:10,c:'--muted'});
+  s+=B(170,170,110,'מד הספק','כיול הפסדים',{c:'--trace'})+P('M225 112 V168','--trace',1.5,{d:'4 3',ar:1})+T(232,145,'בכיול',{s:11,c:'--trace',a:'l'})+P('M578 112 V200 H20 V114','--muted',1.2,{d:'3 3',ar:1})+T(400,216,'שליטה אוטומטית (pyvisa)',{s:11,c:'--muted'});
+  return SV(640,228,s)};
+
+F.bands=()=>{const X=f=>30+(Math.log10(f)-6)/5*580;let s='';const bands=[['HF',3e6,30e6],['VHF',30e6,300e6],['UHF',300e6,1e9],['L',1e9,2e9],['S',2e9,4e9],['C',4e9,8e9],['X',8e9,12e9],['Ku',12e9,18e9],['K',18e9,27e9],['Ka',27e9,40e9],['V/E',40e9,90e9]];
+  bands.forEach(([n,a,b],i)=>{s+=R(X(a),40,X(b)-X(a),34,{f:i%2?'--surface-3':'--accent-soft',c:'--surface',w:1,r:2})+T((X(a)+X(b))/2,62,n,{m:1,s:X(b)-X(a)<30?9:11,w:600,c:'--ink'})});
+  [[1e6,'1MHz'],[10e6,'10MHz'],[100e6,'100MHz'],[1e9,'1GHz'],[10e9,'10GHz'],[100e9,'100GHz']].forEach(([f,t])=>{s+=L(X(f),74,X(f),82,'--muted')+T(X(f),96,t,{m:1,s:10,c:'--muted'})});
+  const apps=[[100e6,'FM'],[400e6,'קשר טקטי'],[1.575e9,'GPS'],[2.4e9,'WiFi'],[5.5e9,'WiFi 5/6'],[28e9,'5G mmWave'],[80e9,'E-band']];
+  apps.forEach(([f,t],i)=>{const y=i%2?150:125;s+=L(X(f),76,X(f),y-12,'--line-2',1)+C(X(f),76,3,{f:'--trace',w:0})+T(X(f),y,t,{s:11.5,w:500})});return SV(640,165,s)};
+
+F.fhss=()=>{let s='';const cols=12,rows=8,cw=40,ch=20,x0=80,y0=20;const seq=[2,6,1,5,7,3,0,5,2,6,4,1];
+  for(let r=0;r<rows;r++)s+=T(x0-8,y0+r*ch+14,'f'+(rows-r),{m:1,s:10,c:'--muted',a:'r'});
+  s+=`<rect x="${x0}" y="${y0+1*ch}" width="${cols*cw}" height="${2*ch}" fill="var(--bad)" fill-opacity=".14"/>`;
+  for(let c=0;c<cols;c++)for(let r=0;r<rows;r++)s+=`<rect x="${x0+c*cw+1}" y="${y0+r*ch+1}" width="${cw-2}" height="${ch-2}" rx="3" fill="${(rows-1-seq[c])===r?'var(--accent)':'transparent'}" stroke="var(--line)" stroke-width="1"/>`;
+  seq.forEach((v,c)=>{const r=rows-1-v;if(r===1||r===2)s+=T(x0+c*cw+cw/2,y0+r*ch+15,'✕',{m:1,s:13,c:'--surface',w:700})});
+  s+=T(x0+cols*cw+10,y0+2*ch+4,'משבש על חלק מהפס',{s:12,c:'--bad',w:600,a:'l'})+T(x0+cols*cw/2,y0+rows*ch+20,'זמן (קפיצות)',{s:11.5,c:'--muted'})+T(x0+cols*cw+10,y0+5*ch,'קפיצה',{s:12,c:'--accent',w:600,a:'l'});
+  return SV(700,200,s)};
+
+F.cosite=()=>{const X=x=>40+x*5.6,Y=v=>20+(45-v)/175*180;let s=L(40,200,600,200,'--ink-2',1.5);
+  const sk=[];for(let x=0;x<=100;x+=0.5){const d=Math.abs(x-22);sk.push([X(x),Y(Math.max(-128,d<0.8?40:-60-18*Math.log10(d)))])}s+=P(path(sk)+` L${X(100)} 200 L${X(0)} 200Z`,'--s2',1.5,{f:'--s2',fo:.15});
+  s+=T(X(22),Y(40)-8,'משדר A: ‏+40dBm',{s:12,c:'--s2',w:600})+T(X(40),Y(-75)-10,'רעש רחב סרט של A',{s:12,c:'--s2',a:'l'});
+  s+=`<rect x="${X(72)}" y="20" width="${X(82)-X(72)}" height="180" fill="var(--accent-soft)" fill-opacity=".7"/>`+T(X(77),34,'ערוץ המקלט B',{s:12,c:'--accent',w:600});
+  s+=L(40,Y(-122),600,Y(-122),'--muted',1,{d:'4 3'})+T(596,Y(-122)+14,'רצפת הרעש של B',{s:11,c:'--muted',a:'r'});
+  const yn=sk[Math.round(77*2)][1];s+=L(X(88),yn,X(88),Y(-128),'--bad',2,{ar:1})+T(X(89),(yn+Y(-128))/2,'בידוד נדרש',{s:12,c:'--bad',w:600,a:'l'});return SV(640,215,s)};
+
+F.bsearch=()=>{const X=i=>70+i*66,Y=v=>20+(-70-v)/45*180;let s='';for(let v=-70;v>=-115;v-=10)s+=L(60,Y(v),600,Y(v),'--line',1)+T(54,Y(v)+4,v,{m:1,s:10,c:'--muted',a:'r'});
+  s+=L(60,Y(-101.3),600,Y(-101.3),'--trace',2,{d:'6 4'})+T(596,Y(-101.3)-6,'הסף האמיתי',{s:11.5,c:'--trace',w:600,a:'r'});
+  let lo=-115,hi=-70;const pts=[];for(let i=0;i<8;i++){const m=(lo+hi)/2,ok=m>=-101.3;pts.push([i,m,ok]);if(ok)hi=m;else lo=m}
+  s+=P(path(pts.map(p=>[X(p[0]),Y(p[1])])),'--muted',1.2,{d:'3 3'});pts.forEach(([i,m,ok])=>{s+=C(X(i),Y(m),6,{f:ok?'--good':'--bad'})+T(X(i),222,i+1,{m:1,s:10,c:'--muted'})});
+  s+=T(330,240,'מדידה מספר',{s:11,c:'--muted'})+`<g>${C(470,40,5,{f:'--good'})}${T(480,44,'עבר (PER תקין)',{s:11.5,a:'l'})}${C(470,60,5,{f:'--bad'})}${T(480,64,'נכשל',{s:11.5,a:'l'})}</g>`;
+  return SV(640,250,s)};
+return F})();
+const FIGS=[
+['db','<h3>ההגדרות</h3>','dbLadder','סולם ה־dBm: כל 10dB הם פי 10 בהספק. מהמשדר ועד רצפת הרעש התרמית יש יותר מ־200dB.'],
+['line','<h3>מקדם החזרה, VSWR ו־Return Loss</h3>','reflect','גל פוגע וגל מוחזר יוצרים גל עומד. היחס בין המקסימום למינימום של המתח לאורך הקו הוא ה־VSWR.'],
+['noise','<h3>נוסחת פריז לשרשרת (Friis noise)</h3>','snrFall','ה־SNR יורד בכל שלב. הירידות הגדולות קורות בשלבים הראשונים (לפני ההגבר ועד ה־LNA). אחרי LNA טוב, השלבים הבאים כמעט לא משפיעים.'],
+['sens','<h3>נוסחת הרגישות</h3>','sensStack','רגישות היא מפל של ארבעה איברים: kT, רוחב הסרט, ה־NF של המקלט, וה־SNR שהמודם צריך. כאן: רוחב 1MHz, ‏NF של 5dB ו־SNR נדרש של 10dB.'],
+['mod','<h3>הייצוג המרוכב: I ו־Q</h3>','consts','קונסטלציות בסיסיות. ב־QPSK רואים קידוד Gray: שכנים נבדלים בביט אחד בלבד. ככל שיש יותר נקודות, הן קרובות יותר זו לזו, ונדרש יותר SNR.'],
+['bw','<h3>נייקוויסט ופילטר Raised Cosine</h3>','rrc','ספקטרום Raised Cosine. α קטן קרוב יותר למלבן האידאלי של נייקוויסט וחוסך רוחב סרט, אבל קשה יותר למימוש.'],
+['quality','<h3>EVM: Error Vector Magnitude</h3>','evm','וקטור השגיאה הוא ההפרש בין הנקודה שנמדדה לנקודה האידאלית. EVM הוא ה־RMS שלו על כל הסימבולים, ביחס לגודל האידאלי.'],
+['ber','<h3>מושגי יסוד ב־FEC</h3>','interleave','למעלה: מבנה מילת קוד. למטה: interleaving הופך פרץ של שגיאות צמודות לשגיאות בודדות, שהקוד יודע לתקן.'],
+['prop','<h3>Link budget ומרחק מקסימלי</h3>','linkFall','Link budget כמפל: המשדר והאנטנות מעלים, הפסד המרחב מוריד הכי הרבה. המרווח הוא המרחק בין ההספק שנקלט לרגישות.'],
+['prop','<h3>אזור פרנל</h3>','fresnel','גם כשיש קו ראייה, מכשול שנכנס לאזור פרנל הראשון גורם להפסד. שומרים לפחות 60% מהרדיוס פנוי.'],
+['fading','<h3>שני סוגי דעיכה</h3>','multipath','האות מגיע במסלול ישיר ובכמה החזרות. כל מסלול מגיע בפאזה אחרת, והם מתחברים או מבטלים זה את זה.'],
+['fading','<h3>שני סוגי דעיכה</h3>','rayleigh','התוצאה כשהמקלט זז: עוצמה שקופצת, עם דעיכות עמוקות של 20–30dB בכל חצי אורך גל בערך.'],
+['ofdm','<h3>OFDM</h3>','ofdmSub','תתי־נושאים של OFDM חופפים בספקטרום, ובכל זאת לא מפריעים זה לזה: בשיא של כל אחד, כל השכנים באפס.'],
+['ofdm','<h3>OFDM</h3>','cp','Cyclic Prefix: העתק של סוף הסימבול בתחילתו. הד מאוחר נכנס לתוך ה־CP, והחלון של ה־FFT רואה סימבול נקי.'],
+['ant','<h3>הגבר, כיווניות ויעילות</h3>','pattern','דפוס קרינה (סקאלה ב־dB). אנטנה אומני מפזרת לכל הכיוונים. אנטנה כיוונית מרכזת את האנרגיה באונה ראשית, וזה ההגבר שלה.'],
+['lin','<h3>Third-order intercept (IP3)</h3>','ip3','היסוד עולה 1:1 ומוצרי IM3 עולים 3:1. נקודת המפגש של ההמשכים הישרים היא IP3. ‏P1dB נמצאת כ־10dB מתחתיה.'],
+['arch','<h3>סופרהטרודין</h3>','superhet','תוכנית תדרים: ה־RF הרצוי והדמות נמצאים בשני צדי ה־LO, במרחק IF. שניהם יוצאים באותו IF.'],
+['rxc','<h3>IF, סינון ערוץ ו־AGC</h3>','agc','AGC: כשהאות מתחזק, מורידים קודם את הגבר ה־IF. את הגבר ה־LNA מורידים רק אחרי ה־Take-Over Point, כדי לשמור על NF באותות חלשים.'],
+['txc','<h3>תכנון הספק: מתחילים מהאנטנה ואחורה</h3>','papr','מעטפת של אות OFDM: השיאים גבוהים מהממוצע ב־PAPR. ה־P1dB של ה־PA צריך להיות מעל השיא, ולכן ההספק הממוצע רחוק מהדחיסה.'],
+['pn','<h3>Reciprocal mixing</h3>','recip','רעש הפאזה של ה־LO "מתלבש" על החוסם החזק. החצאית שלו נכנסת לתוך הערוץ שלך ומעלה בו את רצפת הרעש.'],
+['adc','<h3>Aliasing ו־Undersampling</h3>','alias','כל תדר מעל fs/2 מתקפל לאזור הראשון. לכן פילטר anti-aliasing חייב להסיר אותו לפני הדגימה, או שמנצלים את הקיפול בכוונה (undersampling).'],
+['test','<h3>בדיקות מקלט</h3>','setup','מערך טיפוסי למדידת רגישות: מחולל, מנחת מתכנת וה־DUT בקופסה מסוככת. מד ההספק משמש לכיול ההפסדים, והכל נשלט אוטומטית.'],
+['sys','<h3>פסי תדר</h3>','bands','פסי התדר בסקאלה לוגריתמית, עם שימושים מוכרים.'],
+['ew','<h3>קפיצות תדר (FHSS)</h3>','fhss','קפיצות תדר במישור זמן־תדר. משבש שיושב על חלק מהפס פוגע רק בקפיצות שנופלות עליו (✕). ‏FEC עם interleaving בין קפיצות משלים אותן.'],
+['syseng','<h3>Co-site: כמה רדיו על אותה פלטפורמה</h3>','cosite','רעש רחב הסרט של משדר A נופל בתוך ערוץ המקלט B. הבידוד הנדרש הוא הפער בין הרעש הזה לבין נקודה שנמצאת 6dB מתחת לרצפת הרעש של B.'],
+['auto','<h3>דוגמה: מדידת רגישות בחיפוש בינארי</h3>','bsearch','חיפוש בינארי: כל מדידה חוצה את הטווח. אחרי 8 מדידות הרמה מתכנסת לסף ברזולוציה של פחות מ־0.25dB.']
+];
+FIGS.forEach(([id,anchor,fn,cap])=>{const c=CH.find(x=>x.id===id);if(!c)return;const i=c.body.indexOf(anchor);if(i<0){console.warn('fig anchor missing',id,fn);return}
+  const j=c.body.indexOf('</section>',i);if(j<0)return;c.body=c.body.slice(0,j)+'<figure class="fig">'+FG[fn]()+'<figcaption>'+cap+'</figcaption></figure>'+c.body.slice(j)});
+
 let done=new Set(store.get('done',[]));
 let cur=store.get('cur','db');
 
