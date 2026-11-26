@@ -276,6 +276,30 @@ details.q .a p{margin:.4em 0;max-width:78ch}
 .prob .sol{display:none;border-top:1px dashed var(--line-2);margin-top:12px;padding-top:12px;color:var(--ink-2)}
 .prob.open .sol{display:block}
 
+/* schematic */
+.schem{margin:12px 0}
+.schnote{font-size:.88rem;color:var(--muted);margin:0 0 10px}
+.schbox{overflow-x:auto;background:var(--surface-2);border:1px solid var(--line);border-radius:12px;padding:10px 6px;direction:ltr;scrollbar-width:thin}
+.sch-svg{width:100%;height:auto;display:block}
+.sb{cursor:pointer;color:var(--ink-2)}
+.sb .sbg{fill:transparent;stroke:transparent;transition:fill .15s}
+.sb:hover .sbg{fill:var(--surface-3)}
+.sb.on{color:var(--accent)}
+.sb.on .sbg{fill:var(--accent-soft);stroke:var(--accent);stroke-width:1.5}
+.sb .sl{fill:var(--ink-2)}.sb.on .sl{fill:var(--accent)}
+.sb .sv{fill:var(--muted)}.sb.on .sv{fill:var(--accent);font-weight:700}
+.sb:focus-visible{outline:none}.sb:focus-visible .sbg{stroke:var(--accent);stroke-width:2}
+.schctl{display:flex;align-items:center;gap:8px;margin:10px 0;flex-wrap:wrap}
+.schpos{font-family:var(--f-mono);font-size:.8rem;color:var(--muted);margin-inline-end:auto}
+.schpanel{display:grid;grid-template-columns:minmax(0,1fr) minmax(0,1.25fr);gap:14px;background:var(--surface);border:1px solid var(--accent-line);border-radius:12px;padding:16px;box-shadow:var(--shadow)}
+.schtxt h4{margin:6px 0 8px;font-size:1.1rem;color:var(--ink)}
+.schtxt dl{margin:0;display:grid;gap:4px}
+.schtxt dt{font-size:.78rem;font-weight:600;color:var(--accent);margin-top:6px}
+.schtxt dd{margin:0;font-size:.93rem;color:var(--ink-2)}
+.schspec{min-width:0}
+.sst{font-size:.78rem;font-weight:600;color:var(--muted);margin-bottom:2px}
+.spec-svg{width:100%;height:auto;display:block;direction:ltr;background:var(--surface-2);border-radius:8px}
+@media (max-width:900px){.schpanel{grid-template-columns:1fr}}
 /* chain explorer */
 .chainx{margin:12px 0}
 .flow{display:flex;flex-wrap:wrap;gap:6px;align-items:center;background:var(--surface-2);border:1px solid var(--line);border-radius:10px;padding:12px}
@@ -1015,7 +1039,11 @@ body:`
 {id:'rxc',n:'',lvl:'שרשראות',title:'שרשרת קליטה לעומק',tag:'Limiter · Preselector · LNA · Mixer · IF · AGC · ADC',
 lead:'מהאנטנה ועד הביט. כל בלוק בשרשרת קיים כדי לפתור בעיה מסוימת, וכל אחד מהם גם יוצר בעיה חדשה. מהנדס מערכת יודע להסביר למה כל בלוק נמצא במקום שלו, ומה יקרה אם יזיזו אותו.',
 body:`
-<section><h3>הבלוקים: לחץ על כל אחד</h3>
+<section><h3>סכמת בלוקים: שלב אחרי שלב</h3>
+<p>עקוב אחרי האות מהאנטנה ועד הביטים. לחץ על רכיב בסכמה, או השתמש ב"הבא" וב"הפעל". בכל שלב רואים מה הרכיב עושה, את רמת האות, ואת הספקטרום ביציאה שלו: האות, הרעש, החוסמים והדמות, ברמות אמיתיות.</p>
+<div class="schem" data-chain="rx"></div>
+</section>
+<section><h3>כרטיס לכל רכיב: מפרטים, תקלות ומדידות</h3>
 <div class="chainx" data-chain="rx"></div>
 </section>
 <section><h3>שני האויבים וחלון התחום הדינמי</h3>
@@ -1094,7 +1122,11 @@ NF_ADC = 4 − 70 − 80 + 174 = 28 dB</span>
 {id:'txc',n:'',lvl:'שרשראות',title:'שרשרת שידור לעומק',tag:'DAC · IQ mod · Driver · PA · Coupler · Isolator · Harmonic filter',
 lead:'המשדר צריך להוציא הספק מדויק, נקי ספקטרלית ובאיכות אפנון טובה, ובאותו זמן לא לשרוף את הסוללה או את עצמו. כמעט כל החלטה בו היא trade-off בין לינאריות ליעילות.',
 body:`
-<section><h3>הבלוקים: לחץ על כל אחד</h3>
+<section><h3>סכמת בלוקים: שלב אחרי שלב</h3>
+<p>עקוב אחרי האות מהמספרים ב־DSP ועד האוויר. בכל שלב רואים מה נוסף לאות (תמונות, דליפת LO, דמות IQ, כתפיים, הרמוניות) ומה מסנן אותו.</p>
+<div class="schem" data-chain="tx"></div>
+</section>
+<section><h3>כרטיס לכל רכיב: מפרטים, תקלות ומדידות</h3>
 <div class="chainx" data-chain="tx"></div>
 </section>
 <section><h3>תכנון הספק: מתחילים מהאנטנה ואחורה</h3>
@@ -1690,9 +1722,85 @@ function renderCh(id,scroll){
    '<div class="mid"><button class="btn '+(done.has(id)?'good':'pri')+'" id="markDone">'+I('check')+(done.has(id)?'סומן כנלמד':'סמן כנלמד')+'</button></div>'+
    (next?'<button class="navcard next" data-go="'+next.id+'"><small>הפרק הבא'+I('left','sm')+'</small><b>'+next.title+'</b></button>':'<span></span>')+'</div>';
   renderRail();
-  chBody.querySelectorAll('.chainx').forEach(hydrateChain);
+  chBody.querySelectorAll('.chainx').forEach(hydrateChain);chBody.querySelectorAll('.schem').forEach(hydrateSchem);
   if(scroll) window.scrollTo({top:0,behavior:'smooth'});
 }
+
+/* ================= STEP-BY-STEP SCHEMATIC ================= */
+const RFAX=[[10,'1.9GHz'],[45,'2.30GHz'],[75,'2.44GHz'],[95,'2.6GHz']],IFAX=[[15,'40MHz'],[50,'70MHz'],[85,'100MHz']];
+const SCHEM={
+rx:{yr:[-125,15],note:'דוגמה: אות רצוי חלש של ‏−95dBm ב־2.44GHz, ערוץ סמוך חזק (‏−60dBm), משדר סלולרי חזק מחוץ לפס (‏−20dBm ב־1.9GHz), ואות בתדר הדמות (‏−55dBm). הרעש מוצג ברוחב 1MHz.',st:[
+ {s:'ant',l:'Antenna',lv:-95,t:'אנטנה',w:'האנטנה קולטת הכל: את האות הרצוי, ערוצים סמוכים, משדרים בפסים אחרים ואותות בתדר הדמות. היא לא מסננת כמעט כלום.',n:'כל הספקטרום, כמו שהוא באוויר. האות הרצוי חלש פי מיליון מהמשדר הסלולרי.',sp:{ax:RFAX,nz:-114,it:[['blk',10,-20,'משדר סלולרי'],['img',45,-55,4,'אות בתדר הדמות'],['sig',75,-95,3,'אות רצוי','e'],['blk',81,-60,'ערוץ סמוך','s']]}},
+ {s:'lim',l:'Limiter',lv:-95.5,t:'Limiter / מתג T/R',w:'מגן על ה־LNA מהספק חזק מאוד (משדר קרוב, או המשדר של המכשיר עצמו). ברמות רגילות הוא שקוף, ומפסיד ‏0.5dB.',n:'אותו ספקטרום, נמוך ב־0.5dB. שים לב: רצפת הרעש לא יורדת (היא תמיד kTB), ולכן ה־SNR נפגע ב־0.5dB. זה ה־NF של רכיב פסיבי.',sp:{ax:RFAX,nz:-114,it:[['blk',10,-20.5,'משדר סלולרי'],['img',45,-55.5,4,'דמות'],['sig',75,-95.5,3,'אות רצוי','e'],['blk',81,-60.5,'ערוץ סמוך','s']]}},
+ {s:'bpf',l:'Preselector',lv:-97,t:'Preselector (פילטר פס)',w:'מעביר רק את פס העבודה (2.4–2.48GHz). המשדר הסלולרי מונחת ב־40dB, ואות הדמות ב־15dB. מחיר: 1.5dB הפסד, שמוסיף ל־NF.',n:'הפס שלנו כמעט כמו שהוא. האותות הרחוקים נחלשו, אבל עדיין קיימים. הערוץ הסמוך נמצא בתוך הפס ועובר בלי הנחתה.',sp:{ax:RFAX,nz:-114,f:[62,90],it:[['blk',10,-61.5,'סלולרי (מונחת)'],['img',45,-72,4,'דמות'],['sig',75,-97,3,'אות רצוי','e'],['blk',81,-62,'ערוץ סמוך','s']]}},
+ {s:'amp',l:'LNA',lv:-79,t:'LNA: מגבר רעש נמוך',w:'מגביר ב־18dB ומוסיף מעט רעש (NF של 1.2dB). מכאן והלאה, הרעש של השלבים הבאים "מתחלק" בהגבר הזה (נוסחת פריז).',n:'הכל עלה ב־18dB, גם האות וגם הרעש. ה־SNR כמעט לא השתנה, וזה כל הרעיון. עכשיו האות חזק מספיק כדי שהפסדים בהמשך לא יפגעו בו.',sp:{ax:RFAX,nz:-95,it:[['blk',10,-43.5,'סלולרי'],['img',45,-54,4,'דמות'],['sig',75,-79,3,'אות רצוי','e'],['blk',81,-44,'ערוץ סמוך','s']]}},
+ {s:'bpf',l:'Image BPF',lv:-81,t:'פילטר דמות',w:'מסנן את תדר הדמות (2.30GHz) לפני המיקסר, כי אחרי המיקסר הוא יפול בדיוק על האות שלנו. גם מנקה את רעש ה־LNA בתדר הדמות.',n:'האות בתדר הדמות כמעט נעלם (‏−86dBm). האות הרצוי והערוץ הסמוך עוברים.',sp:{ax:RFAX,nz:-97,f:[64,88],it:[['blk',10,-65,'סלולרי'],['img',45,-86,4,'דמות (מונחת)'],['sig',75,-81,3,'אות רצוי','e'],['blk',81,-46,'ערוץ סמוך','s']]}},
+ {s:'mix',l:'Mixer',lv:-88,t:'מיקסר + LO',w:'מכפיל את האות ב־LO של 2.37GHz. התוצאה: האות עובר לתדר ביניים (IF) של 70MHz. גם הערוץ הסמוך זז איתו. מה שנשאר מהדמות נופל בדיוק על האות הרצוי. הפסד המרה: 7dB.',n:'עכשיו הכל ב־IF. הערוץ הסמוך עדיין חזק מאוד ביחס לאות, כי עוד לא היה פילטר צר. האותות הרחוקים יצאו מהתחום. מופיעים גם תוצרי מיקסר קטנים.',sp:{ax:IFAX,nz:-103,it:[['img',50,-93,4,'שארית דמות','s'],['sig',50,-88,4,'אות רצוי ב־IF','e'],['blk',66,-53,'ערוץ סמוך','s'],['lo',88,-100,'תוצר m×n']]}},
+ {s:'bpf',l:'IF SAW',lv:-91,t:'פילטר ערוץ (IF)',w:'פילטר צר וחד (SAW) ברוחב הערוץ בלבד. כאן מתבצעת הסלקטיביות האמיתית: הערוץ הסמוך מונחת ב־40dB ויותר.',n:'נשאר כמעט רק האות שלנו. מכאן והלאה אין חוסמים, ואפשר להגביר הרבה בלי חשש מדחיסה.',sp:{ax:IFAX,nz:-106,f:[42,56],it:[['sig',50,-91,4,'אות רצוי','e'],['blk',66,-96,'סמוך (מונחת)','s']]}},
+ {s:'vga',l:'IF Amp/VGA',lv:-56,t:'מגבר IF ו־VGA (AGC)',w:'מגביר ב־35dB כדי להביא את האות לרמה טובה עבור ה־ADC. ה־AGC משנה את ההגבר כאן לפי עוצמת האות, כדי שה־ADC לא יירווה באות חזק ולא "יאבד" אות חלש.',n:'האות ב־‏−56dBm, והרעש של השרשרת (‏−71dBm) גבוה בהרבה מרצפת הרעש של ה־ADC. כך ה־ADC לא פוגע ב־NF.',sp:{ax:IFAX,nz:-71,fs:4,adcn:-86,it:[['sig',50,-56,4,'אות רצוי','e']]}},
+ {s:'adc',l:'ADC',lv:-56,t:'ADC',w:'דוגם וממיר למספרים. יש לו "תקרה" (full scale של ‏+4dBm) ו"רצפה" (רעש קוונטיזציה, שוות ערך ל־NF של כ־28dB). ההגבר שלפניו נבחר כך שהאות יהיה באמצע, עם headroom ל־PAPR ולאותות חזקים.',n:'אות דיגיטלי. בין האות לתקרה יש 60dB של headroom, ורעש השרשרת נמצא 15dB מעל רעש ה־ADC.',sp:{ax:[[10,'0'],[50,'f_IF'],[90,'fs/2']],nz:-71,fs:4,adcn:-86,it:[['sig',50,-56,4,'אות דגום','e']]}},
+ {s:'dsp',l:'DDC / DSP',lv:-56,t:'DDC ו־DSP',w:'הזזה דיגיטלית לפס בסיס (0Hz), פילטר ערוץ דיגיטלי חד, ‏AGC דיגיטלי, סנכרון זמן ותדר, equalizer, ואז המפענח (FEC) שמוציא ביטים.',n:'סימבולים I/Q, שהם הקונסטלציה שאתה רואה בסימולטור, ואחרי המפענח ביטים. ה־SNR כאן (15dB בדוגמה) קובע את ה־BER.',sp:{ax:[[15,'−fs/4'],[50,'0Hz'],[85,'+fs/4']],nz:-71,it:[['sig',50,-56,5,'אות בפס בסיס','e']]}}]},
+tx:{yr:[-100,50],note:'דוגמה: אות OFDM ברוחב 10MHz, ‏−5dBm ביציאת ה־DAC, ועד כ־36dBm באנטנה. הרעש מוצג ברוחב 1MHz.',st:[
+ {s:'dsp',l:'DSP/CFR/DPD',lv:null,t:'DSP: אפנון, CFR ו־DPD',w:'יוצר את אות פס הבסיס (I/Q). ה־CFR גוזם שיאים ומוריד את ה־PAPR מ־~11dB ל־7.5dB. ה־DPD מעוות מראש את האות בכיוון ההפוך לעיוות של ה־PA.',n:'זרם מספרים I/Q. האות "נקי", וכבר מכיל את התיקון ל־PA.',sp:{ax:[[15,'−fs/4'],[50,'0Hz'],[85,'+fs/4']],nz:-98,it:[['sig',50,-5,5,'אות בפס בסיס (דיגיטלי)','e']]}},
+ {s:'dac',l:'DAC',lv:-5,t:'DAC',w:'ממיר את המספרים למתח. לצד האות נוצרות תמונות (images) ב־fs−f, מוחלשות בצורת sinc, ויש רצפת רעש של ה־DAC (‏−150dBm/Hz, כלומר ‏−90dBm ב־1MHz).',n:'האות האנלוגי, ואיתו תמונה לא רצויה ורצפת רעש.',sp:{ax:[[10,'0'],[25,'f_out'],[60,'fs/2'],[88,'fs−f']],nz:-90,it:[['sig',25,-5,4,'אות','e'],['img',88,-22,4,'תמונת DAC']]}},
+ {s:'lpf',l:'Recon LPF',lv:-6,t:'פילטר שחזור',w:'מעביר נמוך שמסנן את תמונות ה־DAC ואת הרעש שמעל fs/2.',n:'אות נקי בפס בסיס.',sp:{ax:[[10,'0'],[25,'f_out'],[60,'fs/2'],[88,'fs−f']],nz:-91,f:[0,45],it:[['sig',25,-6,4,'אות','e'],['img',88,-80,4,'תמונה (מונחתת)']]}},
+ {s:'iqm',l:'IQ Mod',lv:-6,t:'מודולטור IQ + LO',w:'מכפיל את I ב־cos ואת Q ב־sin של ה־LO, ומעלה את האות ל־RF. ליקויים: דליפת LO (קו בתדר ה־LO) ודמות IQ (העתק הפוך בצד השני), אחרי כיול ב־‏−40dBc. מופיע גם ספור מהרמוניה של ה־LO.',n:'האות ב־RF, ואיתו דליפת LO, דמות IQ וספור רחוק.',sp:{ax:[[30,'f_LO−5M'],[50,'f_LO'],[70,'f_LO+5M'],[95,'רחוק']],nz:-91,it:[['img',30,-46,4,'דמות IQ'],['lo',50,-46,'דליפת LO'],['sig',70,-6,4,'אות RF','s'],['lo',95,-50,'ספור']]}},
+ {s:'vga',l:'VGA',lv:6,t:'VGA / מנחת',w:'שליטה בהספק היציאה. כאן הוא מגביר ב־12dB. בהספק נמוך מורידים הגבר כאן, אבל הרעש של השלבים הבאים נשאר, ולכן ה־SNR יורד.',n:'אותו ספקטרום, חזק ב־12dB.',sp:{ax:[[30,'f_LO−5M'],[50,'f_LO'],[70,'f_LO+5M'],[95,'רחוק']],nz:-79,it:[['img',30,-34,4,'דמות IQ'],['lo',50,-34,'LO'],['sig',70,6,4,'אות','s'],['lo',95,-38,'ספור']]}},
+ {s:'bpf',l:'BPF',lv:4,t:'פילטר פס',w:'מנקה ספורים ורעש רחב סרט לפני ההגברה הגדולה. מה שלא מסננים כאן יוגבר ב־34dB נוספים.',n:'הספור הרחוק נעלם. דמות ה־IQ ודליפת ה־LO קרובות מדי לאות ונשארות.',sp:{ax:[[30,'f_LO−5M'],[50,'f_LO'],[70,'f_LO+5M'],[95,'רחוק']],nz:-81,f:[20,80],it:[['img',30,-36,4,'דמות IQ'],['lo',50,-36,'LO'],['sig',70,4,4,'אות','s'],['lo',95,-88,'ספור (מונחת)']]}},
+ {s:'amp',l:'Driver',lv:20,t:'Driver',w:'מגביר ב־16dB עד 20dBm. חייב להיות לינארי מאוד (OP1dB גבוה ב־~10dB מה־peak), כדי שרק ה־PA יעוות.',n:'האות ב־20dBm, עדיין לינארי.',sp:{ax:[[30,'f_LO−5M'],[50,'f_LO'],[70,'f_LO+5M'],[95,'2f']],nz:-64,it:[['img',30,-20,4,'דמות IQ'],['lo',50,-20,'LO'],['sig',70,20,4,'אות','s']]}},
+ {s:'pa',l:'PA',lv:38,t:'PA: מגבר הספק',w:'מגביר ב־18dB עד 38dBm. הוא עובד קרוב לדחיסה, ולכן נוצרות "כתפיים" סביב האות (spectral regrowth, ‏ACLR של ‏−45dBc אחרי DPD) והרמוניה שנייה ב־2f.',n:'אות חזק עם כתפיים לערוצים הסמוכים והרמוניות. כאן נוצר רוב החום.',sp:{ax:[[30,'f_LO−5M'],[50,'f_LO'],[70,'f_LO+5M'],[95,'2f']],nz:-46,it:[['sh',70,-7,4],['img',30,-2,4,'דמות IQ'],['lo',50,-2,'LO'],['sig',70,38,4,'אות','s'],['lo',95,-2,'הרמוניה 2f']]}},
+ {s:'cpl',l:'Coupler',lv:37.7,t:'Coupler וגלאי',w:'דוגם כ־‏−20dB מההספק הקדמי והמוחזר. הדגימה הולכת לגלאי (בקרת הספק), להגנת VSWR, ולמקלט המשוב של ה־DPD.',n:'כמעט אותו אות (הפסד 0.3dB), ודגימה שחוזרת למעבד.',sp:{ax:[[30,'f_LO−5M'],[50,'f_LO'],[70,'f_LO+5M'],[95,'2f']],nz:-46,it:[['sh',70,-7.3,4],['img',30,-2.3,4,'דמות IQ'],['lo',50,-2.3,'LO'],['sig',70,37.7,4,'אות','s'],['lo',95,-2.3,'2f']]}},
+ {s:'iso',l:'Isolator',lv:37.3,t:'Isolator',w:'מעביר קדימה ומפנה הספק מוחזר (מאנטנה לא מותאמת) לעומס, כדי להגן על ה־PA ולייצב אותו.',n:'אותו אות, הפסד 0.4dB.',sp:{ax:[[30,'f_LO−5M'],[50,'f_LO'],[70,'f_LO+5M'],[95,'2f']],nz:-46,it:[['sh',70,-7.7,4],['img',30,-2.7,4,'דמות IQ'],['lo',50,-2.7,'LO'],['sig',70,37.3,4,'אות','s'],['lo',95,-2.7,'2f']]}},
+ {s:'lpf',l:'Harmonic LPF',lv:36.6,t:'פילטר הרמוניות',w:'מעביר נמוך שמנחית את 2f ו־3f ב־50dB ויותר. הוא לא יכול לעזור לכתפיים ולדמות, כי הן קרובות מדי לאות.',n:'ההרמוניה ירדה לרמה שעומדת בתקן. הכתפיים נשארות, והן האחריות של ה־DPD וה־backoff.',sp:{ax:[[30,'f_LO−5M'],[50,'f_LO'],[70,'f_LO+5M'],[95,'2f']],nz:-47,f:[0,85],it:[['sh',70,-8.4,4],['img',30,-3.4,4,'דמות IQ'],['lo',50,-3.4,'LO'],['sig',70,36.6,4,'אות','s'],['lo',95,-53,'2f (מונחת)']]}},
+ {s:'ant',l:'Switch + Ant',lv:36.1,t:'מתג / דופלקסר ואנטנה',w:'מתג T/R (או דופלקסר ב־FDD) מחבר לאנטנה. ‏EIRP = הספק + הגבר אנטנה. רעש המשדר בפס הקליטה (כאן ‏−47dBm ב־1MHz) הוא מה שעושה desense למקלטים שכנים.',n:'36dBm (כ־4W) באוויר. ועוד הגבר האנטנה, זה ה־EIRP.',sp:{ax:[[30,'f_LO−5M'],[50,'f_LO'],[70,'f_LO+5M'],[95,'2f']],nz:-47.5,it:[['sh',70,-8.9,4],['img',30,-3.9,4,'דמות IQ'],['lo',50,-3.9,'LO'],['sig',70,36.1,4,'אות באוויר','s'],['lo',95,-53.5,'2f']]}}]}
+};
+function symSVG(t,x,y){const k='stroke="currentColor" fill="none" stroke-width="2" stroke-linejoin="round" stroke-linecap="round"';
+  const box=(lbl)=>'<rect x="'+(x-22)+'" y="'+(y-18)+'" width="44" height="36" rx="5" '+k+'/>'+(lbl?'<text x="'+x+'" y="'+(y+4)+'" text-anchor="middle" font-size="10" font-weight="700" fill="currentColor" font-family="JetBrains Mono,monospace">'+lbl+'</text>':'');
+  const wave=(yy,cross)=>'<path d="M'+(x-13)+' '+yy+' q4 -6 8 0 t8 0 t8 0" '+k+' stroke-width="1.6"/>'+(cross?'<path d="M'+(x-5)+' '+(yy+4)+' l10 -8" '+k+' stroke-width="1.6"/>':'');
+  switch(t){
+  case 'ant':return '<path d="M'+x+' '+(y+18)+' V'+(y-8)+' M'+(x-12)+' '+(y-20)+' L'+x+' '+(y-6)+' L'+(x+12)+' '+(y-20)+'" '+k+'/>';
+  case 'lim':return box()+'<path d="M'+(x-8)+' '+(y-8)+' l8 8 l8 -8 M'+(x-8)+' '+y+' h16 M'+(x-8)+' '+(y+10)+' l8 -8 l8 8" '+k+' stroke-width="1.5"/>';
+  case 'bpf':return box()+wave(y-8,1)+wave(y,0)+wave(y+8,1);
+  case 'lpf':return box()+wave(y-5,0)+wave(y+5,1);
+  case 'amp':return '<path d="M'+(x-18)+' '+(y-20)+' L'+(x+20)+' '+y+' L'+(x-18)+' '+(y+20)+' Z" '+k+'/>';
+  case 'pa':return '<path d="M'+(x-20)+' '+(y-23)+' L'+(x+22)+' '+y+' L'+(x-20)+' '+(y+23)+' Z" '+k+' stroke-width="2.6"/><text x="'+(x-6)+'" y="'+(y+4)+'" font-size="9" font-weight="700" fill="currentColor" text-anchor="middle" font-family="JetBrains Mono,monospace">PA</text>';
+  case 'vga':return '<path d="M'+(x-18)+' '+(y-20)+' L'+(x+20)+' '+y+' L'+(x-18)+' '+(y+20)+' Z" '+k+'/><path d="M'+(x-16)+' '+(y+20)+' L'+(x+10)+' '+(y-22)+' m-6 1 l6 -1 l0 6" '+k+' stroke-width="1.6"/>';
+  case 'mix':case 'iqm':return '<circle cx="'+x+'" cy="'+y+'" r="17" '+k+'/><path d="M'+(x-12)+' '+(y-12)+' L'+(x+12)+' '+(y+12)+' M'+(x+12)+' '+(y-12)+' L'+(x-12)+' '+(y+12)+'" '+k+' stroke-width="1.6"/><path d="M'+x+' '+(y+17)+' V'+(y+34)+'" '+k+'/><circle cx="'+x+'" cy="'+(y+46)+'" r="12" '+k+'/><path d="M'+(x-7)+' '+(y+46)+' q3.5 -6 7 0 t7 0" '+k+' stroke-width="1.6"/><text x="'+(x+16)+'" y="'+(y+50)+'" font-size="10" fill="currentColor" font-family="JetBrains Mono,monospace">LO</text>'+(t==='iqm'?'<text x="'+x+'" y="'+(y-22)+'" font-size="9" text-anchor="middle" fill="currentColor" font-family="JetBrains Mono,monospace">I/Q</text>':'');
+  case 'adc':return '<path d="M'+(x-22)+' '+(y-18)+' H'+(x+12)+' L'+(x+24)+' '+y+' L'+(x+12)+' '+(y+18)+' H'+(x-22)+' Z" '+k+'/><text x="'+(x-3)+'" y="'+(y+4)+'" text-anchor="middle" font-size="10" font-weight="700" fill="currentColor" font-family="JetBrains Mono,monospace">ADC</text>';
+  case 'dac':return '<path d="M'+(x+22)+' '+(y-18)+' H'+(x-12)+' L'+(x-24)+' '+y+' L'+(x-12)+' '+(y+18)+' H'+(x+22)+' Z" '+k+'/><text x="'+(x+3)+'" y="'+(y+4)+'" text-anchor="middle" font-size="10" font-weight="700" fill="currentColor" font-family="JetBrains Mono,monospace">DAC</text>';
+  case 'dsp':return box('DSP');
+  case 'cpl':return '<path d="M'+(x-22)+' '+y+' H'+(x+22)+' M'+(x-12)+' '+(y+9)+' H'+(x+12)+' M'+(x+6)+' '+(y+9)+' V'+(y+24)+' m-4 -5 l4 5 l4 -5" '+k+'/><text x="'+x+'" y="'+(y-8)+'" text-anchor="middle" font-size="9" fill="currentColor" font-family="JetBrains Mono,monospace">CPL</text>';
+  case 'iso':return '<circle cx="'+x+'" cy="'+y+'" r="17" '+k+'/><path d="M'+(x-9)+' '+(y+5)+' a10 10 0 1 1 18 0 m0 0 l-1 -7 m1 7 l-7 -2" '+k+' stroke-width="1.6"/>';
+  }return box(t)}
+function specSVG(sp,yr){const l=48,r=628,t=22,b=196,X=x=>l+x/100*(r-l),Y=v=>t+(yr[1]-Math.max(yr[0],Math.min(yr[1],v)))/(yr[1]-yr[0])*(b-t);let s='';
+  if(sp.f)s+='<rect x="'+X(sp.f[0])+'" y="'+t+'" width="'+(X(sp.f[1])-X(sp.f[0]))+'" height="'+(b-t)+'" fill="var(--accent-soft)"/><text x="'+((X(sp.f[0])+X(sp.f[1]))/2)+'" y="'+(t+12)+'" text-anchor="middle" font-size="11" fill="var(--accent)" font-family="Heebo,sans-serif">פס הפילטר</text>';
+  for(let v=Math.ceil(yr[0]/20)*20;v<=yr[1];v+=20)s+='<line x1="'+l+'" x2="'+r+'" y1="'+Y(v)+'" y2="'+Y(v)+'" stroke="var(--line)"/><text x="'+(l-6)+'" y="'+(Y(v)+4)+'" text-anchor="end" font-size="10" fill="var(--muted)" font-family="JetBrains Mono,monospace">'+v+'</text>';
+  let d='M'+l+','+b;for(let i=0;i<=100;i+=1){const j=Math.sin(i*12.9898)*43758.5453;d+=' L'+X(i).toFixed(1)+','+Y(sp.nz+((j-Math.floor(j))-0.5)*3).toFixed(1)}d+=' L'+r+','+b+'Z';
+  s+='<path d="'+d+'" fill="var(--surface-3)" stroke="var(--muted)" stroke-width="1"/><text x="'+(r-4)+'" y="'+(Y(sp.nz)-5)+'" text-anchor="end" font-size="10" fill="var(--muted)" font-family="Heebo,sans-serif">רצפת רעש '+sp.nz+'</text>';
+  if(sp.adcn!=null)s+='<line x1="'+l+'" x2="'+r+'" y1="'+Y(sp.adcn)+'" y2="'+Y(sp.adcn)+'" stroke="var(--s5)" stroke-dasharray="4 4"/><text x="'+(l+4)+'" y="'+(Y(sp.adcn)+13)+'" font-size="10" fill="var(--ink-2)" font-family="Heebo,sans-serif">רצפת רעש ADC '+sp.adcn+'</text>';
+  if(sp.fs!=null)s+='<line x1="'+l+'" x2="'+r+'" y1="'+Y(sp.fs)+'" y2="'+Y(sp.fs)+'" stroke="var(--bad)" stroke-dasharray="6 4"/><text x="'+(l+4)+'" y="'+(Y(sp.fs)-5)+'" font-size="10" fill="var(--bad)" font-family="Heebo,sans-serif">Full scale של ה־ADC ‏+'+sp.fs+'dBm</text>';
+  const lab=(x,y,txt,a)=>{const xx=X(x)+(a==='e'?-8:a==='s'?8:0),yy=Math.max(Y(y),t+24);return '<text x="'+xx+'" y="'+(yy-19)+'" direction="rtl" text-anchor="'+(a==='e'?'start':a==='s'?'end':'middle')+'" font-size="11" font-weight="500" fill="var(--ink)" font-family="Heebo,sans-serif">'+txt+'</text><text x="'+xx+'" y="'+(yy-6)+'" text-anchor="'+(a==='e'?'end':a==='s'?'start':'middle')+'" font-size="10" fill="var(--muted)" font-family="JetBrains Mono,monospace">'+(y>0?'+':'')+y+' dBm</text>'};
+  sp.it.forEach(it=>{const [k,x,y]=it;
+    if(k==='sh'){const w=it[3]*3;s+='<path d="M'+X(x-w)+','+b+' Q'+X(x-w*0.6)+','+Y(y)+' '+X(x)+','+Y(y)+' Q'+X(x+w*0.6)+','+Y(y)+' '+X(x+w)+','+b+'Z" fill="var(--s2)" fill-opacity=".18" stroke="var(--s2)" stroke-dasharray="3 3"/><text x="'+X(x+w*0.75)+'" y="'+(Y(y)+14)+'" font-size="10" fill="var(--ink-2)" font-family="Heebo,sans-serif">כתפיים (ACLR)</text>'}
+    else if(k==='sig'||k==='img'){const w=it[3],c=k==='sig'?'--s1':'--s5';s+='<path d="M'+X(x-w*1.4)+','+b+' C'+X(x-w*1.1)+','+b+' '+X(x-w*1.1)+','+Y(y)+' '+X(x-w*0.8)+','+Y(y)+' L'+X(x+w*0.8)+','+Y(y)+' C'+X(x+w*1.1)+','+Y(y)+' '+X(x+w*1.1)+','+b+' '+X(x+w*1.4)+','+b+'Z" fill="var('+c+')" fill-opacity="'+(k==='sig'?.3:.15)+'" stroke="var('+c+')" stroke-width="2"'+(k==='img'?' stroke-dasharray="5 3"':'')+'/>'+lab(x,y,it[4],it[5])}
+    else{const c=k==='blk'?'--s2':'--s4';s+='<line x1="'+X(x)+'" x2="'+X(x)+'" y1="'+b+'" y2="'+Y(y)+'" stroke="var('+c+')" stroke-width="3" stroke-linecap="round"/><circle cx="'+X(x)+'" cy="'+Y(y)+'" r="3.5" fill="var('+c+')"/>'+lab(x,y,it[3],it[4])}});
+  sp.ax.forEach(([x,tx])=>{s+='<line x1="'+X(x)+'" x2="'+X(x)+'" y1="'+b+'" y2="'+(b+5)+'" stroke="var(--muted)"/><text x="'+X(x)+'" y="'+(b+18)+'" text-anchor="middle" font-size="10.5" fill="var(--muted)" font-family="JetBrains Mono,monospace">'+tx+'</text>'});
+  s+='<line x1="'+l+'" x2="'+r+'" y1="'+b+'" y2="'+b+'" stroke="var(--muted)"/><text x="12" y="'+((t+b)/2)+'" font-size="10" fill="var(--muted)" transform="rotate(-90 12 '+((t+b)/2)+')" text-anchor="middle">dBm</text>';
+  return s}
+function hydrateSchem(el){const C=SCHEM[el.dataset.chain];if(!C)return;const N=C.st.length,dx=86,W=60+N*dx,y0=62;let cur=0,timer=null;
+  let d='';C.st.forEach((st,i)=>{const x=52+i*dx;if(i)d+='<path d="M'+(x-dx+26)+' '+y0+' H'+(x-26)+'" stroke="var(--muted)" stroke-width="1.6" marker-end="url(#ah-'+el.dataset.chain+')"/>';
+    d+='<g class="sb" data-i="'+i+'" tabindex="0" role="button" aria-label="'+st.t+'"><rect x="'+(x-38)+'" y="'+(y0-36)+'" width="76" height="'+(st.s==='mix'||st.s==='iqm'?132:118)+'" rx="8" class="sbg"/><g class="sym">'+symSVG(st.s,x,y0)+'</g><text x="'+x+'" y="'+(y0+(st.s==='mix'||st.s==='iqm'?78:44))+'" text-anchor="middle" font-size="10.5" font-weight="600" class="sl" font-family="JetBrains Mono,monospace">'+st.l+'</text>'+(st.lv!=null?'<text x="'+x+'" y="'+(y0+(st.s==='mix'||st.s==='iqm'?92:58))+'" text-anchor="middle" font-size="10" class="sv" font-family="JetBrains Mono,monospace">'+(st.lv>0?'+':'')+st.lv+'</text>':'')+'</g>'});
+  el.innerHTML='<p class="schnote">'+C.note+'</p><div class="schbox"><svg class="sch-svg" viewBox="0 0 '+W+' 160" style="min-width:'+Math.round(W*0.78)+'px"><defs><marker id="ah-'+el.dataset.chain+'" viewBox="0 0 10 10" refX="9" refY="5" markerWidth="7" markerHeight="7" orient="auto"><path d="M0,0 L10,5 L0,10 z" fill="var(--muted)"/></marker></defs>'+d+'</svg></div>'+
+   '<div class="schctl"><button class="btn sm" data-a="prev">'+I('right','sm')+'הקודם</button><span class="schpos"></span><button class="btn sm" data-a="play">'+I('play','sm')+'<span>הפעל</span></button><button class="btn sm pri" data-a="next">הבא'+I('left','sm')+'</button></div><div class="schpanel"></div>';
+  const go=i=>{cur=(i+N)%N;const st=C.st[cur];el.querySelectorAll('.sb').forEach((g,j)=>g.classList.toggle('on',j===cur));el.querySelector('.schpos').textContent='שלב '+(cur+1)+' מתוך '+N;
+    const sb=el.querySelectorAll('.sb')[cur],box=el.querySelector('.schbox');const bx=sb.getBBox?sb.getBBox():null;if(bx&&box.scrollWidth>box.clientWidth){const sc=box.scrollWidth/W;box.scrollTo({left:bx.x*sc-box.clientWidth/2+40,behavior:'smooth'})}
+    const prev=cur>0?C.st[cur-1].lv:null;const gain=(prev!=null&&st.lv!=null)?st.lv-prev:null;
+    el.querySelector('.schpanel').innerHTML='<div class="schtxt"><div class="chtop"><span class="badge acc">'+(cur+1)+' / '+N+'</span>'+(st.lv!=null?'<span class="badge">אות: '+(st.lv>0?'+':'')+st.lv+' dBm</span>':'')+(gain!=null?'<span class="badge">'+(gain>=0?'הגבר +':'הפסד ')+Math.abs(gain).toFixed(1)+' dB</span>':'')+'</div><h4>'+st.t+'</h4><dl><dt>מה הרכיב עושה</dt><dd>'+st.w+'</dd><dt>מה עובר הלאה</dt><dd>'+st.n+'</dd></dl></div><div class="schspec"><div class="sst">ספקטרום ביציאת השלב</div><svg viewBox="0 0 640 220" class="spec-svg" role="img" aria-label="ספקטרום">'+specSVG(st.sp,C.yr)+'</svg><div class="legend"><span><i style="background:var(--s1)"></i>אות רצוי</span><span><i style="background:var(--s2)"></i>חוסמים / כתפיים</span><span><i style="background:var(--s5)"></i>דמות</span><span><i style="background:var(--s4)"></i>LO / ספורים / הרמוניות</span><span><i style="background:var(--muted)"></i>רעש</span></div></div>'};
+  const stop=()=>{if(timer){clearInterval(timer);timer=null;const b=el.querySelector('[data-a=play]');b.innerHTML=I('play','sm')+'<span>הפעל</span>'}};
+  el.addEventListener('click',e=>{const g=e.target.closest('.sb');if(g){stop();go(+g.dataset.i);return}const b=e.target.closest('[data-a]');if(!b)return;
+    if(b.dataset.a==='next'){stop();go(cur+1)}else if(b.dataset.a==='prev'){stop();go(cur-1)}else{if(timer)stop();else{timer=setInterval(()=>{if(!el.isConnected){clearInterval(timer);return}go(cur+1)},4500);b.innerHTML=I('x','sm')+'<span>עצור</span>'}}});
+  el.addEventListener('keydown',e=>{const g=e.target.closest('.sb');if(g&&(e.key==='Enter'||e.key===' ')){e.preventDefault();stop();go(+g.dataset.i)}});
+  go(0)}
 
 /* ================= CHAIN EXPLORER ================= */
 const CHAINS={
